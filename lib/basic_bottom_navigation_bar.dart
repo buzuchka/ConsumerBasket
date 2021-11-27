@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/screens/goods.dart';
+
 class BasicBottomNavigationBar extends StatefulWidget {
   const BasicBottomNavigationBar({Key? key}) : super(key: key);
 
@@ -19,10 +21,7 @@ class _BasicBottomNavigationBarState extends State<BasicBottomNavigationBar> {
       Icons.credit_card,
       size: 150,
     ),
-    Icon(
-      Icons.devices_other,
-      size: 150,
-    ),
+    GoodsScreen(),
     Icon(
       Icons.data_usage,
       size: 150,
