@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -16,6 +17,8 @@ class GoodsScreen extends StatefulWidget {
 
 class _GoodsScreenState extends State<GoodsScreen> {
   List<GoodsItem> _goodsItemList = [];
+
+  final TextEditingController _titleTextController = TextEditingController();
 
   Widget _buildGoodItem(BuildContext context, int index) {
     return Card(
@@ -50,28 +53,54 @@ class _GoodsScreenState extends State<GoodsScreen> {
 
   void _openAddGoodsItemDialog(BuildContext context) {
     GoodsItem _goodsItem = GoodsItem();
+
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Add GoodsItem"),
-            actions: <Widget>[
-              ElevatedButton(
-                  child: Text('Cancel'),
-                  onPressed: () => Navigator.of(context).pop()
+          return Dialog(
+            child: Container(
+              padding: const EdgeInsets.all(30),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Add GoodsItem',
+                    style: TextStyle(fontSize: 20),
+                    textAlign: TextAlign.left,
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    autofocus: true,
+                    controller: _titleTextController,
+                    decoration: const InputDecoration(labelText: 'Item Name'),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                          child: const Text('Cancel'),
+                          onPressed: () {
+                            _titleTextController.clear();
+                            Navigator.of(context).pop();
+                          }
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                          child: const Text('Add'),
+                          onPressed: () {
+                            _goodsItem.title = _titleTextController.text;
+                            _titleTextController.clear();
+                            _addGoodsItem2Database(_goodsItem);
+                            Navigator.of(context).pop();
+                          }
+                      )
+                    ],
+                  ),
+                ],
               ),
-              ElevatedButton(
-                  child: Text('Add'),
-                  onPressed: () {
-                    _addGoodsItem2Database(_goodsItem);
-                    Navigator.of(context).pop();
-                  }
-              )
-            ],
-            content: TextField(
-              autofocus: true,
-              decoration: InputDecoration(labelText: 'Item Name'),
-              onChanged: (value) { _goodsItem.title = value; },
             ),
           );
         }
@@ -87,7 +116,7 @@ class _GoodsScreenState extends State<GoodsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () { _openAddGoodsItemDialog(context); },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       )
     );
   }
