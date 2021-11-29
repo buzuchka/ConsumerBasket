@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
+import 'package:consumer_basket/dialogs/goods_item_edit_dialog.dart';
 import 'package:consumer_basket/models/goods.dart';
 
 class GoodsScreen extends StatefulWidget {
@@ -16,7 +17,6 @@ class GoodsScreen extends StatefulWidget {
 }
 
 class _GoodsScreenState extends State<GoodsScreen> {
-  final TextEditingController _titleTextController = TextEditingController();
 
   @override
   void initState() {
@@ -29,64 +29,10 @@ class _GoodsScreenState extends State<GoodsScreen> {
     setState(() {});
   }
 
-  void _addGoodsItem2Database(GoodsItem item) async {
-    await DatabaseHelper.insert(GoodsItem.tableName, item);
-    setState(() {});
-  }
-
   void _openAddGoodsItemDialog(BuildContext context) {
-    GoodsItem _goodsItem = GoodsItem();
-
     showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            child: Container(
-              padding: const EdgeInsets.all(30),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Add GoodsItem',
-                    style: TextStyle(fontSize: 20),
-                    textAlign: TextAlign.left,
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    autofocus: true,
-                    controller: _titleTextController,
-                    decoration: const InputDecoration(labelText: 'Item Name'),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                          child: const Text('Cancel'),
-                          onPressed: () {
-                            _titleTextController.clear();
-                            Navigator.of(context).pop();
-                          }
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                          child: const Text('Add'),
-                          onPressed: () {
-                            _goodsItem.title = _titleTextController.text;
-                            _titleTextController.clear();
-                            _addGoodsItem2Database(_goodsItem);
-                            Navigator.of(context).pop();
-                          }
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
+        builder: (BuildContext context) { return GoodsItemEditDialog(onDataChanged: () => setState(() {})); }
     );
   }
 
