@@ -16,39 +16,22 @@ class GoodsScreen extends StatefulWidget {
 }
 
 class _GoodsScreenState extends State<GoodsScreen> {
-  List<GoodsItem> _goodsItemList = [];
-
   final TextEditingController _titleTextController = TextEditingController();
-
-  Widget _buildGoodItem(BuildContext context, int index) {
-    return Card(
-      child: Row(
-        children: <Widget>[
-          Icon(Icons.devices_other),
-          Text(_goodsItemList[index].title ?? '',
-               style: TextStyle(color: Colors.deepPurple))
-        ],
-      ),
-    );
-  }
 
   @override
   void initState() {
-    refresh();
+    _getAllGoodsItemsFromDatabase();
     super.initState();
   }
 
-  void refresh() async {
-    List<Map<String, dynamic>> _results = await DatabaseHelper.query(GoodsItem.tableName);
-    _goodsItemList = _results.map((item) => GoodsItem.fromMap(item)).toList();
-    setState(() { });
+  void _getAllGoodsItemsFromDatabase() async {
+    await DatabaseHelper.query(GoodsItem.tableName);
+    setState(() {});
   }
 
   void _addGoodsItem2Database(GoodsItem item) async {
-    var _currentId = await DatabaseHelper.insert(GoodsItem.tableName, item);
-    setState(() {
-      _goodsItemList.add(GoodsItem.Full(_currentId, item.title));
-    });
+    await DatabaseHelper.insert(GoodsItem.tableName, item);
+    setState(() {});
   }
 
   void _openAddGoodsItemDialog(BuildContext context) {
@@ -110,14 +93,42 @@ class _GoodsScreenState extends State<GoodsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-        itemBuilder: _buildGoodItem,
-        itemCount: _goodsItemList.length,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () { _openAddGoodsItemDialog(context); },
-        child: const Icon(Icons.add),
-      )
+        body: FutureBuilder<List>(
+            future: DatabaseHelper.query(GoodsItem.tableName),
+            initialData: [],
+            builder: (context, snapshot) {
+              return (snapshot.connectionState != ConnectionState.waiting)
+                  ? ListView.builder(
+                itemCount: snapshot.data?.length,
+                itemBuilder: (_, int position) {
+                  final item = snapshot.data![position];
+                  //get your item data here ...
+                  return Card(
+                    child: ListTile(
+                      title: Text(
+                          "Goods Name: " + item.row[1]),
+                    ),
+                  );
+                },
+              )
+                  : const Center(
+                  child: SizedBox(
+                      width: 100.0,
+                      height: 100.0,
+                      child: CircularProgressIndicator(
+                          backgroundColor: Colors.deepPurple,
+                          color: Colors.grey,
+                      )
+                  )
+              );
+            }
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            _openAddGoodsItemDialog(context);
+          },
+          child: const Icon(Icons.add),
+        )
     );
   }
 }
