@@ -24,12 +24,12 @@ abstract class DatabaseHelper {
   static void _onCreate(Database db, int version) async {
     await db.execute(
         'CREATE TABLE goods ('
-        '_id INTEGER PRIMARY KEY NOT NULL, '
-        'title STRING)');
+            'id INTEGER PRIMARY KEY NOT NULL, '
+            'title STRING)');
     await db.execute(
         'CREATE TABLE shops ('
-        '_id INTEGER PRIMARY KEY NOT NULL, '
-        'title STRING)');
+            'id INTEGER PRIMARY KEY NOT NULL, '
+            'title STRING)');
   }
 
   static Future<List<Map<String, dynamic>>> query(String table) async =>

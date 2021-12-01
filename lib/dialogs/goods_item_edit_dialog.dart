@@ -19,11 +19,12 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
 
   final TextEditingController _titleTextController = TextEditingController();
 
-  //_GoodsItemEditDialogState(this.goodsItem);
-
   @override
   void initState() {
     super.initState();
+
+    bool isUpdateMode = widget.goodsItem != null;
+    _titleTextController.text = isUpdateMode ? widget.goodsItem!.title! : '';
   }
 
   @override
@@ -34,6 +35,7 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    bool isUpdateMode = widget.goodsItem != null;
     return Dialog(
       child: Container(
         padding: const EdgeInsets.all(30),
@@ -49,31 +51,50 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
             ),
             const SizedBox(height: 10),
             TextField(
-              autofocus: true,
               controller: _titleTextController,
               decoration: const InputDecoration(labelText: 'Item Name'),
+              onChanged: (String value) {
+                if(isUpdateMode) {
+                  widget.goodsItem!.title = _titleTextController.text;
+                  _updateGoodsItem2Database(widget.goodsItem!);
+                }
+                },
             ),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(
-                    child: const Text('Cancel'),
+                Visibility(
+                  visible: isUpdateMode,
+                  child: ElevatedButton(
+                    child: const Text('Close'),
                     onPressed: () {
-                      _titleTextController.clear();
-                      Navigator.of(context).pop();
+                      _close();
                     }
+                  )
+                ),
+                Visibility(
+                    visible: !isUpdateMode,
+                    child: ElevatedButton(
+                        child: const Text('Cancel'),
+                        onPressed: () {
+                          _close();
+                        }
+                    )
                 ),
                 const SizedBox(width: 10),
-                ElevatedButton(
-                    child: const Text('Add'),
-                    onPressed: () {
-                      newGoodsItem.title = _titleTextController.text;
-                      _titleTextController.clear();
-                      _addGoodsItem2Database(newGoodsItem);
-                      Navigator.of(context).pop();
-                    }
-                )
+                Visibility(
+                    visible: !isUpdateMode,
+                    child: ElevatedButton(
+                        child: const Text('Add'),
+                        onPressed: () {
+                          newGoodsItem.title = _titleTextController.text;
+                          _addGoodsItem2Database(newGoodsItem);
+                          _close();
+                        }
+                    )
+                ),
+
               ],
             ),
           ],
@@ -84,6 +105,19 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
 
   void _addGoodsItem2Database(GoodsItem item) async {
     await DatabaseHelper.insert(GoodsItem.tableName, item);
+  }
+
+  void _updateGoodsItem2Database(GoodsItem item) async {
+    await DatabaseHelper.update(GoodsItem.tableName, item);
+  }
+
+  void _clear() {
+    _titleTextController.clear();
+  }
+
+  void _close() {
+    _clear();
     widget.onDataChanged.call();
+    Navigator.of(context).pop();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:consumer_basket/models/abstract_model.dart';
 
-const String columnIdName = '_id';
+const String columnIdName = 'id';
 const String columnTitleName = 'title';
 
 class GoodsItem extends Model {

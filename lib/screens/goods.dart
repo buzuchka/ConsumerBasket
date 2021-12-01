@@ -31,8 +31,22 @@ class _GoodsScreenState extends State<GoodsScreen> {
 
   void _openAddGoodsItemDialog(BuildContext context) {
     showDialog(
+        barrierDismissible: false,
         context: context,
-        builder: (BuildContext context) { return GoodsItemEditDialog(onDataChanged: () => setState(() {})); }
+        builder: (BuildContext context) {
+          return GoodsItemEditDialog(onDataChanged: () => setState(() {}));
+        }
+    );
+  }
+
+  void _openUpdateGoodsItemDialog(BuildContext context, GoodsItem goodsItem) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return GoodsItemEditDialog(
+          goodsItem: goodsItem,
+          onDataChanged: () => setState(() {})); }
     );
   }
 
@@ -47,12 +61,12 @@ class _GoodsScreenState extends State<GoodsScreen> {
                   ? ListView.builder(
                 itemCount: snapshot.data?.length,
                 itemBuilder: (_, int position) {
-                  final item = snapshot.data![position];
-                  //get your item data here ...
+                  final currentGoodsItem = GoodsItem.fromMap(snapshot.data![position]);
                   return Card(
                     child: ListTile(
                       title: Text(
-                          "Goods Name: " + item.row[1]),
+                          "Goods Name: " + currentGoodsItem.title!),
+                      onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
                     ),
                   );
                 },
