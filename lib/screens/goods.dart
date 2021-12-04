@@ -59,18 +59,25 @@ class _GoodsScreenState extends State<GoodsScreen> {
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
                   ? ListView.builder(
-                itemCount: snapshot.data?.length,
-                itemBuilder: (_, int position) {
-                  final currentGoodsItem = GoodsItem.fromMap(snapshot.data![position]);
-                  return Card(
-                    child: ListTile(
-                      title: Text(
-                          "Goods Name: " + currentGoodsItem.title!),
-                      onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
-                    ),
-                  );
-                },
-              )
+                      //itemExtent: 100,
+                      itemCount: snapshot.data?.length,
+                      itemBuilder: (_, int position) {
+                        final currentGoodsItem = GoodsItem.fromMap(snapshot.data![position]);
+                        return Card(
+                          child: ListTile(
+                              leading: CircleAvatar(
+                                radius: 50,
+                            backgroundImage: AssetImage('assets/images/no_photo.jpg',
+                                //height: 100,
+                                //width: 100,
+                                //fit: BoxFit.cover,
+                            )),
+                              title: Text(currentGoodsItem.title!),
+                              onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
+                          ),
+                        );
+                      },
+                  )
                   : const Center(
                   child: SizedBox(
                       width: 100.0,
