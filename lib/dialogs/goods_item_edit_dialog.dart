@@ -62,42 +62,62 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
             ),
             const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Visibility(
-                  visible: isUpdateMode,
-                  child: ElevatedButton(
-                    child: const Text('Close'),
-                    onPressed: () {
-                      _close();
-                    }
-                  )
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Visibility(
+                      visible: isUpdateMode,
+                      child: ElevatedButton(
+                          child: const Text('Delete'),
+                          onPressed: () {
+                            _close();
+                            _deleteGoodsItem2Database(widget.goodsItem!);
+                          }
+                      )
+                    ),
+                    const SizedBox(width: 10),
+                  ]
                 ),
-                Visibility(
-                    visible: !isUpdateMode,
-                    child: ElevatedButton(
-                        child: const Text('Cancel'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Visibility(
+                      visible: isUpdateMode,
+                      child: ElevatedButton(
+                        child: const Text('Close'),
                         onPressed: () {
                           _close();
                         }
-                    )
+                      )
+                    ),
+                    Visibility(
+                        visible: !isUpdateMode,
+                        child: ElevatedButton(
+                            child: const Text('Cancel'),
+                            onPressed: () {
+                              _close();
+                            }
+                        )
+                    ),
+                    const SizedBox(width: 10),
+                    Visibility(
+                      visible: !isUpdateMode,
+                      child: ElevatedButton(
+                          child: const Text('Add'),
+                          onPressed: () {
+                            newGoodsItem.title = _titleTextController.text;
+                            _addGoodsItem2Database(newGoodsItem);
+                            _close();
+                          }
+                      )
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Visibility(
-                    visible: !isUpdateMode,
-                    child: ElevatedButton(
-                        child: const Text('Add'),
-                        onPressed: () {
-                          newGoodsItem.title = _titleTextController.text;
-                          _addGoodsItem2Database(newGoodsItem);
-                          _close();
-                        }
-                    )
-                ),
-
               ],
-            ),
-          ],
+            )
+          ]
         ),
       ),
     );
@@ -109,6 +129,10 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
 
   void _updateGoodsItem2Database(GoodsItem item) async {
     await DatabaseHelper.update(GoodsItem.tableName, item);
+  }
+
+  void _deleteGoodsItem2Database(GoodsItem item) async {
+    await DatabaseHelper.delete(GoodsItem.tableName, item);
   }
 
   void _clear() {
