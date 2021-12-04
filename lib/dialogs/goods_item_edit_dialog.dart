@@ -101,7 +101,10 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                             }
                         )
                     ),
-                    const SizedBox(width: 10),
+                    Visibility(
+                        visible: !isUpdateMode,
+                        child: const SizedBox(width: 10)
+                    ),
                     Visibility(
                       visible: !isUpdateMode,
                       child: ElevatedButton(
