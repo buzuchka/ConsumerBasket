@@ -8,9 +8,10 @@ void main() async {
 
   await DatabaseHelper.init();
 
-  runApp(new MaterialApp(
+  runApp(MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: BasicBottomNavigationBar()));
 }
