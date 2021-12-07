@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/dialogs/goods_item_edit_dialog.dart';
+import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
 
 class GoodsScreen extends StatefulWidget {
@@ -58,24 +59,18 @@ class _GoodsScreenState extends State<GoodsScreen> {
             initialData: [],
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
-                  ? ListView.builder(
-                      //itemExtent: 100,
-                      itemCount: snapshot.data?.length,
+                  ? ListView.separated(
+                      padding: const EdgeInsets.all(10.0),
+                      itemCount: snapshot.data!.length,
                       itemBuilder: (_, int position) {
                         final currentGoodsItem = GoodsItem.fromMap(snapshot.data![position]);
-                        return Card(
-                          child: ListTile(
-                              leading: CircleAvatar(
-                                radius: 50,
-                            backgroundImage: AssetImage('assets/images/no_photo.jpg',
-                                //height: 100,
-                                //width: 100,
-                                //fit: BoxFit.cover,
-                            )),
-                              title: Text(currentGoodsItem.title!),
-                              onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
-                          ),
+                        return InkWell(
+                            child: GoodsListItem(goodsItem: currentGoodsItem),
+                            onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
                         );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Divider();
                       },
                   )
                   : const Center(
