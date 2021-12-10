@@ -25,7 +25,8 @@ abstract class DatabaseHelper {
     await db.execute(
         'CREATE TABLE goods ('
             'id INTEGER PRIMARY KEY NOT NULL, '
-            'title STRING)');
+            'title STRING,'
+            'image_path STRING)');
     await db.execute(
         'CREATE TABLE shops ('
             'id INTEGER PRIMARY KEY NOT NULL, '

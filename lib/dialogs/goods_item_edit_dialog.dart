@@ -1,11 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+
+import 'package:path/path.dart' as Path;
+
+import 'package:path_provider/path_provider.dart';
+
+import 'package:image_picker/image_picker.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/models/goods.dart';
 
 // Диалоговое окно для добавления и редактирования Товара
 class GoodsItemEditDialog extends StatefulWidget {
-  GoodsItem? goodsItem;
+  GoodsItem? goodsItem; // item to view and update
   VoidCallback onDataChanged;
 
   GoodsItemEditDialog({Key? key, required this.onDataChanged, this.goodsItem})
@@ -17,7 +25,7 @@ class GoodsItemEditDialog extends StatefulWidget {
 
 class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
   GoodsItem newGoodsItem = GoodsItem();
-
+  XFile? imageFile;
   final TextEditingController _titleTextController = TextEditingController();
 
   @override
@@ -52,31 +60,43 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
               ),
               const SizedBox(height: 10),
               Row(
-                //mainAxisSize: MainAxisSize.min,
-                //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
+                  SizedBox(
                       width: 100,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Image(
-                              image: AssetImage('assets/images/no_photo.jpg'),
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover
-                          ),
+                          getImageWidget(isUpdateMode),
                           ElevatedButton(
                               child: const Text(
                                 'Change\nimage',
                                 maxLines: 2,
                                 textAlign: TextAlign.center,),
-                              onPressed: () {
+                              onPressed: () async {
+                                _pickImageFromGallery(ImageSource.gallery);
+
+                                // Если пользователь не выбрал ничего и нажал Назад
+                                if(imageFile == null) {
+                                  return;
+                                }
+
+                                // Если текущий режим - обновление существующего элемента
+                                if (isUpdateMode) {
+                                  final currentImagePath = await _copySelectedImage2ExternalDir();
+                                  widget.goodsItem!.imagePath = currentImagePath;
+                                  print('CUUURRREEENT ' + currentImagePath);
+                                  _updateGoodsItem2Database(widget.goodsItem!);
+                                }
+                                else {
+                                  newGoodsItem.imagePath = 'currentImagePath';
+                                }
+                                setState(() {});
                                 // change image
-                              })
+                              }
+                              )
                         ],
                       )
                   ),
@@ -155,6 +175,34 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
     );
   }
 
+  Image getImageWidget(bool isUpdateMode) {
+    if(isUpdateMode &&
+        widget.goodsItem!.imagePath != null) {
+      return Image.file(
+          File(widget.goodsItem!.imagePath!),
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover
+      );
+    }
+    else if(!isUpdateMode && newGoodsItem.imagePath != null) {
+      return Image.file(
+          File(newGoodsItem.imagePath!),
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover
+      );
+    }
+    else {
+      return const Image(
+          image: AssetImage('assets/images/no_photo.jpg'),
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover
+      );
+    }
+  }
+
   void _addGoodsItem2Database(GoodsItem item) async {
     await DatabaseHelper.insert(GoodsItem.tableName, item);
   }
@@ -165,6 +213,36 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
 
   void _deleteGoodsItem2Database(GoodsItem item) async {
     await DatabaseHelper.delete(GoodsItem.tableName, item);
+  }
+
+  void _pickImageFromGallery(ImageSource source) async {
+    print("XEXEXE");
+    imageFile = await ImagePicker().pickImage(source: source);
+    if(imageFile != null) {
+      print("Image file: " + imageFile!.path);
+    }
+    else {
+      print("Image file is null");
+    }
+  }
+
+  Future<String> _copySelectedImage2ExternalDir() async {
+    // Путь до папки с файлами приложения
+    final extDir = await getExternalStorageDirectory();
+    final goodsImagesDir = '${extDir!.path}/images/goods/';
+
+    // Create directory inside where file will be saved
+    await Directory(goodsImagesDir).create(recursive: true);
+
+    // File copied to ext directory.
+    final imageName = imageFile!.name;
+
+    final newImageFilePath = Path.join(goodsImagesDir, imageName);
+
+    await imageFile!.saveTo(newImageFilePath);
+
+    print(newImageFilePath);
+    return newImageFilePath;
   }
 
   void _clear() {

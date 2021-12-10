@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/models/goods.dart';
@@ -10,6 +12,28 @@ class GoodsListItem extends StatelessWidget {
 
   final GoodsItem goodsItem;
 
+   Widget _getImageWidget() {
+    if (goodsItem.imagePath != null) {
+      return Image(
+        image: FileImage(File(goodsItem.imagePath!)),
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover
+        );
+    }
+    else {
+      return const AspectRatio(
+          aspectRatio: 1.0,
+          child: Image(
+            image: AssetImage('assets/images/no_photo.jpg'),
+            fit: BoxFit.cover)
+      );
+    }
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -19,12 +43,7 @@ class GoodsListItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const AspectRatio(
-              aspectRatio: 1.0,
-              child: Image(
-                  image: AssetImage('assets/images/no_photo.jpg'),
-                  fit: BoxFit.cover),
-            ),
+            _getImageWidget(),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
