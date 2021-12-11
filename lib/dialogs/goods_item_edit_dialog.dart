@@ -76,7 +76,7 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                                 maxLines: 2,
                                 textAlign: TextAlign.center,),
                               onPressed: () async {
-                                _pickImageFromGallery(ImageSource.gallery);
+                                imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
                                 // Если пользователь не выбрал ничего и нажал Назад
                                 if(imageFile == null) {
@@ -87,22 +87,21 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                                 if (isUpdateMode) {
                                   final currentImagePath = await _copySelectedImage2ExternalDir();
                                   widget.goodsItem!.imagePath = currentImagePath;
-                                  print('CUUURRREEENT ' + currentImagePath);
                                   _updateGoodsItem2Database(widget.goodsItem!);
                                 }
                                 else {
-                                  newGoodsItem.imagePath = 'currentImagePath';
+                                  newGoodsItem.imagePath = imageFile!.path;
                                 }
+
                                 setState(() {});
-                                // change image
                               }
-                              )
+                          )
                         ],
                       )
                   ),
-                  //const SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
-                      child: Column(
+                    child: Column(
                         children: [
                           TextField(
                             controller: _titleTextController,
@@ -160,8 +159,14 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                           visible: !isUpdateMode,
                           child: ElevatedButton(
                               child: const Text('Add'),
-                              onPressed: () {
+                              onPressed: () async {
                                 newGoodsItem.title = _titleTextController.text;
+
+                                if(imageFile != null) {
+                                  final currentImagePath = await _copySelectedImage2ExternalDir();
+                                  newGoodsItem.imagePath = currentImagePath;
+                                }
+
                                 _addGoodsItem2Database(newGoodsItem);
                                 _close();
                               })),
@@ -215,33 +220,18 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
     await DatabaseHelper.delete(GoodsItem.tableName, item);
   }
 
-  void _pickImageFromGallery(ImageSource source) async {
-    print("XEXEXE");
-    imageFile = await ImagePicker().pickImage(source: source);
-    if(imageFile != null) {
-      print("Image file: " + imageFile!.path);
-    }
-    else {
-      print("Image file is null");
-    }
-  }
-
   Future<String> _copySelectedImage2ExternalDir() async {
     // Путь до папки с файлами приложения
     final extDir = await getExternalStorageDirectory();
     final goodsImagesDir = '${extDir!.path}/images/goods/';
 
-    // Create directory inside where file will be saved
+    // Создание папки, в которую будет скопирован файл
     await Directory(goodsImagesDir).create(recursive: true);
 
-    // File copied to ext directory.
-    final imageName = imageFile!.name;
-
-    final newImageFilePath = Path.join(goodsImagesDir, imageName);
-
+    // Копирование файла
+    final newImageFilePath = Path.join(goodsImagesDir, imageFile!.name);
     await imageFile!.saveTo(newImageFilePath);
 
-    print(newImageFilePath);
     return newImageFilePath;
   }
 
