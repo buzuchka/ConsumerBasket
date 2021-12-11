@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/dialogs/goods_item_edit_dialog.dart';
+import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
 
 class GoodsScreen extends StatefulWidget {
@@ -58,19 +59,20 @@ class _GoodsScreenState extends State<GoodsScreen> {
             initialData: [],
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
-                  ? ListView.builder(
-                itemCount: snapshot.data?.length,
-                itemBuilder: (_, int position) {
-                  final currentGoodsItem = GoodsItem.fromMap(snapshot.data![position]);
-                  return Card(
-                    child: ListTile(
-                      title: Text(
-                          "Goods Name: " + currentGoodsItem.title!),
-                      onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
-                    ),
-                  );
-                },
-              )
+                  ? ListView.separated(
+                      padding: const EdgeInsets.all(10.0),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (_, int position) {
+                        final currentGoodsItem = GoodsItem.fromMap(snapshot.data![position]);
+                        return InkWell(
+                            child: GoodsListItem(goodsItem: currentGoodsItem),
+                            onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Divider();
+                      },
+                  )
                   : const Center(
                   child: SizedBox(
                       width: 100.0,
