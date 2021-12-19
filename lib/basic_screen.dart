@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/screens/goods.dart';
 
-class BasicBottomNavigationBar extends StatefulWidget {
-  const BasicBottomNavigationBar({Key? key}) : super(key: key);
+class BasicScreen extends StatefulWidget {
+  const BasicScreen({Key? key}) : super(key: key);
 
   @override
-  _BasicBottomNavigationBarState createState() => _BasicBottomNavigationBarState();
+  _BasicScreenState createState() => _BasicScreenState();
 }
 
-class _BasicBottomNavigationBarState extends State<BasicBottomNavigationBar> {
+class _BasicScreenState extends State<BasicScreen> {
   int _selectedIndex = 0;
 
   static const List<Widget> _pages = <Widget>[
@@ -81,6 +81,3 @@ class _BasicBottomNavigationBarState extends State<BasicBottomNavigationBar> {
     );
   }
 }
-
-
-
