@@ -24,9 +24,13 @@ class GoodsItemEditDialog extends StatefulWidget {
 }
 
 class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
-  GoodsItem newGoodsItem = GoodsItem();
-  XFile? imageFile;
+  GoodsItem _newGoodsItem = GoodsItem();
+
+  XFile? _imageFile;
+
   final TextEditingController _titleTextController = TextEditingController();
+
+  bool _isItemDataChanged = false;
 
   @override
   void initState() {
@@ -76,10 +80,10 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                                 maxLines: 2,
                                 textAlign: TextAlign.center,),
                               onPressed: () async {
-                                imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+                                _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
                                 // Если пользователь не выбрал ничего и нажал Назад
-                                if(imageFile == null) {
+                                if(_imageFile == null) {
                                   return;
                                 }
 
@@ -90,7 +94,7 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                                   _updateGoodsItem2Database(widget.goodsItem!);
                                 }
                                 else {
-                                  newGoodsItem.imagePath = imageFile!.path;
+                                  _newGoodsItem.imagePath = _imageFile!.path;
                                 }
 
                                 setState(() {});
@@ -129,9 +133,9 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                         visible: isUpdateMode,
                         child: ElevatedButton(
                             child: const Text('Delete'),
-                            onPressed: () {
+                            onPressed: () async {
+                              await _deleteGoodsItem2Database(widget.goodsItem!);
                               _close();
-                              _deleteGoodsItem2Database(widget.goodsItem!);
                             })),
                     const SizedBox(width: 10),
                   ]),
@@ -160,14 +164,14 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                           child: ElevatedButton(
                               child: const Text('Add'),
                               onPressed: () async {
-                                newGoodsItem.title = _titleTextController.text;
+                                _newGoodsItem.title = _titleTextController.text;
 
-                                if(imageFile != null) {
+                                if(_imageFile != null) {
                                   final currentImagePath = await _copySelectedImage2ExternalDir();
-                                  newGoodsItem.imagePath = currentImagePath;
+                                  _newGoodsItem.imagePath = currentImagePath;
                                 }
 
-                                _addGoodsItem2Database(newGoodsItem);
+                                await _addGoodsItem2Database(_newGoodsItem);
                                 _close();
                               })),
                     ],
@@ -190,9 +194,9 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
           fit: BoxFit.cover
       );
     }
-    else if(!isUpdateMode && newGoodsItem.imagePath != null) {
+    else if(!isUpdateMode && _newGoodsItem.imagePath != null) {
       return Image.file(
-          File(newGoodsItem.imagePath!),
+          File(_newGoodsItem.imagePath!),
           width: 100,
           height: 100,
           fit: BoxFit.cover
@@ -208,16 +212,19 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
     }
   }
 
-  void _addGoodsItem2Database(GoodsItem item) async {
+  _addGoodsItem2Database(GoodsItem item) async {
     await DatabaseHelper.insert(GoodsItem.tableName, item);
+    _isItemDataChanged = true;
   }
 
-  void _updateGoodsItem2Database(GoodsItem item) async {
+  _updateGoodsItem2Database(GoodsItem item) async {
     await DatabaseHelper.update(GoodsItem.tableName, item);
+    _isItemDataChanged = true;
   }
 
-  void _deleteGoodsItem2Database(GoodsItem item) async {
+  _deleteGoodsItem2Database(GoodsItem item) async {
     await DatabaseHelper.delete(GoodsItem.tableName, item);
+    _isItemDataChanged = true;
   }
 
   Future<String> _copySelectedImage2ExternalDir() async {
@@ -229,8 +236,8 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
     await Directory(goodsImagesDir).create(recursive: true);
 
     // Копирование файла
-    final newImageFilePath = Path.join(goodsImagesDir, imageFile!.name);
-    await imageFile!.saveTo(newImageFilePath);
+    final newImageFilePath = Path.join(goodsImagesDir, _imageFile!.name);
+    await _imageFile!.saveTo(newImageFilePath);
 
     return newImageFilePath;
   }
@@ -241,7 +248,9 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
 
   void _close() {
     _clear();
-    widget.onDataChanged.call();
+    if(_isItemDataChanged) {
+      widget.onDataChanged.call();
+    }
     Navigator.of(context).pop();
   }
 }
