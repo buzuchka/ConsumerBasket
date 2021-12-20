@@ -60,5 +60,13 @@ On development.
 
 ## Screenshots / Скриншоты
 
-![Splash screen / Заставка](https://github.com/buzuchka/ConsumerBasket/blob/dev/images/splash_screen.png)
-![Goods / Товары](https://github.com/buzuchka/ConsumerBasket/blob/dev/images/goods_screen.png)
+<table> 
+<tr>
+<td>Splash Screen</td>
+<td>Goods Screen</td>
+</tr>
+<tr>  
+<td><img src="https://github.com/buzuchka/ConsumerBasket/blob/dev/images/splash_screen.png" width=270 height=480></td>
+<td><img src="https://github.com/buzuchka/ConsumerBasket/blob/dev/images/goods_screen.png" width=270 height=480></td>
+</tr>
+</table>  
