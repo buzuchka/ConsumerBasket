@@ -213,17 +213,18 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
   }
 
   _addGoodsItem2Database(GoodsItem item) async {
-    await DatabaseHelper.insert(GoodsItem.tableName, item);
+    await DatabaseHelper.goodsRepository.insert(item);
     _isItemDataChanged = true;
   }
 
   _updateGoodsItem2Database(GoodsItem item) async {
-    await DatabaseHelper.update(GoodsItem.tableName, item);
+    await item.saveToRepository();
+    // await DatabaseHelper.goodsRepository.update(item);
     _isItemDataChanged = true;
   }
 
   _deleteGoodsItem2Database(GoodsItem item) async {
-    await DatabaseHelper.delete(GoodsItem.tableName, item);
+    await DatabaseHelper.goodsRepository.delete(item);
     _isItemDataChanged = true;
   }
 

@@ -21,13 +21,8 @@ class _GoodsScreenState extends State<GoodsScreen> {
 
   @override
   void initState() {
-    _getAllGoodsItemsFromDatabase();
+    // _getAllGoodsItemsFromDatabase();
     super.initState();
-  }
-
-  void _getAllGoodsItemsFromDatabase() async {
-    await DatabaseHelper.query(GoodsItem.tableName);
-    setState(() {});
   }
 
   void _openAddGoodsItemDialog(BuildContext context) {
@@ -55,7 +50,7 @@ class _GoodsScreenState extends State<GoodsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<List>(
-            future: DatabaseHelper.query(GoodsItem.tableName),
+            future: DatabaseHelper.goodsRepository.getAll(),
             initialData: [],
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
@@ -63,7 +58,7 @@ class _GoodsScreenState extends State<GoodsScreen> {
                       padding: const EdgeInsets.all(10.0),
                       itemCount: snapshot.data!.length,
                       itemBuilder: (_, int position) {
-                        final currentGoodsItem = GoodsItem.fromMap(snapshot.data![position]);
+                        final currentGoodsItem = snapshot.data![position];
                         return InkWell(
                             child: GoodsListItem(goodsItem: currentGoodsItem),
                             onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
