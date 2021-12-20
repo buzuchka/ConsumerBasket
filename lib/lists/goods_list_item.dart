@@ -5,34 +5,31 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/models/goods.dart';
 
 class GoodsListItem extends StatelessWidget {
+  final GoodsItem goodsItem;
+
   const GoodsListItem({
     Key? key,
     required this.goodsItem,
   }) : super(key: key);
 
-  final GoodsItem goodsItem;
-
-   Widget _getImageWidget() {
+  Widget _getImageWidget() {
     if (goodsItem.imagePath != null) {
       return Image(
         image: FileImage(File(goodsItem.imagePath!)),
         width: 100,
         height: 100,
         fit: BoxFit.cover
-        );
+      );
     }
     else {
       return const AspectRatio(
-          aspectRatio: 1.0,
-          child: Image(
-            image: AssetImage('assets/images/no_photo.jpg'),
-            fit: BoxFit.cover)
+        aspectRatio: 1.0,
+        child: Image(
+          image: AssetImage('assets/images/no_photo.jpg'),
+          fit: BoxFit.cover)
       );
     }
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {

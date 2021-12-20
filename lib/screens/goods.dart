@@ -21,13 +21,7 @@ class _GoodsScreenState extends State<GoodsScreen> {
 
   @override
   void initState() {
-    _getAllGoodsItemsFromDatabase();
     super.initState();
-  }
-
-  void _getAllGoodsItemsFromDatabase() async {
-    await DatabaseHelper.query(GoodsItem.tableName);
-    setState(() {});
   }
 
   void _openAddGoodsItemDialog(BuildContext context) {

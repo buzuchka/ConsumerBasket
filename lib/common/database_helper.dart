@@ -32,7 +32,7 @@ abstract class DatabaseHelper {
         'CREATE TABLE purchases ('
             'id INTEGER PRIMARY KEY NOT NULL, '
             'shop_id INTEGER NOT NULL, '
-            'datetime_text TEXT(25) NOT NULL, '
+            'date_text TEXT(25) NOT NULL, '
             'FOREIGN KEY (shop_id) REFERENCES shops (id) '
             'ON DELETE CASCADE ON UPDATE NO ACTION'
             ')');
