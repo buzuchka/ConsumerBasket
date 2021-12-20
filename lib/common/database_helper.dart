@@ -25,12 +25,34 @@ abstract class DatabaseHelper {
     await db.execute(
         'CREATE TABLE goods ('
             'id INTEGER PRIMARY KEY NOT NULL, '
-            'title STRING,'
-            'image_path STRING)');
+            'title TEXT(50) NOT NULL, '
+            'image_path TEXT'
+            ')');
+    await db.execute(
+        'CREATE TABLE purchases ('
+            'id INTEGER PRIMARY KEY NOT NULL, '
+            'shop_id INTEGER NOT NULL, '
+            'datetime_text TEXT(25) NOT NULL, '
+            'FOREIGN KEY (shop_id) REFERENCES shops (id) '
+            'ON DELETE CASCADE ON UPDATE NO ACTION'
+            ')');
+    await db.execute(
+        'CREATE TABLE purchase_item ('
+            'purchase_id INTEGER NOT NULL, '
+            'goods_id INTEGER NOT NULL, '
+            'goods_price REAL NOT NULL, '
+            'goods_count INTEGER NOT NULL, '
+            'PRIMARY KEY(purchase_id, goods_id), '
+            'FOREIGN KEY (purchase_id) REFERENCES purchases (id) '
+            'ON DELETE CASCADE ON UPDATE NO ACTION, '
+            'FOREIGN KEY (goods_id) REFERENCES goods (id) '
+            'ON DELETE CASCADE ON UPDATE NO ACTION'
+            ')');
     await db.execute(
         'CREATE TABLE shops ('
             'id INTEGER PRIMARY KEY NOT NULL, '
-            'title STRING)');
+            'title TEXT(50) NOT NULL'
+            ')');
   }
 
   static Future<List<Map<String, dynamic>>> query(String table) async =>
