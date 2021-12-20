@@ -8,7 +8,6 @@ Application is created to solve the following tasks:
  - analyzes expenses for the period for products, categories and lists
  - see the frequency of purchases of goods
 
----
 Приложение создано для решения следующих задач:
  - иметь полный список того, что мы покупаем/покупали/хотим купить, чтобы при походах в магазин и заказах из интернет-магазинов не переживать, что что-то забыл купить
  - иметь ориентировочные цены на покупаемые товары, чтобы не попадаться на ненастоящие скидки или завышенные цены
@@ -22,15 +21,11 @@ Application is created to solve the following tasks:
 
 On development.
 
----
-
 В процессе разработки.
 
 ### Purchases / Покупки
 
 On development.
-
----
 
 В процессе разработки.
 
@@ -38,23 +33,17 @@ On development.
 
 Screen for creating and displaying goods. For each goods, you can set several parameters (for now it is name and image). For now you can load image only from the phone gallery.
 
----
-
 Экран для создания и отображения товаров. Для каждого товара можно задать несколько параметров (пока это название и фото товара). Пока загрузить фото товара можно только из Галереи.
 
 ### Analytics / Аналитика
 
 On development.
 
----
-
 В процессе разработки.
 
 ### Profile / Профиль
 
 On development.
-
----
 
 В процессе разработки.
 
