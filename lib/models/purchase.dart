@@ -1,4 +1,5 @@
 import 'package:consumer_basket/models/abstract_model.dart';
+import 'package:consumer_basket/models/purchase_item.dart';
 
 const String columnIdName = 'id';
 const String columnShopIdName = 'shop_id';
@@ -10,6 +11,7 @@ class Purchase extends Model {
   int? id;
   int? shopId;
   String? date;
+  List<PurchaseItem> i;
 
   Purchase();
 

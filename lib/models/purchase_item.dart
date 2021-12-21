@@ -9,9 +9,12 @@ class PurchaseItem extends Model {
   static String tableName = 'purchase_item';
 
   int? purchaseId;
-  int? goodsId;
+  //int? goodsId;
+  GoodsItem i;
   double? goodsPrice;
   int? goodsCount;
+
+
 
   PurchaseItem();
 

@@ -14,11 +14,21 @@ abstract class DatabaseHelper {
   static Future<void> init() async {
     try {
       String _databaseFilePath = join(await getDatabasesPath(), databaseName);
-      _db = await openDatabase(_databaseFilePath, version: _version, onCreate: _onCreate);
+      _db = await openDatabase(
+          _databaseFilePath,
+          version: _version,
+          onConfigure: _onConfigure,
+          onCreate: _onCreate
+      );
     }
     catch(ex) {
       print(ex);
     }
+  }
+
+  static void _onConfigure(Database db) async {
+    // Add support for cascade delete
+    await db.execute("PRAGMA foreign_keys = ON");
   }
 
   static void _onCreate(Database db, int version) async {
