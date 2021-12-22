@@ -14,16 +14,16 @@ abstract class BaseDbRepository<ObjT extends RepositoryItem<ObjT>> extends Abstr
   @override
   Future<List<ObjT>> getAll() async {
     // _printError("getAll()", "abstract method is called");
-    List<Map<String, dynamic>> raw_objs = await db.query(table);
+    List<Map<String, dynamic>> rawObjs = await db.query(table);
     List<ObjT> result = [];
-    for (var raw_obj in raw_objs){
-      ObjT? obj = fromMap(raw_obj);
+    for (var rawObj in rawObjs){
+      ObjT? obj = fromMap(rawObj);
       if(obj == null){
         _logger.subModule("getAll()").error("fromMap() returns emty obj, skip it");
         continue;
       }
       obj.repository = this;
-      obj.id = raw_obj[_columnIdName] as int?;
+      obj.id = rawObj[_columnIdName] as int?;
       result.add(obj);
     }
     return result;

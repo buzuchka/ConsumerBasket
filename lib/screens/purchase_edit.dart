@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -11,10 +9,7 @@ import 'package:consumer_basket/models/purchase.dart';
 class PurchaseEditScreen extends StatefulWidget {
   final Purchase purchase; // item to view and update
 
-  const PurchaseEditScreen({
-    Key? key,
-    required this.purchase
-  })
+  const PurchaseEditScreen({Key? key, required this.purchase})
       : super(key: key);
 
   @override
