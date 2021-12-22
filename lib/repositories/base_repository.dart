@@ -1,9 +1,10 @@
+import 'package:consumer_basket/models/repository_item.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:consumer_basket/repositories/abstract_repository.dart';
 
 import 'package:consumer_basket/common/logger.dart';
 
-abstract class BaseDbRepository<ObjT> extends AbstractRepository<ObjT> {
+abstract class BaseDbRepository<ObjT extends RepositoryItem<ObjT>> extends AbstractRepository<ObjT> {
   late Database db;
   late String table;
   final Logger _logger = Logger("BaseRepository<${ObjT.toString()}>");
@@ -49,12 +50,15 @@ abstract class BaseDbRepository<ObjT> extends AbstractRepository<ObjT> {
       _logger.subModule("insert()").error("no db mapping for object, can not insert");
       return 0;
     }
-    return await db.insert(table, map);
+    obj.repository = this;
+    dynamic id = await db.insert(table, map);
+    setId(obj, id);
+    return id;
   }
 
   @override
   Future<int> delete(ObjT obj) async {
-    String? id = getId(obj);
+    dynamic id = getId(obj);
     if(id == null){
       _logger.subModule("delete()").error("object has no id, can not delete");
       return 0;
@@ -62,7 +66,7 @@ abstract class BaseDbRepository<ObjT> extends AbstractRepository<ObjT> {
     return await deleteById(id);
   }
 
-  Future<int> deleteById(String id) async {
+  Future<int> deleteById(dynamic id) async {
     return await db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
@@ -77,6 +81,10 @@ abstract class BaseDbRepository<ObjT> extends AbstractRepository<ObjT> {
 
   dynamic getId(ObjT obj){
     _logger.subModule("getId()").error("abstract method is called");
+  }
+
+  void setId(ObjT obj, dynamic id){
+    _logger.subModule("setId()").error("abstract method is called");
   }
 }
 

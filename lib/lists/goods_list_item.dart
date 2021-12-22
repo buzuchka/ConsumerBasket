@@ -31,9 +31,6 @@ class GoodsListItem extends StatelessWidget {
     }
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -56,7 +53,7 @@ class GoodsListItem extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            goodsItem.title!,
+                            (goodsItem.title != null) ? goodsItem.title! : 'Untitled',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
