@@ -1,5 +1,5 @@
-import 'package:consumer_basket/models/abstract_model.dart';
 
+/*
 const String columnPurchaseIdName = 'purchase_id';
 const String columnGoodsIdName = 'goods_id';
 const String columnGoodsPriceName = 'goods_price';
@@ -42,3 +42,4 @@ class PurchaseItem extends Model {
     goodsCount = map[columnGoodsCountName] as int?;
   }
 }
+*/

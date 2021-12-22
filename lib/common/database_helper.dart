@@ -42,14 +42,14 @@ abstract class DatabaseHelper {
     await db.execute(
         'CREATE TABLE goods ('
             'id INTEGER PRIMARY KEY NOT NULL, '
-            'title TEXT(50) NOT NULL, '
+            'title TEXT(50), '
             'image_path TEXT'
             ')');
     await db.execute(
         'CREATE TABLE purchases ('
             'id INTEGER PRIMARY KEY NOT NULL, '
-            'shop_id INTEGER NOT NULL, '
-            'date_text TEXT(25) NOT NULL, '
+            'shop_id INTEGER, '
+            'date_text TEXT(25), '
             'FOREIGN KEY (shop_id) REFERENCES shops (id) '
             'ON DELETE CASCADE ON UPDATE NO ACTION'
             ')');
@@ -68,7 +68,7 @@ abstract class DatabaseHelper {
     await db.execute(
         'CREATE TABLE shops ('
             'id INTEGER PRIMARY KEY NOT NULL, '
-            'title TEXT(50) NOT NULL'
+            'title TEXT(50)'
             ')');
   }
 }
