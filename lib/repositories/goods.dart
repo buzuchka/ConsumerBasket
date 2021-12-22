@@ -39,7 +39,12 @@ class GoodsRepository extends BaseDbRepository<GoodsItem> {
   }
 
   @override
-  dynamic getId(GoodsItem goodsItem){
-    return goodsItem.id;
+  dynamic getId(GoodsItem obj){
+    return obj.id;
+  }
+
+  @override
+  void setId(GoodsItem obj, dynamic id){
+    obj.id = id;
   }
 }
