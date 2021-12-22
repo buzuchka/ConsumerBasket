@@ -3,8 +3,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:consumer_basket/repositories/goods.dart';
 
-import 'package:consumer_basket/models/abstract_model.dart';
-
 const String databaseName = 'CustomerBasket';
 
 abstract class DatabaseHelper {
@@ -16,7 +14,7 @@ abstract class DatabaseHelper {
   static Future<void> init() async {
     try {
       String _databaseFilePath = join(await getDatabasesPath(), databaseName);
-      _db = await openDatabase(
+      db = await openDatabase(
           _databaseFilePath,
           version: _version,
           onConfigure: _onConfigure,
@@ -67,17 +65,4 @@ abstract class DatabaseHelper {
             'title TEXT(50) NOT NULL'
             ')');
   }
-
-
-  static Future<List<Map<String, dynamic>>> query(String table) async =>
-      db.query(table);
-
-  static Future<int> insert(String table, Model model) async =>
-      await db.insert(table, model.toMap());
-
-  static Future<int> update(String table, Model model) async =>
-      await db.update(table, model.toMap(), where: 'id = ?', whereArgs: [model.id]);
-
-  static Future<int> delete(String table, Model model) async =>
-      await db.delete(table, where: 'id = ?', whereArgs: [model.id]);
 }

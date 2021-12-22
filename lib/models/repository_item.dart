@@ -6,6 +6,7 @@ import 'package:consumer_basket/common/logger.dart';
 
 abstract class RepositoryItem<ItemT> {
   AbstractRepository<ItemT>? repository;
+  int? id;
 
   final Logger _logger = Logger("RepositoryItem<${ItemT.toString()}>");
 

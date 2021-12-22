@@ -1,6 +1,3 @@
-
-
-
 abstract class AbstractRepository<ObjT> {
   final String _myType = "AbstractRepository<${ObjT.toString()}>";
 

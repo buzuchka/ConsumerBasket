@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
-import 'package:consumer_basket/screens/goods_item_view_edit.dart';
+import 'package:consumer_basket/screens/goods_item_edit.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
 

@@ -1,13 +1,10 @@
-import 'package:consumer_basket/repositories/base_repository.dart';
-import 'package:consumer_basket/models/goods.dart';
 import 'package:sqflite/sqflite.dart';
 
-
-
+import 'package:consumer_basket/repositories/base_repository.dart';
+import 'package:consumer_basket/models/goods.dart';
 
 class GoodsRepository extends BaseDbRepository<GoodsItem> {
 
-  static const String _columnIdName = 'id';
   static const String _columnTitleName = 'title';
   static const String _columnImagePathName = 'image_path';
 
@@ -17,34 +14,19 @@ class GoodsRepository extends BaseDbRepository<GoodsItem> {
   }
 
   @override
-  Map<String, Object?> toMap(GoodsItem goodsItem){
+  Map<String, Object?> toMap(GoodsItem obj){
     var map = <String, Object?>{
-      _columnTitleName: goodsItem.title,
-      _columnImagePathName: goodsItem.imagePath,
+      _columnTitleName: obj.title,
+      _columnImagePathName: obj.imagePath,
     };
-    if (goodsItem.id != null) {
-      map[_columnIdName] = goodsItem.id;
-    }
     return map;
   }
 
   @override
   GoodsItem? fromMap(Map map){
     GoodsItem result = GoodsItem();
-    result.id = map[_columnIdName] as int?;
     result.title = map[_columnTitleName] as String?;
     result.imagePath = map[_columnImagePathName] as String?;
-    result.repository = this;
     return  result;
-  }
-
-  @override
-  dynamic getId(GoodsItem obj){
-    return obj.id;
-  }
-
-  @override
-  void setId(GoodsItem obj, dynamic id){
-    obj.id = id;
   }
 }

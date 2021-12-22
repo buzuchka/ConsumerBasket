@@ -9,6 +9,8 @@ abstract class BaseDbRepository<ObjT extends RepositoryItem<ObjT>> extends Abstr
   late String table;
   final Logger _logger = Logger("BaseRepository<${ObjT.toString()}>");
 
+  static const String _columnIdName = 'id';
+
   @override
   Future<List<ObjT>> getAll() async {
     // _printError("getAll()", "abstract method is called");
@@ -20,6 +22,8 @@ abstract class BaseDbRepository<ObjT extends RepositoryItem<ObjT>> extends Abstr
         _logger.subModule("getAll()").error("fromMap() returns emty obj, skip it");
         continue;
       }
+      obj.repository = this;
+      obj.id = raw_obj[_columnIdName] as int?;
       result.add(obj);
     }
     return result;
@@ -29,7 +33,7 @@ abstract class BaseDbRepository<ObjT extends RepositoryItem<ObjT>> extends Abstr
   Future<void> update(ObjT obj) async {
     // print("Error: AbstractRepository<ObjT>::update(): abstract method is called");
     var logger = _logger.subModule("update()");
-    dynamic id = getId(obj);
+    int? id = obj.id;
     if(id == null){
       logger.error("object has no id, can not update");
       return;
@@ -46,19 +50,22 @@ abstract class BaseDbRepository<ObjT extends RepositoryItem<ObjT>> extends Abstr
   @override
   Future<int> insert(ObjT obj) async {
     Map<String, Object?> map = toMap(obj);
+    if (obj.id != null) {
+      map[_columnIdName] = obj.id;
+    }
     if(map == null){
       _logger.subModule("insert()").error("no db mapping for object, can not insert");
       return 0;
     }
     obj.repository = this;
-    dynamic id = await db.insert(table, map);
-    setId(obj, id);
+    int id = await db.insert(table, map);
+    obj.id = id;
     return id;
   }
 
   @override
   Future<int> delete(ObjT obj) async {
-    dynamic id = getId(obj);
+    int? id = obj.id;
     if(id == null){
       _logger.subModule("delete()").error("object has no id, can not delete");
       return 0;
@@ -66,7 +73,7 @@ abstract class BaseDbRepository<ObjT extends RepositoryItem<ObjT>> extends Abstr
     return await deleteById(id);
   }
 
-  Future<int> deleteById(dynamic id) async {
+  Future<int> deleteById(int id) async {
     return await db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
@@ -77,14 +84,6 @@ abstract class BaseDbRepository<ObjT extends RepositoryItem<ObjT>> extends Abstr
 
   ObjT? fromMap(Map map){
     _logger.subModule("fromMap()").error("abstract method is called");
-  }
-
-  dynamic getId(ObjT obj){
-    _logger.subModule("getId()").error("abstract method is called");
-  }
-
-  void setId(ObjT obj, dynamic id){
-    _logger.subModule("setId()").error("abstract method is called");
   }
 }
 
