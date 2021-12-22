@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/screens/goods.dart';
+import 'package:consumer_basket/screens/purchases.dart';
 
 class BasicScreen extends StatefulWidget {
   const BasicScreen({Key? key}) : super(key: key);
@@ -17,10 +18,7 @@ class _BasicScreenState extends State<BasicScreen> {
       Icons.list,
       size: 150,
     ),
-    Icon(
-      Icons.credit_card,
-      size: 150,
-    ),
+    PurchasesScreen(),
     GoodsScreen(),
     Icon(
       Icons.data_usage,

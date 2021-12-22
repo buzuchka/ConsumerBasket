@@ -105,7 +105,7 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Column(
+                      child: Column(
                         children: [
                           TextField(
                             controller: _titleTextController,
@@ -127,18 +127,18 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                    Visibility(
-                        visible: isUpdateMode,
-                        child: ElevatedButton(
-                            child: const Text('Delete'),
-                            onPressed: () async {
-                              await _deleteGoodsItem2Database(widget.goodsItem!);
-                              _close();
-                            })),
-                    const SizedBox(width: 10),
-                  ]),
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Visibility(
+                            visible: isUpdateMode,
+                            child: ElevatedButton(
+                                child: const Text('Delete'),
+                                onPressed: () async {
+                                  await _deleteGoodsItem2Database(widget.goodsItem!);
+                                  _close();
+                                })),
+                        const SizedBox(width: 10),
+                      ]),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -213,18 +213,17 @@ class _GoodsItemEditDialogState extends State<GoodsItemEditDialog> {
   }
 
   _addGoodsItem2Database(GoodsItem item) async {
-    await DatabaseHelper.goodsRepository.insert(item);
+    await DatabaseHelper.insert(GoodsItem.tableName, item);
     _isItemDataChanged = true;
   }
 
   _updateGoodsItem2Database(GoodsItem item) async {
-    await item.saveToRepository();
-    // await DatabaseHelper.goodsRepository.update(item);
+    await DatabaseHelper.update(GoodsItem.tableName, item);
     _isItemDataChanged = true;
   }
 
   _deleteGoodsItem2Database(GoodsItem item) async {
-    await DatabaseHelper.goodsRepository.delete(item);
+    await DatabaseHelper.delete(GoodsItem.tableName, item);
     _isItemDataChanged = true;
   }
 
