@@ -52,7 +52,21 @@ class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("View Goods Item")
+          title: const Text("View Goods Item"),
+          actions: [
+            PopupMenuButton(
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: const Text('Delete'),
+                    onTap: () async {
+                      await _deleteGoodsItem2Database();
+                      _clear();
+                      Navigator.pop(context, _isItemDataChanged);
+                    },
+                    value: 1,
+                  ),
+                ])
+          ],
         ),
         body: Container(
           padding: const EdgeInsets.all(15),
@@ -83,7 +97,7 @@ class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
 
                               final currentImagePath = await _copySelectedImage2ExternalDir();
                               widget.goodsItem.imagePath = currentImagePath;
-                              _updateGoodsItem2Database(widget.goodsItem);
+                              _updateGoodsItem2Database();
 
                               setState(() {});
                             },
@@ -97,7 +111,6 @@ class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
                         children: [
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            //mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Expanded(
                                 child:
@@ -107,18 +120,9 @@ class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
                                     decoration: const InputDecoration(labelText: 'Item Name'),
                                     onChanged: (String value) {
                                       widget.goodsItem.title = _titleTextController.text;
-                                      _updateGoodsItem2Database(widget.goodsItem);
+                                      _updateGoodsItem2Database();
                                     }
                                   )
-                              ),
-                              IconButton(
-                                  icon: Icon(
-                                      Icons.delete,
-                                      color: Theme.of(context).primaryColor,
-                                      size: 30),
-                                  onPressed: () async {
-                                    await _showDeleteConfirmationDialog();
-                                  }
                               ),
                             ],
                           ),
@@ -156,14 +160,13 @@ class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
     }
   }
 
-  _updateGoodsItem2Database(GoodsItem item) async {
-    await item.saveToRepository();
-    // await DatabaseHelper.goodsRepository.update(item);
+  _updateGoodsItem2Database() async {
+    await widget.goodsItem.saveToRepository();
     _isItemDataChanged = true;
   }
 
-  _deleteGoodsItem2Database(GoodsItem item) async {
-    await DatabaseHelper.goodsRepository.delete(item);
+  _deleteGoodsItem2Database() async {
+    await DatabaseHelper.goodsRepository.delete(widget.goodsItem);
     _isItemDataChanged = true;
   }
 
@@ -180,39 +183,6 @@ class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
     await _imageFile!.saveTo(newImageFilePath);
 
     return newImageFilePath;
-  }
-
-  _showDeleteConfirmationDialog() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text(
-            'Goods deletion',
-            style: TextStyle(color: Colors.black, fontSize: 20.0)
-        ),
-        content: const Text(
-            'Are you sure you want to delete the goods? '
-            'Tap \'Yes\' to delete \'No\' to cancel.'),
-        actions: <Widget>[
-          ElevatedButton(
-            child: const Text('Yes', style: TextStyle(fontSize: 18.0)),
-            onPressed: () async {
-              await _deleteGoodsItem2Database(widget.goodsItem);
-              _clear();
-              Navigator.pop(context); // this line dismisses the dialog
-              Navigator.pop(context, _isItemDataChanged);
-            },
-          ),
-          ElevatedButton(
-            child: const Text('No', style: TextStyle(fontSize: 18.0)),
-            onPressed: () {
-              Navigator.pop(context); // this line dismisses the dialog
-            },
-          )
-        ],
-      ),
-    );
   }
 
   void _clear() {

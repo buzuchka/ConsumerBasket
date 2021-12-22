@@ -24,7 +24,9 @@ class PurchaseEditScreen extends StatefulWidget {
 class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
   bool _isItemDataChanged = false;
 
-  static final DateFormat viewDateFormat = DateFormat("dd.MM.yyyy");
+  static final DateFormat _viewDateFormat = DateFormat("dd.MM.yyyy");
+  static const double _fontSize = 30.0;
+  static const double _spacing = 10.0;
 
   @override
   void initState() {
@@ -41,68 +43,87 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-            title: const Text("View Purchase")
+          title: const Text("View Purchase"),
+          actions: [
+            PopupMenuButton(
+                itemBuilder: (context) => [
+                      PopupMenuItem(
+                        child: const Text('Delete'),
+                        onTap: () async {
+                          await _deletePurchase2Database();
+                          _clear();
+                          Navigator.pop(context, _isItemDataChanged);
+                        },
+                        value: 1,
+                      ),
+                    ])
+          ],
         ),
         body: Container(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(10),
           child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Date:',
+                          style: TextStyle(
+                            fontSize: _fontSize,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          'Shop:',
+                          style: TextStyle(
+                            fontSize: _fontSize,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: _spacing),
                     Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text(
-                                    'Date:',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                    child: Text(
-                                        viewDateFormat.format(widget.purchase.date),
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                      ),
-                                    )
-                                ),
-                                IconButton(
-                                    icon: Icon(
-                                        Icons.calendar_today,
-                                        color: Theme.of(context).primaryColor,
-                                        size: 30),
-                                    onPressed: () async {
-                                      await _selectDate(context);
-                                    }
-                                ),
-                                const SizedBox(width: 10,),
-                                IconButton(
-                                    icon: Icon(
-                                        Icons.delete,
-                                        color: Theme.of(context).primaryColor,
-                                        size: 30),
-                                    onPressed: () async {
-                                      await _showDeleteConfirmationDialog();
-                                    }
-                                ),
-                              ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            child: Text(
+                              _viewDateFormat.format(widget.purchase.date),
+                              style: TextStyle(
+                                fontSize: _fontSize,
+                                color: Theme.of(context).primaryColor,
+                              ),
                             ),
-                          ],
-                        )
-                    )
+                            onTap: () async {
+                              await _selectDate(context);
+                            },
+                          ),
+                          const SizedBox(height: _spacing),
+                          InkWell(
+                            child: Text(
+                              'dfdfdfdfdfdff',
+                              style: const TextStyle(
+                                fontSize: _fontSize,
+                              ),
+                            ),
+                            onTap: () async {
+                              await _selectDate(context);
+                            },
+                          )
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ]
-          ),
+                const SizedBox(height: _spacing),
+                const Text('To be continued...')
+              ]),
         ),
       ),
       onWillPop: () async {
@@ -136,40 +157,5 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
     _isItemDataChanged = true;
   }
 
-  _showDeleteConfirmationDialog() async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text(
-            'Purchase deletion',
-            style: TextStyle(color: Colors.black, fontSize: 20.0)
-        ),
-        content: const Text(
-            'Are you sure you want to delete the purchase? '
-                'Tap \'Yes\' to delete \'No\' to cancel.'),
-        actions: <Widget>[
-          ElevatedButton(
-            child: const Text('Yes', style: TextStyle(fontSize: 18.0)),
-            onPressed: () async {
-              await _deletePurchase2Database();
-              _clear();
-              Navigator.pop(context); // this line dismisses the dialog
-              Navigator.pop(context, _isItemDataChanged);
-            },
-          ),
-          ElevatedButton(
-            child: const Text('No', style: TextStyle(fontSize: 18.0)),
-            onPressed: () {
-              Navigator.pop(context); // this line dismisses the dialog
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  void _clear() {
-  }
-
+  void _clear() {}
 }
