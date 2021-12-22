@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:intl/intl.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
@@ -22,21 +24,16 @@ class PurchaseEditScreen extends StatefulWidget {
 class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
   bool _isItemDataChanged = false;
 
-  final TextEditingController _titleTextController = TextEditingController();
+  static final DateFormat viewDateFormat = DateFormat("dd.MM.yyyy");
 
   @override
   void initState() {
     super.initState();
-
-    _titleTextController.text = (widget.purchase.date != null)
-        ? widget.purchase.date!
-        : '';
   }
 
   @override
   void dispose() {
     super.dispose();
-    _titleTextController.dispose();
   }
 
   @override
@@ -61,20 +58,33 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                         child: Column(
                           children: [
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                const Text(
+                                    'Date:',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
                                 Expanded(
-                                    child:
-                                    TextField(
-                                        controller: _titleTextController,
-                                        maxLines: 2,
-                                        decoration: const InputDecoration(labelText: 'Date'),
-                                        onChanged: (String value) {
-                                          widget.purchase.date = _titleTextController.text;
-                                          _updateGoodsItem2Database(widget.purchase);
-                                        }
+                                    child: Text(
+                                        viewDateFormat.format(widget.purchase.date),
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                      ),
                                     )
                                 ),
+                                IconButton(
+                                    icon: Icon(
+                                        Icons.calendar_today,
+                                        color: Theme.of(context).primaryColor,
+                                        size: 30),
+                                    onPressed: () async {
+                                      await _selectDate(context);
+                                    }
+                                ),
+                                const SizedBox(width: 10,),
                                 IconButton(
                                     icon: Icon(
                                         Icons.delete,
@@ -102,13 +112,27 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
     );
   }
 
-  _updateGoodsItem2Database(Purchase item) async {
-    await item.saveToRepository();
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: widget.purchase.date,
+        firstDate: DateTime(1970),
+        lastDate: DateTime(2100));
+    if (picked != null && picked != widget.purchase.date) {
+      setState(() {
+        widget.purchase.date = picked;
+        _updatePurchase2Database();
+      });
+    }
+  }
+
+  _updatePurchase2Database() async {
+    await widget.purchase.saveToRepository();
     _isItemDataChanged = true;
   }
 
-  _deleteGoodsItem2Database(Purchase item) async {
-    await DatabaseHelper.purchasesRepository.delete(item);
+  _deletePurchase2Database() async {
+    await DatabaseHelper.purchasesRepository.delete(widget.purchase);
     _isItemDataChanged = true;
   }
 
@@ -128,7 +152,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
           ElevatedButton(
             child: const Text('Yes', style: TextStyle(fontSize: 18.0)),
             onPressed: () async {
-              await _deleteGoodsItem2Database(widget.purchase);
+              await _deletePurchase2Database();
               _clear();
               Navigator.pop(context); // this line dismisses the dialog
               Navigator.pop(context, _isItemDataChanged);
@@ -146,7 +170,6 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
   }
 
   void _clear() {
-    _titleTextController.clear();
   }
 
 }

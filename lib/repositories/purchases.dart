@@ -17,7 +17,7 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
   Map<String, Object?> toMap(Purchase obj){
     var map = <String, Object?>{
       _columnShopIdName: obj.shopId,
-      _columnDateTimeName: obj.date,
+      _columnDateTimeName: obj.date.toString(),
     };
     return map;
   }
@@ -26,7 +26,7 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
   Purchase? fromMap(Map map){
     Purchase result = Purchase();
     result.shopId = map[_columnShopIdName] as int?;
-    result.date = map[_columnDateTimeName] as String?;
+    result.date = DateTime.parse(map[_columnDateTimeName] as String);
     return  result;
   }
 }

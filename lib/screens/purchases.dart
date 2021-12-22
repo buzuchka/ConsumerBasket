@@ -43,7 +43,18 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                   final currentPurchase = snapshot.data![position];
                   return InkWell(
                       child: PurchaseListItem(purchase: currentPurchase),
-                      //onTap: () { _openUpdateGoodsItemDialog(context, currentPurchase); }
+                      onTap: () async {
+                        final isNeed2Rebuild = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PurchaseEditScreen(
+                                  purchase: currentPurchase)
+                          ),
+                        );
+                        if(isNeed2Rebuild) {
+                          _rebuildScreen();
+                        }
+                      }
                   );
                 },
                 separatorBuilder: (context, index) {
