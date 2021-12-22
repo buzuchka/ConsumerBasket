@@ -1,13 +1,18 @@
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+
+import 'package:path_provider/path_provider.dart';
+
+import 'package:path/path.dart';
+
 import 'package:consumer_basket/repositories/goods.dart';
+import 'package:consumer_basket/repositories/purchases.dart';
 
 const String databaseName = 'CustomerBasket';
 
 abstract class DatabaseHelper {
   static late Database db;
   static late GoodsRepository goodsRepository;
+  static late PurchasesRepository purchasesRepository;
 
   static int get _version => 1;
 
@@ -21,6 +26,7 @@ abstract class DatabaseHelper {
           onCreate: _onCreate
       );
       goodsRepository = GoodsRepository(db);
+      purchasesRepository = PurchasesRepository(db);
     }
     catch(ex) {
       print(ex);

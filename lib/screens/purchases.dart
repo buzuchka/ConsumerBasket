@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
-//import 'package:consumer_basket/dialogs/purchase_edit_dialog.dart';
 import 'package:consumer_basket/lists/purchase_list_item.dart';
 import 'package:consumer_basket/models/purchase.dart';
 
@@ -24,32 +23,11 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
     super.initState();
   }
 
-  /*void _openAddGoodsItemDialog(BuildContext context) {
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return PurchaseEditDialog(onDataChanged: () => setState(() {}));
-        }
-    );
-  }*/
-
-  /*void _openUpdateGoodsItemDialog(BuildContext context, Purchase purchase) {
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return PurchaseEditDialog(
-              purchase: purchase,
-              onDataChanged: () => setState(() {})); }
-    );
-  }*/
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<List>(
-            future: DatabaseHelper.query(Purchase.tableName),
+            future: DatabaseHelper.purchasesRepository.getAll(),
             initialData: [],
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
@@ -57,7 +35,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                 padding: const EdgeInsets.all(10.0),
                 itemCount: snapshot.data!.length,
                 itemBuilder: (_, int position) {
-                  final currentPurchase = Purchase.fromMap(snapshot.data![position]);
+                  final currentPurchase = snapshot.data![position];
                   return InkWell(
                       child: PurchaseListItem(purchase: currentPurchase),
                       //onTap: () { _openUpdateGoodsItemDialog(context, currentPurchase); }
