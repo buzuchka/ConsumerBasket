@@ -71,26 +71,22 @@ class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          getImageWidget(),
-                          ElevatedButton(
-                              child: const Text(
-                                'Change\nimage',
-                                maxLines: 2,
-                                textAlign: TextAlign.center,),
-                              onPressed: () async {
-                                _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+                          InkWell(
+                            child: getImageWidget(),
+                            onTap: () async {
+                              _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-                                // Если пользователь не выбрал ничего и нажал Назад
-                                if(_imageFile == null) {
-                                  return;
-                                }
-
-                                final currentImagePath = await _copySelectedImage2ExternalDir();
-                                widget.goodsItem.imagePath = currentImagePath;
-                                _updateGoodsItem2Database(widget.goodsItem);
-
-                                setState(() {});
+                              // Если пользователь не выбрал ничего и нажал Назад
+                              if(_imageFile == null) {
+                                return;
                               }
+
+                              final currentImagePath = await _copySelectedImage2ExternalDir();
+                              widget.goodsItem.imagePath = currentImagePath;
+                              _updateGoodsItem2Database(widget.goodsItem);
+
+                              setState(() {});
+                            },
                           )
                         ],
                       )
@@ -99,32 +95,39 @@ class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
                   Expanded(
                     child: Column(
                         children: [
-                          TextField(
-                            controller: _titleTextController,
-                            decoration: const InputDecoration(labelText: 'Item Name'),
-                            onChanged: (String value) {
-                                widget.goodsItem.title = _titleTextController.text;
-                                _updateGoodsItem2Database(widget.goodsItem);
-                              }
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            //mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child:
+                                  TextField(
+                                    controller: _titleTextController,
+                                    maxLines: 2,
+                                    decoration: const InputDecoration(labelText: 'Item Name'),
+                                    onChanged: (String value) {
+                                      widget.goodsItem.title = _titleTextController.text;
+                                      _updateGoodsItem2Database(widget.goodsItem);
+                                    }
+                                  )
+                              ),
+                              IconButton(
+                                  icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.deepPurple,
+                                      size: 30),
+                                  onPressed: () async {
+                                    await _deleteGoodsItem2Database(widget.goodsItem);
+                                    _close();
+                                  }
+                              ),
+                            ],
                           ),
                         ],
                       )
                   )
                 ],
               ),
-              //const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    child: const Text('Delete'),
-                    onPressed: () async {
-                      await _deleteGoodsItem2Database(widget.goodsItem);
-                      _close();
-                    }
-                  ),
-                ],
-              )
             ]
           ),
         ),
