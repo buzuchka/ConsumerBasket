@@ -1,11 +1,6 @@
-import 'package:consumer_basket/models/abstract_model.dart';
+import 'package:consumer_basket/models/repository_item.dart';
 
-const String columnIdName = 'id';
-const String columnTitleName = 'title';
-const String columnImagePathName = 'image_path';
-
-class GoodsItem extends Model {
-  static String tableName = 'goods';
+class GoodsItem extends RepositoryItem<GoodsItem> {
 
   int? id;
   String? title;
@@ -17,23 +12,5 @@ class GoodsItem extends Model {
 
   GoodsItem.Short(String _title){
     title = _title;
-  }
-
-  @override
-  Map<String, Object?> toMap() {
-    var map = <String, Object?>{
-      columnTitleName: title,
-      columnImagePathName: imagePath,
-    };
-    if (id != null) {
-      map[columnIdName] = id;
-    }
-    return map;
-  }
-
-  GoodsItem.fromMap(Map map) {
-    id = map[columnIdName] as int?;
-    title = map[columnTitleName] as String?;
-    imagePath = map[columnImagePathName] as String?;
   }
 }

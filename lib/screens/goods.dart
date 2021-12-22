@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
-import 'package:consumer_basket/dialogs/goods_item_edit_dialog.dart';
+import 'package:consumer_basket/screens/goods_item_view_edit.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
 
@@ -24,32 +24,15 @@ class _GoodsScreenState extends State<GoodsScreen> {
     super.initState();
   }
 
-  void _openAddGoodsItemDialog(BuildContext context) {
-    showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return GoodsItemEditDialog(onDataChanged: () => setState(() {}));
-        }
-    );
-  }
-
-  void _openUpdateGoodsItemDialog(BuildContext context, GoodsItem goodsItem) {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return GoodsItemEditDialog(
-          goodsItem: goodsItem,
-          onDataChanged: () => setState(() {})); }
-    );
+  void _rebuildScreen() {
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<List>(
-            future: DatabaseHelper.query(GoodsItem.tableName),
+            future: DatabaseHelper.goodsRepository.getAll(),
             initialData: [],
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
@@ -57,10 +40,20 @@ class _GoodsScreenState extends State<GoodsScreen> {
                       padding: const EdgeInsets.all(10.0),
                       itemCount: snapshot.data!.length,
                       itemBuilder: (_, int position) {
-                        final currentGoodsItem = GoodsItem.fromMap(snapshot.data![position]);
+                        final currentGoodsItem = snapshot.data![position];
                         return InkWell(
                             child: GoodsListItem(goodsItem: currentGoodsItem),
-                            onTap: () { _openUpdateGoodsItemDialog(context, currentGoodsItem); }
+                            onTap: () async {
+                              final isNeed2Rebuild = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => GoodsItemViewEditScreen(
+                                        goodsItem: currentGoodsItem)),
+                              );
+                              if(isNeed2Rebuild) {
+                                _rebuildScreen();
+                              }
+                            }
                         );
                       },
                       separatorBuilder: (context, index) {
@@ -80,8 +73,17 @@ class _GoodsScreenState extends State<GoodsScreen> {
             }
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            _openAddGoodsItemDialog(context);
+          onPressed: () async {
+            GoodsItem newGoodsItem = GoodsItem();
+            await DatabaseHelper.goodsRepository.insert(newGoodsItem);
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => GoodsItemViewEditScreen(
+                      goodsItem: newGoodsItem)
+              ),
+            );
+            _rebuildScreen();
           },
           child: const Icon(Icons.add),
         )
