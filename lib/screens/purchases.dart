@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/lists/purchase_list_item.dart';
 import 'package:consumer_basket/models/purchase.dart';
+import 'package:consumer_basket/screens/purchase_edit.dart';
 
 class PurchasesScreen extends StatefulWidget {
   const PurchasesScreen({Key? key}) : super(key: key);
@@ -21,6 +22,10 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void _rebuildScreen() {
+    setState(() {});
   }
 
   @override
@@ -58,8 +63,17 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
             }
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            //_openAddGoodsItemDialog(context);
+          onPressed: () async {
+            Purchase newPurchase = Purchase();
+            await DatabaseHelper.purchasesRepository.insert(newPurchase);
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => PurchaseEditScreen(
+                      purchase: newPurchase)
+              ),
+            );
+            _rebuildScreen();
           },
           child: const Icon(Icons.add),
         )
