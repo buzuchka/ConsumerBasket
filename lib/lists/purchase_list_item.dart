@@ -18,36 +18,38 @@ class PurchaseListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: SizedBox(
         height: 100,
+        
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+
             Text(
-            (purchase.shopId != null) ? purchase.shopId.toString() : 'Shop is undefined',
+              (purchase.shopId != null) ? purchase.shopId.toString() : 'Shop is undefined',
               maxLines: 2,
+              style: const TextStyle(
+                color: Colors.green,
+                fontSize: 20,
+              ),
             ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
                     Expanded(
-                      flex: 1,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: <Widget>[
                           Text(
                             purchase.date!,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
                           ),
                           const Text(
                             'Sum Here',
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
                             ),
                           ),
                         ],
