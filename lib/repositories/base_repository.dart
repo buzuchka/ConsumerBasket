@@ -54,7 +54,7 @@ abstract class BaseDbRepository<ObjT> extends AbstractRepository<ObjT> {
 
   @override
   Future<int> delete(ObjT obj) async {
-    String? id = getId(obj);
+    dynamic id = getId(obj);
     if(id == null){
       _logger.subModule("delete()").error("object has no id, can not delete");
       return 0;
@@ -62,7 +62,7 @@ abstract class BaseDbRepository<ObjT> extends AbstractRepository<ObjT> {
     return await deleteById(id);
   }
 
-  Future<int> deleteById(String id) async {
+  Future<int> deleteById(dynamic id) async {
     return await db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
