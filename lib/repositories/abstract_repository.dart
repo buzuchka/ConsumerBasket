@@ -1,26 +1,47 @@
+import 'package:consumer_basket/common/logger.dart';
+
 abstract class AbstractRepository<ObjT> {
-  final String _myType = "AbstractRepository<${ObjT.toString()}>";
+  final Logger _logger = Logger("AbstractRepository<${ObjT.toString()}>");
 
-  Future<List<ObjT>> getAll() async {
-    _printAbstractMethodError("getAll()");
-    return [];
+
+  // returns items cache as id->value
+  Future<Map<int,ObjT>> getAll() async {
+    _logger.abstractMethodError("getAll()");
+    return {};
   }
 
-  Future<void> update(ObjT obj) async {
-    _printAbstractMethodError("update()");
+  // returns true if success
+  Future<bool> update(ObjT obj) async {
+    _logger.abstractMethodError("update()");
+    return false;
   }
 
+  // returns inserted id or 0 if not inserted
   Future<int> insert(ObjT obj) async {
-    _printAbstractMethodError("insert()");
+    _logger.abstractMethodError("insert()");
     return 0;
   }
 
+  // returns count of deleted
   Future<int> delete(ObjT obj) async {
-    _printAbstractMethodError("delete()");
+    _logger.abstractMethodError("delete()");
     return 0;
   }
 
-  void _printAbstractMethodError(String place){
-    print("Error: $_myType::$place: abstract method is called");
+}
+
+
+abstract class AbstractRelativesRepository<ItemT, ParentT, ChildT> {
+
+  final Logger _aLogger = Logger("AbstractRelativesRepository<${ItemT.toString()},${ChildT.toString()}>");
+
+  Future<Map<int,ChildT>> getChildren(ItemT item) async {
+    _aLogger.abstractMethodError("getChildren()");
+    return {};
+  }
+
+  Future<Map<int,ItemT>> getItemsByParent(ParentT parent) async{
+    _aLogger.abstractMethodError("getItemsByParent()");
+    return {};
   }
 }

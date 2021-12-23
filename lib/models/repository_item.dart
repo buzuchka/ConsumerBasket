@@ -10,13 +10,32 @@ abstract class RepositoryItem<ItemT> {
 
   final Logger _logger = Logger("RepositoryItem<${ItemT.toString()}>");
 
-  Future<void> saveToRepository() async {
-    var sublogger = _logger.subModule("saveToRepository()");
+  saveToRepository() async {
+    var logger = _logger.subModule("saveToRepository()");
     if(repository != null){
       await repository!.update(this as ItemT);
-      sublogger.info("successfully saved");
+      logger.info("successfully saved");
     } else {
-      sublogger.error("repository does not exist");
+      logger.error("repository does not exist");
     }
+  }
+}
+
+
+abstract class RelativesRepositoryItem<ItemT, ParentT, ChildT> extends RepositoryItem<ItemT> {
+
+  ParentT? parent;
+
+  final Logger _logger = Logger("ParentsRepositoryItem<${ItemT.toString()}, ${ChildT.toString()}>");
+
+  Future<Map<int,ChildT>> getChildren() async {
+    var logger = _logger.subModule("getChildren()");
+    if(repository != null){
+      var parentsRepository = repository as AbstractRelativesRepository<ItemT, ParentT, ChildT>;
+      await parentsRepository.getChildren(this as ItemT);
+    } else {
+      _logger.error("repository does not exist");
+    }
+    return {};
   }
 }

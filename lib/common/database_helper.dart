@@ -27,6 +27,9 @@ abstract class DatabaseHelper {
       );
       goodsRepository = GoodsRepository(db);
       purchasesRepository = PurchasesRepository(db);
+
+      await goodsRepository.createIfNotExists();
+      await purchasesRepository.createIfNotExists();
     }
     catch(ex) {
       print(ex);
@@ -39,20 +42,21 @@ abstract class DatabaseHelper {
   }
 
   static void _onCreate(Database db, int version) async {
-    await db.execute(
-        'CREATE TABLE goods ('
-            'id INTEGER PRIMARY KEY NOT NULL, '
-            'title TEXT(50), '
-            'image_path TEXT'
-            ')');
-    await db.execute(
-        'CREATE TABLE purchases ('
-            'id INTEGER PRIMARY KEY NOT NULL, '
-            'shop_id INTEGER, '
-            'date_text TEXT(25), '
-            'FOREIGN KEY (shop_id) REFERENCES shops (id) '
-            'ON DELETE CASCADE ON UPDATE NO ACTION'
-            ')');
+
+    // await db.execute(
+    //     'CREATE TABLE goods ('
+    //         'id INTEGER PRIMARY KEY NOT NULL, '
+    //         'title TEXT(50), '
+    //         'image_path TEXT'
+    //         ')');
+    // await db.execute(
+    //     'CREATE TABLE purchases ('
+    //         'id INTEGER PRIMARY KEY NOT NULL, '
+    //         'shop_id INTEGER, '
+    //         'date_text TEXT(25), '
+    //         'FOREIGN KEY (shop_id) REFERENCES shops (id) '
+    //         'ON DELETE CASCADE ON UPDATE NO ACTION'
+    //         ')');
     await db.execute(
         'CREATE TABLE purchase_item ('
             'purchase_id INTEGER NOT NULL, '

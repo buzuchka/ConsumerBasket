@@ -11,10 +11,16 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
   PurchasesRepository(Database dbReference){
     db = dbReference;
     table = "purchases";
+    schema = """
+      shop_id INTEGER,
+      date_text TEXT(25),
+      FOREIGN KEY (shop_id) REFERENCES shops (id)
+      ON DELETE CASCADE ON UPDATE NO ACTION 
+    """;
   }
 
   @override
-  Map<String, Object?> toMap(Purchase obj){
+  Future<Map<String, Object?>?> toMap(Purchase obj) async{
     var map = <String, Object?>{
       _columnShopIdName: obj.shopId,
       _columnDateTimeName: obj.date,
@@ -23,7 +29,7 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
   }
 
   @override
-  Purchase? fromMap(Map map){
+  Future<Purchase?> fromMap(Map map) async{
     Purchase result = Purchase();
     result.shopId = map[_columnShopIdName] as int?;
     result.date = map[_columnDateTimeName] as String?;
