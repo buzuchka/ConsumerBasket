@@ -23,7 +23,7 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
   Future<Map<String, Object?>?> toMap(Purchase obj) async{
     var map = <String, Object?>{
       _columnShopIdName: obj.shopId,
-      _columnDateTimeName: obj.date,
+      _columnDateTimeName: obj.date.toString(),
     };
     return map;
   }
@@ -32,7 +32,7 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
   Future<Purchase?> fromMap(Map map) async{
     Purchase result = Purchase();
     result.shopId = map[_columnShopIdName] as int?;
-    result.date = map[_columnDateTimeName] as String?;
+    result.date = DateTime.parse(map[_columnDateTimeName] as String);
     return  result;
   }
 }

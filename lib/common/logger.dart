@@ -31,13 +31,13 @@ class Logger {
 
   void _log(String level, String message){
     if(module != null){
-      _print_line("$level : $module : $message");
+      _printLine("$level : $module : $message");
     } else {
-      _print_line("$level : $message");
+      _printLine("$level : $message");
     }
   }
 
-  void _print_line(String line){
+  void _printLine(String line){
     print(line);
   }
 }

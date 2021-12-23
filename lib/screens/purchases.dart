@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
@@ -43,7 +40,18 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
                   final currentPurchase = snapshot.data!.values.elementAt(position);
                   return InkWell(
                       child: PurchaseListItem(purchase: currentPurchase),
-                      //onTap: () { _openUpdateGoodsItemDialog(context, currentPurchase); }
+                      onTap: () async {
+                        final isNeed2Rebuild = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PurchaseEditScreen(
+                                  purchase: currentPurchase)
+                          ),
+                        );
+                        if(isNeed2Rebuild) {
+                          _rebuildScreen();
+                        }
+                      }
                   );
                 },
                 separatorBuilder: (context, index) {

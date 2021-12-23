@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 
@@ -7,6 +7,8 @@ import 'package:consumer_basket/models/purchase.dart';
 class PurchaseListItem extends StatelessWidget {
   final Purchase purchase;
 
+  static final DateFormat viewDateFormat = DateFormat("dd.MM.yyyy");
+
   const PurchaseListItem({
     Key? key,
     required this.purchase,
@@ -14,53 +16,52 @@ class PurchaseListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: SizedBox(
-        height: 100,
-        
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-
-            Text(
-              (purchase.shopId != null) ? purchase.shopId.toString() : 'Shop is undefined',
-              maxLines: 2,
-              style: const TextStyle(
-                color: Colors.green,
-                fontSize: 20,
-              ),
+    return SizedBox(
+      height: 70,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            (purchase.shopId != null) ? purchase.shopId.toString() : 'Shop is undefined',
+            maxLines: 2,
+            style: const TextStyle(
+              fontSize: 18,
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            purchase.date!,
-                            overflow: TextOverflow.ellipsis,
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          viewDateFormat.format(purchase.date).toString(),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 16,
                           ),
-                          const Text(
-                            'Sum Here',
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.green,
-                            ),
+                        ),
+                        const Text(
+                          'Sum Here',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.deepPurple,
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
