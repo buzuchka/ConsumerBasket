@@ -1,31 +1,31 @@
 import 'package:consumer_basket/common/logger.dart';
 
-abstract class AbstractRepository<ObjT> {
-  final Logger _logger = Logger("AbstractRepository<${ObjT.toString()}>");
+abstract class AbstractRepository<ItemT> {
+  final Logger _logger = Logger("AbstractRepository<${ItemT.toString()}>");
 
 
   // returns items cache as id->value
-  Future<Map<int,ObjT>> getAll() async {
+  Future<Map<int,ItemT>> getAll() async {
     _logger.abstractMethodError("getAll()");
     return {};
   }
 
   // returns true if success
-  Future<bool> update(ObjT obj) async {
+  Future<bool> update(ItemT item) async {
     _logger.abstractMethodError("update()");
     return false;
   }
 
   // returns inserted id or 0 if not inserted
-  Future<int> insert(ObjT obj) async {
+  Future<int> insert(ItemT item) async {
     _logger.abstractMethodError("insert()");
     return 0;
   }
 
-  // returns count of deleted
-  Future<int> delete(ObjT obj) async {
+  // returns true if deleted
+  Future<bool> delete(ItemT item) async {
     _logger.abstractMethodError("delete()");
-    return 0;
+    return false;
   }
 
 }
@@ -43,5 +43,10 @@ abstract class AbstractRelativesRepository<ItemT, ParentT, ChildT> {
   Future<Map<int,ItemT>> getItemsByParent(ParentT parent) async{
     _aLogger.abstractMethodError("getItemsByParent()");
     return {};
+  }
+
+  // internal
+  void setParent(ItemT item, ParentT? parent) {
+    _aLogger.abstractMethodError("setParent()");
   }
 }

@@ -5,16 +5,16 @@ import 'package:consumer_basket/models/purchase.dart';
 
 class PurchasesRepository extends BaseDbRepository<Purchase> {
 
-  static const String _columnShopIdName = 'shop_id';
-  static const String _columnDateTimeName = 'date_text';
+  static const String _columnShopId = 'shop_id';
+  static const String _columnDateTime = 'date_text';
 
   PurchasesRepository(Database dbReference){
     db = dbReference;
     table = "purchases";
     schema = """
-      shop_id INTEGER,
-      date_text TEXT(25),
-      FOREIGN KEY (shop_id) REFERENCES shops (id)
+      $_columnShopId INTEGER,
+      $_columnDateTime TEXT(25),
+      FOREIGN KEY ($_columnShopId) REFERENCES shops (id)
       ON DELETE CASCADE ON UPDATE NO ACTION 
     """;
   }
@@ -22,8 +22,8 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
   @override
   Future<Map<String, Object?>?> toMap(Purchase obj) async{
     var map = <String, Object?>{
-      _columnShopIdName: obj.shopId,
-      _columnDateTimeName: obj.date.toString(),
+      _columnShopId: obj.shopId,
+      _columnDateTime: obj.date.toString(),
     };
     return map;
   }
@@ -31,8 +31,8 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
   @override
   Future<Purchase?> fromMap(Map map) async{
     Purchase result = Purchase();
-    result.shopId = map[_columnShopIdName] as int?;
-    result.date = DateTime.parse(map[_columnDateTimeName] as String);
+    result.shopId = map[_columnShopId] as int?;
+    result.date = DateTime.parse(map[_columnDateTime] as String);
     return  result;
   }
 }
