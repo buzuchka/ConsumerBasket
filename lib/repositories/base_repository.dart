@@ -2,12 +2,21 @@ import 'package:consumer_basket/models/repository_item.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:consumer_basket/repositories/abstract_repository.dart';
 import 'package:consumer_basket/common/logger.dart';
+import 'package:consumer_basket/repositories/db_field.dart';
 
+typedef ItemCreator<ItemT> = ItemT Function();
 
 abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends AbstractRepository<ItemT> {
+
   late Database db;
   late String table;
   late String schema;
+  late List<DbField> allFields;
+  late List<DbField> simpleFields;
+  late List<RelativeDbField> relativeFields;
+  late ItemCreator<ItemT> itemCreator;
+
+
 
   final Logger _logger = Logger("BaseRepository<${ItemT.toString()}>");
   Map<int,ItemT>? _itemsCache;
@@ -23,7 +32,29 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
     """);
   }
 
-  // returns items cache
+  init(
+        Database db,
+        String table,
+        ItemCreator<ItemT> itemCreator,
+        List<DbField> fields
+        ){
+    this.db = db;
+    this.table = table;
+    allFields = fields;
+    simpleFields = [];
+    relativeFields = [];
+    for(var field in fields){
+      if(field is RelativeDbField){
+        relativeFields.add(field);
+      } else {
+        simpleFields.add(field);
+      }
+    }
+    this.itemCreator = itemCreator;
+    schema = fields.join(", ");
+  }
+
+  // returns items as id->value (get form cache or get from db and create cache)
   @override
   Future<Map<int,ItemT>> getAll() async {
     if(_itemsCache != null){
@@ -43,6 +74,12 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
       _itemsCache![id] = obj;
     }
     return _itemsCache!;
+  }
+
+  // returns items cache if it exists
+  @override
+  Map<int,ItemT>? getAllCache() {
+    return _itemsCache;
   }
 
   // returns inserted id or 0 if not inserted
@@ -127,12 +164,26 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
   }
 
   Future<Map<String, Object?>?> toMap(ItemT item) async{
-    _logger.subModule("toMap()").error("abstract method is called");
-    return {};
+    // _logger.subModule("toMap()").error("abstract method is called");
+    // return {};
+    var map = <String, Object?>{};
+    for(var field in allFields){
+      map[field.name] = field.abstractGet(item);
+    }
+    return map;
   }
 
   Future<ItemT?> fromMap(Map map) async{
-    _logger.subModule("fromMap()").error("abstract method is called");
+    // _logger.subModule("fromMap()").error("abstract method is called");
+    var item = itemCreator();
+    for(var field in relativeFields){
+      await field.relativeRepository.getAll(); // create cache
+      field.abstractSet(item, map[field.name]);
+    }
+    for(var field in simpleFields) {
+      field.abstractSet(item, map[field.name]);
+    }
+    return item;
   }
 }
 
@@ -232,6 +283,9 @@ abstract class BaseRelativesDbRepository<
   // internal
   @override
   void setParent(ItemT item, ParentT? parent) {
+    if(item.parent == parent){
+      return;
+    }
     var childrenMapBefore = _tryGetOrCreateChildMap(item);
     item.parent = parent;
     var childrenMapAfter = _tryGetOrCreateChildMap(item);
@@ -240,6 +294,19 @@ abstract class BaseRelativesDbRepository<
     }
     if(childrenMapAfter != null){
       childrenMapAfter[item.id!] = item;
+    }
+  }
+
+  void removeParentForAll(ParentT parent){
+    if(_itemsByParentCache == null){
+      return;
+    }
+    var childMap = _itemsByParentCache![parent.id];
+    if(childMap != null){
+      for(var child in childMap.values){
+        child.parent = null;
+      }
+      _itemsByParentCache!.remove(parent.id);
     }
   }
 }

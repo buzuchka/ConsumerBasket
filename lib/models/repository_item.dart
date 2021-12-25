@@ -29,6 +29,8 @@ abstract class RepositoryItem<ItemT extends RepositoryItem<ItemT>> {
 abstract class RelativesRepositoryItem<
   ItemT extends RelativesRepositoryItem<ItemT, ParentT, ChildT>, ParentT, ChildT > extends RepositoryItem<ItemT> {
 
+  final Logger _logger = Logger("ParentsRepositoryItem<${ItemT.toString()}, ${ChildT.toString()}>");
+
   ParentT? _parent;
 
   ParentT? get parent => _parent;
@@ -42,7 +44,6 @@ abstract class RelativesRepositoryItem<
     }
   }
 
-  final Logger _logger = Logger("ParentsRepositoryItem<${ItemT.toString()}, ${ChildT.toString()}>");
 
   Future<Map<int,ChildT>> getChildren() async {
     var logger = _logger.subModule("getChildren()");

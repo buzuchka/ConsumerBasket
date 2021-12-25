@@ -4,10 +4,15 @@ abstract class AbstractRepository<ItemT> {
   final Logger _logger = Logger("AbstractRepository<${ItemT.toString()}>");
 
 
-  // returns items cache as id->value
+  // returns items as id->value (get form cache or get from db and create cache)
   Future<Map<int,ItemT>> getAll() async {
     _logger.abstractMethodError("getAll()");
     return {};
+  }
+
+  // returns items cache if it exists
+  Map<int,ItemT>? getAllCache() {
+    _logger.abstractMethodError("getAllCach()");
   }
 
   // returns true if success

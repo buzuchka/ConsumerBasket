@@ -2,35 +2,25 @@ import 'package:sqflite/sqflite.dart';
 
 import 'package:consumer_basket/repositories/base_repository.dart';
 import 'package:consumer_basket/models/goods.dart';
+import 'package:consumer_basket/repositories/db_field.dart';
 
 class GoodsRepository extends BaseDbRepository<GoodsItem> {
 
-  static const String _columnTitle = 'title';
-  static const String _columnImagePath = 'image_path';
-
-  GoodsRepository(Database dbReference){
-    db = dbReference;
-    table = "goods";
-    schema ="""
-        $_columnTitle TEXT(50), 
-        $_columnImagePath TEXT
-    """;
-  }
-
-  @override
-  Future<Map<String, Object?>?> toMap(GoodsItem obj) async{
-    var map = <String, Object?>{
-      _columnTitle: obj.title,
-      _columnImagePath: obj.imagePath,
-    };
-    return map;
-  }
-
-  @override
-  Future<GoodsItem?> fromMap(Map map) async{
-    GoodsItem result = GoodsItem();
-    result.title = map[_columnTitle] as String?;
-    result.imagePath = map[_columnImagePath] as String?;
-    return  result;
+  GoodsRepository(Database db){
+    super.init(
+        db, "goods",
+        () => GoodsItem(),
+        [
+          DbField<GoodsItem,String?>(
+              "title", "TEXT",
+                  (GoodsItem item) => item.title,
+                  (GoodsItem item, String? title) => item.title = title ),
+          DbField<GoodsItem,String?>(
+              "image_path", "TEXT",
+                  (GoodsItem item) => item.imagePath,
+                  (GoodsItem item, String? imagePath) => item.imagePath = imagePath ),
+        ]
+    );
   }
 }
+
