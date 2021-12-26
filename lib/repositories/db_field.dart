@@ -2,30 +2,54 @@ import 'package:consumer_basket/common/logger.dart';
 import 'package:consumer_basket/models/repository_item.dart';
 import 'package:consumer_basket/repositories/abstract_repository.dart';
 
-abstract class AbstractDbField {
-  late String name;
-  late String sqlType;
+abstract class AbstractField {
+  String name;
+
+  AbstractField(this.name);
 
   Object? abstractGet(Object item) {
   }
 
-  abstractSet(Object item, Object fieldValue) {
+  abstractSet(Object item, Object? fieldValue) {
   }
 }
 
 typedef Getter<ItemT,FieldT> = FieldT Function(ItemT);
 typedef Setter<ItemT,FieldT> = Function(ItemT, FieldT);
 
-class DbField<ItemT, FieldT> extends AbstractDbField {
+class DbField<ItemT, FieldT> extends AbstractField {
 
   Logger _logger = Logger(" DbField<${ItemT.toString()}, ${FieldT.toString()}>");
 
+  String sqlType;
   Getter<ItemT,FieldT> getter;
   Setter<ItemT,FieldT> setter;
 
-  DbField(String name, String sqlType, this.getter, this.setter){
-    super.name = name;
-    super.sqlType = sqlType;
+  bool index = false;
+  bool unique = false;
+
+  String? getIndexSchema(String tableName) {
+    if(!index){
+      return null;
+    }
+    String unique_str = "";
+    if(unique){
+      unique_str = "UNIQUE";
+    } 
+    return "CREATE $unique_str INDEX IF NOT EXISTS index_$name ON $tableName ($name);";
+  }
+
+
+  DbField(String name, this.sqlType , this.getter, this.setter, {bool? index, bool? unique}): super(name){
+    if(index != null){
+      this.index = index;
+    }
+    if(unique != null){
+      this.unique = unique;
+      if(unique == true){
+        this.index = true;
+      } 
+    }
   }
 
   @override
@@ -33,13 +57,14 @@ class DbField<ItemT, FieldT> extends AbstractDbField {
     return "$name $sqlType";
   }
 
+  String get fieldId => "${ItemT.toString()}_$name";
+
   @override
   Object? abstractGet(Object item) {
     if(item is ItemT) {
       return getter(item as ItemT);
     }
   }
-
 
   // abstractSet(Object item, Object? fieldValue) => setter(item as ItemT, fieldValue as FieldT);
   @override
@@ -59,13 +84,20 @@ class DbField<ItemT, FieldT> extends AbstractDbField {
 }
 
 
+typedef Hook<ItemT> = Future<void> Function(ItemT); 
 class RelativeDbField<ItemT,  FieldT extends RepositoryItem<FieldT>> extends DbField<ItemT, int?> {
 
   AbstractRepository<FieldT> relativeRepository;
 
-  RelativeDbField(String name, this.relativeRepository, Getter<ItemT,FieldT?> getter, Setter<ItemT,FieldT?> setter)
+  RelativeDbField(
+    String idName, 
+    this.relativeRepository, 
+    Getter<ItemT,FieldT?> getter, 
+    Setter<ItemT,FieldT?> setter,
+    {bool? index, bool? unique}
+    )
       : super(
-          name, "INTEGER",
+          idName, "INTEGER",
           (ItemT item) => (getter(item))?.id,
           (ItemT item, int? id) {
             var relCache = relativeRepository.getAllCache();
@@ -74,6 +106,14 @@ class RelativeDbField<ItemT,  FieldT extends RepositoryItem<FieldT>> extends DbF
             } else {
               setter(item, null);
             }
-          }
+          },
+          index: index,
+          unique: unique
           );
+
+  Hook<FieldT> idHookToFieldHook(Hook<int?> hook){
+    return (FieldT item){await hook(item.id);}; 
+  }
+
+
 }

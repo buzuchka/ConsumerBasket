@@ -3,55 +3,95 @@ import 'package:consumer_basket/common/logger.dart'
 import 'package:consumer_basket/repositories/base_repository.dart';
 import 'package:consumer_basket/models/categories.dart';
 
+class CategoriesRepositories {
+  late LowCategoriesRepository lowCategories;
+  late MiddleCategoriesRepository middleCategories;
+  late HighCategoriesRepository highCategories;
 
+  CategoriesRepositories(Database db) {
+    highCategories = HighCategoriesRepository(db);
+    middleCategories = MiddleCategoriesRepository(db, highCategories);
+    lowCategories = LowCategoriesRepository(db, middleCategories);
+  }
 
+}
 
 
 class LowCategoriesRepository extends BaseDbRepository<LowCategory> {
-  final Logger _logger = Logger("LowCategoriesRepository");
-  static const String _columnTitle = 'title';
-  static const String _columnMiddleCategoryId = 'middle_category';
-  MiddleCategoriesRepository middleCategoriesRepository;
 
-  LowCategoriesRepository(
-      Database dbReference,
-      this.middleCategoriesRepository){
-    db = dbReference;
-    table = "low_level_categories";
-    schema = """
-      $_columnTitle TEXT,
-      $_columnMiddleCategoryId INTEGER
-    """;
-  }
+ 
+  LowCategoriesRepository(Database db, MiddleCategoriesRepository middleCategoryRepository){
+    var titleField = DbField<LowCategory, String?>(
+      "title", "TEXT",
+      (LowCategory item) => item.title,
+      (LowCategory item, String? title) => item.title = title,
+    );
 
-  @override
-  Future<Map<String, Object?>?> toMap(LowCategory obj) async {
-    var map = <String, Object?>{
-      _columnTitle: obj.title,
-      _columnMiddleCategoryId: obj.parentCategory?.id,
-    };
-    return map;
-  }
-
-  @override
-  Future<LowCategory?> fromMap(Map map) async{
-    LowCategory result = LowCategory();
-    result.title = map[_columnTitle] as String?;
-    int? id = map[_columnMiddleCategoryId] as int?;
-    if (id != null){
-      var middles = await middleCategoriesRepository.getAll();
-      result.parentCategory = middles[id];
-      if(result.parentCategory == null){
-        _logger.subModule("fromMap()").error("bad reference to middle category");
-      }
-    }
-    //result.parent_category = map[_columnImagePathName] as String?;
-    return  result;
+    var parentCategoryField = RelativeDbField<LowCategory, MiddleCategory?>(
+      "parent_category_id", middleCategoryRepository,
+      (LowCategory item) => item.parentCategory,
+      (LowCategory item, MiddleCategory? parentCategory) => item.parentCategory = parentCategory,
+      index: true,
+    );
+    
+    super.init(
+        db, "low_categories", 
+        middleCategoryRepository,
+        () => LowCategory(),
+        [titleField, parentCategoryField]
+    );
   }
 }
 
 
 class MiddleCategoriesRepository  extends BaseDbRepository<MiddleCategory>{
 
+  MiddleCategoriesRepository(Database db, HighCategoriesRepository highCategoryRepository){
+    var titleField = DbField<MiddleCategory, String?>(
+      "title", "TEXT",
+      (MiddleCategory item) => item.title,
+      (MiddleCategory item, String? title) => item.title = title,
+    );
+
+    var parentCategoryField = RelativeDbField<MiddleCategory, HighCategory?>(
+      "parent_category_id", highCategoryRepository,
+      (MiddleCategory item) => item.parentCategory,
+      (MiddleCategory item, HighCategory? parentCategory) => item.parentCategory = parentCategory,
+      index: true,
+    );
+
+    super.init(
+        db, "middle_categories", 
+        () => MiddleCategory(),
+        [titleField, parentCategoryField]
+    );
+  }
+
+  Future<Map<Id,LowCategory>> getCildCategories(MiddleCategory middleCategory) async {
+    return await getDependents(middleCategory);
+  }
+
 }
 
+
+class HighCategoriesRepository  extends BaseDbRepository<HighCategory>{
+  
+  HighCategoriesRepository(Database db){
+    
+    var titleField = DbField<HighCategory, String?>(
+      "title", "TEXT",
+      (HighCategory item) => item.title,
+      (HighCategory item, String? title) => item.title = title,
+    );
+    
+    super.init(
+        db, "high_categories",
+        () => MiddleCategory(),
+        [titleField]
+    );
+  }
+
+  Future<Map<Id,MiddleCategory>> getCildCategories(HighCategory highCategory) async {
+    return await getDependents(highCategory);
+  }
+}

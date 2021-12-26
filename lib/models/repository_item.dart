@@ -4,9 +4,12 @@ import 'package:consumer_basket/common/logger.dart';
 
 
 
+typedef Id = int;
+
 abstract class RepositoryItem<ItemT extends RepositoryItem<ItemT>> {
+  
   AbstractRepository<ItemT>? repository;
-  int? id;
+  Id? id;
 
   final Logger _logger = Logger("RepositoryItem<${ItemT.toString()}>");
 
@@ -27,7 +30,8 @@ abstract class RepositoryItem<ItemT extends RepositoryItem<ItemT>> {
 
 
 abstract class RelativesRepositoryItem<
-  ItemT extends RelativesRepositoryItem<ItemT, ParentT, ChildT>, ParentT, ChildT > extends RepositoryItem<ItemT> {
+  ItemT extends RelativesRepositoryItem<ItemT, ParentT, ChildT>, ParentT, ChildT 
+  > extends RepositoryItem<ItemT> {
 
   final Logger _logger = Logger("ParentsRepositoryItem<${ItemT.toString()}, ${ChildT.toString()}>");
 
@@ -45,7 +49,7 @@ abstract class RelativesRepositoryItem<
   }
 
 
-  Future<Map<int,ChildT>> getChildren() async {
+  Future<Map<Id,ChildT>> getChildren() async {
     var logger = _logger.subModule("getChildren()");
     if(repository != null){
       var relRep = repository as AbstractRelativesRepository<ItemT, ParentT, ChildT>;
