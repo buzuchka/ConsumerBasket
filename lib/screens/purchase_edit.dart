@@ -102,7 +102,9 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                           const SizedBox(height: _spacing),
                           InkWell(
                             child: Text(
-                              'dfdfdfdfdfdff',
+                              (widget.purchase.shop != null && widget.purchase.shop!.title != null)
+                                  ? widget.purchase.shop!.title!
+                                  : 'Shop is undefined',
                               style: const TextStyle(
                                 fontSize: _fontSize,
                               ),

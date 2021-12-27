@@ -22,7 +22,7 @@ class PurchaseListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            (purchase.shopId != null) ? purchase.shopId.toString() : 'Shop is undefined',
+            (purchase.shop != null && purchase.shop!.title != null) ? purchase.shop!.title! : 'Shop is undefined',
             maxLines: 2,
             style: const TextStyle(
               fontSize: 18,

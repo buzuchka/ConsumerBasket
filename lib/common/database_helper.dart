@@ -1,15 +1,18 @@
+import 'package:consumer_basket/repositories/shops.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:path/path.dart';
 
 import 'package:consumer_basket/repositories/goods.dart';
 import 'package:consumer_basket/repositories/purchases.dart';
+import 'package:consumer_basket/repositories/shops.dart';
 
 const String databaseName = 'CustomerBasket';
 
 abstract class DatabaseHelper {
   static late Database db;
   static late GoodsRepository goodsRepository;
+  static late ShopsRepository shopsRepository;
   static late PurchasesRepository purchasesRepository;
 
   static int get _version => 1;
@@ -24,10 +27,15 @@ abstract class DatabaseHelper {
           onCreate: _onCreate
       );
       goodsRepository = GoodsRepository(db);
-      purchasesRepository = PurchasesRepository(db);
+      shopsRepository = ShopsRepository(db);
+      purchasesRepository = PurchasesRepository(db, shopsRepository);
+
+      await goodsRepository.createIfNotExists();
+      await shopsRepository.createIfNotExists();
+      await purchasesRepository.createIfNotExists();
     }
     catch(ex) {
-      print(ex);
+      print("Cought error: $ex");
     }
   }
 
@@ -37,20 +45,21 @@ abstract class DatabaseHelper {
   }
 
   static void _onCreate(Database db, int version) async {
-    await db.execute(
-        'CREATE TABLE goods ('
-            'id INTEGER PRIMARY KEY NOT NULL, '
-            'title TEXT(50), '
-            'image_path TEXT'
-            ')');
-    await db.execute(
-        'CREATE TABLE purchases ('
-            'id INTEGER PRIMARY KEY NOT NULL, '
-            'shop_id INTEGER, '
-            'date_text TEXT(25), '
-            'FOREIGN KEY (shop_id) REFERENCES shops (id) '
-            'ON DELETE CASCADE ON UPDATE NO ACTION'
-            ')');
+
+    // await db.execute(
+    //     'CREATE TABLE goods ('
+    //         'id INTEGER PRIMARY KEY NOT NULL, '
+    //         'title TEXT(50), '
+    //         'image_path TEXT'
+    //         ')');
+    // await db.execute(
+    //     'CREATE TABLE purchases ('
+    //         'id INTEGER PRIMARY KEY NOT NULL, '
+    //         'shop_id INTEGER, '
+    //         'date_text TEXT(25), '
+    //         'FOREIGN KEY (shop_id) REFERENCES shops (id) '
+    //         'ON DELETE CASCADE ON UPDATE NO ACTION'
+    //         ')');
     await db.execute(
         'CREATE TABLE purchase_item ('
             'purchase_id INTEGER NOT NULL, '
