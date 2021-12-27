@@ -6,10 +6,10 @@ import 'package:consumer_basket/repositories/db_field.dart';
 
 typedef ItemCreator<ItemT> = ItemT Function();
 
-class DependentRepository{
+class DependentRepositoryInfo{
   RelativeDbField field;
   BaseDbRepository repository;
-  DependentRepository(this.field, this.repository);
+  DependentRepositoryInfo(this.field, this.repository);
 }
 
 abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends AbstractRepository<ItemT> {
@@ -22,19 +22,20 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
   late List<DbField> simpleFields;
   late List<RelativeDbField> relativeFields;
 
-  late ItemCreator<ItemT> itemCreator;
-
-  // dependent item type -> repository
-  Map<String, DependentRepository> dependentRepositortiesByType = {};
-
-  String get itemType => ItemT.toString();
-
   List<Hook<ItemT>> onInsertHooks = [];
   List<Hook<ItemT>> onUpdateHooks = [];
   List<Hook<ItemT>> onDeleteHooks = [];
 
+  late ItemCreator<ItemT> itemCreator;
+
+  // dependent item type -> repository
+  Map<String, DependentRepositoryInfo> dependentRepositortiesByType = {};
+
+  String get itemType => ItemT.toString();
+
+
   final Logger _logger = Logger("BaseRepository<${ItemT.toString()}>");
-  Map<Id,ItemT>? _itemsCache;
+  Map<int,ItemT>? _itemsCache;
   
   static const String _columnIdName = 'id';
 
@@ -55,42 +56,43 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
         ItemCreator<ItemT> itemCreator,
         List<DbField> fields
         ){
+    _logger.info("1");
     this.db = db;
+    _logger.info("2");
     this.table = table;
+    _logger.info("3");
     allFields = fields;
+    _logger.info("4");
     simpleFields = [];
     relativeFields = [];
     List<String> indexList = [];
     for(var field in fields){
       if(field is RelativeDbField){
         relativeFields.add(field);
-        var relRep = field.relativeRepository.
-        relRep.dependentRepositortiesByType[field.relativeRepository.itemType] = DependentRepository(field, this);
-        relRep.onDeleteHooks.add( 
-          field.idHookToFieldHook(
-            (Id? id){await _handleRelativeDelition(field, id);}
-          ) 
-        );
+        field.setDependentRepository(this);
+        _logger.info("successfully set dependend repository");
       } else {
         simpleFields.add(field);
       }
       var index = field.getIndexSchema(table);
-      if(index){
+      if(index != null){
         indexList.add(index);
       }
     }
     this.itemCreator = itemCreator;
     schema = fields.join(", ");
     indexes = indexList.join(" ");
+    _logger.info("db=$db");
+    _logger.info("end");
   }
 
   // returns items as id->value (get form cache or get from db and create cache)
   @override
-  Future<Map<Id,ItemT>> getAll() async {
+  Future<Map<int,ItemT>> getAll() async {
     if(_itemsCache != null){
       return _itemsCache!;
     }
-    _itemsCache = <Id,ItemT>{};
+    _itemsCache = <int,ItemT>{};
     List<Map<String, dynamic>> raw_objs = await db.query(table);
     for (var raw_obj in raw_objs){
       ItemT? obj = await fromMap(raw_obj);
@@ -99,7 +101,7 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
         continue;
       }
       obj.repository = this;
-      Id id = raw_obj[_columnIdName] as Id;
+      int id = raw_obj[_columnIdName] as int;
       obj.id = id;
       _itemsCache![id] = obj;
     }
@@ -108,13 +110,13 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
 
   // returns items cache if it exists
   @override
-  Map<Id,ItemT>? getAllCache() {
+  Map<int,ItemT>? getAllCache() {
     return _itemsCache;
   }
 
 
   // return items with certen relative field
-  Future<Map<Id,ItemT>> getByRelative<
+  Future<Map<int,ItemT>> getByRelative<
     FieldT extends  RepositoryItem<FieldT>
     >(RelativeDbField<ItemT,FieldT> field, FieldT relative) async {
     if(relative.id == null){
@@ -124,9 +126,9 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
   }
 
   // return items with certen field (do not check that index exists)
-  Future<Map<Id,ItemT>> getByField<FieldT>(DbField<ItemT,dynamic> field, FieldT value) async{
+  Future<Map<int,ItemT>> getByField<FieldT>(DbField<ItemT,dynamic> field, FieldT value) async{
     var logger = _logger.subModule("getByField<${FieldT.toString()}>()");
-    Map<Id,ItemT> result = {}; 
+    Map<int,ItemT> result = {};
     var allItems = await getAll();
     List<Map> rawResult = await db.rawQuery("""
       SELECT $_columnIdName 
@@ -147,10 +149,10 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
 
   // returns dependnet items (from dependent repository)
   // only one dependent by type can be resolved
-  Future<Map<Id, DependentT>> getDependents<
+  Future<Map<int, DependentT>> getDependents<
     DependentT extends RepositoryItem<DependentT>
     >(ItemT item) async {
-    var logger = _logger.supModule("getDependents<${DependentT.toString()}>()");
+    var logger = _logger.subModule("getDependents<${DependentT.toString()}>()");
     if(item.isValid(repository: this, logger: logger)){
       return {};
     }
@@ -160,12 +162,13 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
       return {};
     }
     var rep = depRep.repository as BaseDbRepository<DependentT>;
-    return await rep.getByRelative(depRep.field, item);
+    var field = depRep.field as RelativeDbField<DependentT,ItemT>;
+    return await rep.getByRelative(field, item);
   }
 
   // returns inserted id or 0 if not inserted
   @override
-  Future<Id> insert(ItemT item) async {
+  Future<int> insert(ItemT item) async {
     var logger = _logger.subModule("insert()");
     if(item.repository != null){
       logger.error("item already inserted");
@@ -179,7 +182,7 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
     if (item.id != null) {
       map[_columnIdName] = item.id;
     }
-    Id id = await db.insert(table, map);
+    int id = await db.insert(table, map);
     if(id != 0){
       item.repository = this;
       item.id = id;
@@ -198,7 +201,7 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
   @override
   Future<bool> update(ItemT item) async {
     var logger = _logger.subModule("update()");
-    Id? id = item.id;
+    int? id = item.id;
     if(!item.isValid(repository: this, logger: logger)){
       return false;
     }
@@ -224,7 +227,7 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
     if(!item.isValid(repository: this, logger: logger)){
       return false;
     }
-    Id id = item.id!;
+    int id = item.id!;
     bool deleted = await _deleteById(id);
     if(deleted) {
       item.repository = null;
@@ -261,7 +264,7 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
     return item;
   }
 
-  Future<bool> _deleteById(Id id) async {
+  Future<bool> _deleteById(int id) async {
     var logger = _logger.subModule("_deleteById()");
     int deleteCount = await db.delete(table, where: 'id = ?', whereArgs: [id]);
     if(deleteCount == 0) {
@@ -272,14 +275,14 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
     return true;
   }
 
-  Future<void> _handleRelativeDelition(RelativeDbField field, Id? id) async{
+  Future<void> handleRelativeDelition(RelativeDbField field, int? id) async{
     if(id == null){
       return;
     }
 
     if(_itemsCache != null){
       for(var item in _itemsCache!.values){
-        Id? fieldId = field.abstractGet(item) as Id?;
+        int? fieldId = field.abstractGet(item) as int?;
         if(fieldId == id){
           field.abstractSet(item, null);
         }
@@ -312,11 +315,11 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
 
 //   AbstractRelativesRepository<ChildT, ItemT, dynamic>? childrenRepository;
 //   AbstractRelativesRepository<ParentT, dynamic, ItemT>? parentsRepository;
-//   Map<Id,Map<Id,ItemT>>? _itemsByParentCache = {};
+//   Map<int,Map<int,ItemT>>? _itemsByParentCache = {};
 
 //   // returns inserted id or 0 if not inserted
 //   @override
-//   Future<Id> insert(ItemT item) async {
+//   Future<int> insert(ItemT item) async {
 //     var id = await super.insert(item);
 //     if(id != 0 ){
 //       var childMap = _tryGetOrCreateChildMap(item);
@@ -348,7 +351,7 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
 //   }
 
 //   @override
-//   Future<Map<Id,ChildT>> getChildren(ItemT item) async {
+//   Future<Map<int,ChildT>> getChildren(ItemT item) async {
 //     var logger = _logger.subModule("getChildren()");
 //     if(item.isValid(repository: this, logger: logger)){
 //       return {};
@@ -361,7 +364,7 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
 //   }
 
 //   @override
-//   Future<Map<Id,ItemT>> getItemsByParent(ParentT parent) async{
+//   Future<Map<int,ItemT>> getItemsByParent(ParentT parent) async{
 //     var logger = _logger.subModule("getChildren()");
 //     if(parent.isValid(logger: logger)){
 //       return {};
@@ -374,9 +377,9 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
 //     return {};
 //   }
 
-//   Future<Map<Id,Map<Id,ItemT>>>  _getItemsByParent() async {
+//   Future<Map<int,Map<int,ItemT>>>  _getItemsByParent() async {
 //     var allItems = await getAll();
-//     Map<Id,Map<Id,ItemT>> result = {};
+//     Map<int,Map<int,ItemT>> result = {};
 
 //     for(var item in allItems.values){
 //       if(item.parent != null && item.parent!.id != null && item.id != null) {
@@ -387,7 +390,7 @@ abstract class BaseDbRepository<ItemT extends RepositoryItem<ItemT>> extends Abs
 //     return result;
 //   }
 
-//   Map<Id,ItemT>? _tryGetOrCreateChildMap(ItemT item){
+//   Map<int,ItemT>? _tryGetOrCreateChildMap(ItemT item){
 //     if(_itemsByParentCache == null){
 //       return null;
 //     }

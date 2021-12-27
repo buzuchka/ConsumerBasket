@@ -1,8 +1,9 @@
 import 'package:consumer_basket/common/logger.dart';
 
+typedef Hook<ItemT> = Future<void> Function(ItemT);
+
 abstract class AbstractRepository<ItemT> {
   final Logger _logger = Logger("AbstractRepository<${ItemT.toString()}>");
-
 
   // returns items as id->value (get form cache or get from db and create cache)
   Future<Map<int,ItemT>> getAll() async {

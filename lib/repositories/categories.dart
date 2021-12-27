@@ -67,7 +67,7 @@ class MiddleCategoriesRepository  extends BaseDbRepository<MiddleCategory>{
     );
   }
 
-  Future<Map<Id,LowCategory>> getCildCategories(MiddleCategory middleCategory) async {
+  Future<Map<int,LowCategory>> getCildCategories(MiddleCategory middleCategory) async {
     return await getDependents(middleCategory);
   }
 
@@ -91,7 +91,7 @@ class HighCategoriesRepository  extends BaseDbRepository<HighCategory>{
     );
   }
 
-  Future<Map<Id,MiddleCategory>> getCildCategories(HighCategory highCategory) async {
+  Future<Map<int,MiddleCategory>> getCildCategories(HighCategory highCategory) async {
     return await getDependents(highCategory);
   }
 }

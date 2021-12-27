@@ -12,7 +12,7 @@ class MiddleCategory extends  RepositoryItem<MiddleCategory> {
   HighCategory? parentCategory;
   String? title;
 
-  Future<Map<Id, LowCategory>> getChildCategories() async{
+  Future<Map<int, LowCategory>> getChildCategories() async{
     if(repository != null){
       return await (repository as MiddleCategoriesRepository).getChildCategories(this);
     }
@@ -23,7 +23,7 @@ class MiddleCategory extends  RepositoryItem<MiddleCategory> {
 class HighCategory extends RepositoryItem<HighCategory> {
   String? title;
   
-  Future<Map<Id, MiddleCategory>> getChildCategories() async{
+  Future<Map<int, MiddleCategory>> getChildCategories() async{
     if(repository != null){
       return await (repository as HightCategoriesRepository).getChildCategories(this);
     }

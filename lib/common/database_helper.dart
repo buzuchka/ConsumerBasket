@@ -1,15 +1,18 @@
+import 'package:consumer_basket/repositories/shops.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:path/path.dart';
 
 import 'package:consumer_basket/repositories/goods.dart';
 import 'package:consumer_basket/repositories/purchases.dart';
+import 'package:consumer_basket/repositories/shops.dart';
 
 const String databaseName = 'CustomerBasket';
 
 abstract class DatabaseHelper {
   static late Database db;
   static late GoodsRepository goodsRepository;
+  static late ShopsRepository shopsRepository;
   static late PurchasesRepository purchasesRepository;
 
   static int get _version => 1;
@@ -24,13 +27,15 @@ abstract class DatabaseHelper {
           onCreate: _onCreate
       );
       goodsRepository = GoodsRepository(db);
-      purchasesRepository = PurchasesRepository(db);
+      shopsRepository = ShopsRepository(db);
+      purchasesRepository = PurchasesRepository(db, shopsRepository);
 
       await goodsRepository.createIfNotExists();
+      await shopsRepository.createIfNotExists();
       await purchasesRepository.createIfNotExists();
     }
     catch(ex) {
-      print(ex);
+      print("Cought error: $ex");
     }
   }
 
