@@ -1,4 +1,4 @@
-import 'package:consumer_basket/models/repository_item.dart';
+import 'package:consumer_basket/base/repositories/repository_item.dart';
 
 // Товар
 class GoodsItem extends RepositoryItem<GoodsItem> {

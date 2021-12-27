@@ -1,7 +1,6 @@
-import 'package:consumer_basket/common/logger.dart';
-import 'package:consumer_basket/models/repository_item.dart';
-import 'package:consumer_basket/repositories/abstract_repository.dart';
-import 'package:consumer_basket/repositories/base_repository.dart';
+import 'package:consumer_basket/base/logger.dart';
+import 'package:consumer_basket/base/repositories/repository_item.dart';
+import 'package:consumer_basket/base/repositories/db_repository.dart';
 
 abstract class AbstractField {
   String name;
@@ -88,7 +87,7 @@ class DbField<ItemT, FieldT> extends AbstractField {
 
 class RelativeDbField<ItemT extends RepositoryItem<ItemT>,  FieldT extends RepositoryItem<FieldT>> extends DbField<ItemT, int?> {
 
-  BaseDbRepository<FieldT> relativeRepository;
+  DbRepository<FieldT> relativeRepository;
 
   RelativeDbField(
     String idName, 
@@ -112,18 +111,13 @@ class RelativeDbField<ItemT extends RepositoryItem<ItemT>,  FieldT extends Repos
           unique: unique
           );
 
-  void setDependentRepository(BaseDbRepository<ItemT> repository){
+  void setDependentRepository(DbRepository<ItemT> repository){
 
-    relativeRepository.dependentRepositortiesByType[ItemT.toString()] =
+    relativeRepository.dependentRepositoriesByType[ItemT.toString()] =
         DependentRepositoryInfo(this, repository);
 
     relativeRepository.onDeleteHooks.add(
-            (FieldT item) async => await repository.handleRelativeDelition(this, item.id)
+            (FieldT item) async => await repository.handleRelativeDeletion(this, item.id)
     );
   }
-
-  void _addHookOnDelete(Hook<int?> hookWithId){
-
-  }
-
 }

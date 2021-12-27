@@ -1,6 +1,5 @@
-import 'package:consumer_basket/repositories/abstract_repository.dart';
-
-import 'package:consumer_basket/common/logger.dart';
+import 'package:consumer_basket/base/repositories/abstract_repository.dart';
+import 'package:consumer_basket/base/logger.dart';
 
 
 abstract class RepositoryItem<ItemT extends RepositoryItem<ItemT>> {
@@ -24,40 +23,6 @@ abstract class RepositoryItem<ItemT extends RepositoryItem<ItemT>> {
     return isValidRepositoryItem(this);
   }
 }
-
-
-abstract class RelativesRepositoryItem<
-  ItemT extends RelativesRepositoryItem<ItemT, ParentT, ChildT>, ParentT, ChildT 
-  > extends RepositoryItem<ItemT> {
-
-  final Logger _logger = Logger("ParentsRepositoryItem<${ItemT.toString()}, ${ChildT.toString()}>");
-
-  ParentT? _parent;
-
-  ParentT? get parent => _parent;
-
-  set parent(ParentT? p) {
-    if(repository != null){
-      var relRep = repository! as AbstractRelativesRepository<ItemT, ParentT, ChildT>;
-      relRep.setParent(this as ItemT, p);
-    } else {
-      parent = p;
-    }
-  }
-
-
-  Future<Map<int,ChildT>> getChildren() async {
-    var logger = _logger.subModule("getChildren()");
-    if(repository != null){
-      var relRep = repository as AbstractRelativesRepository<ItemT, ParentT, ChildT>;
-      await relRep.getChildren(this as ItemT);
-    } else {
-      _logger.error("repository does not exist");
-    }
-    return {};
-  }
-}
-
 
 bool isValidRepositoryItem<ItemT extends RepositoryItem<ItemT>>(
     ItemT? item, {AbstractRepository<ItemT>? repository, Logger? logger}){

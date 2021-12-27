@@ -13,9 +13,6 @@ class PurchaseItem extends Model {
   GoodsItem i;
   double? goodsPrice;
   int? goodsCount;
-
-
-
   PurchaseItem();
 
   PurchaseItem.Full(

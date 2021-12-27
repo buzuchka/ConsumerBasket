@@ -1,7 +1,8 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:consumer_basket/common/logger.dart'
-import 'package:consumer_basket/repositories/base_repository.dart';
+import 'package:consumer_basket/base/repositories/db_repository.dart';
+import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/models/categories.dart';
+
 
 class CategoriesRepositories {
   late LowCategoriesRepository lowCategories;
@@ -13,85 +14,78 @@ class CategoriesRepositories {
     middleCategories = MiddleCategoriesRepository(db, highCategories);
     lowCategories = LowCategoriesRepository(db, middleCategories);
   }
-
 }
 
 
-class LowCategoriesRepository extends BaseDbRepository<LowCategory> {
+class LowCategoriesRepository extends DbRepository<LowCategory> {
 
- 
   LowCategoriesRepository(Database db, MiddleCategoriesRepository middleCategoryRepository){
-    var titleField = DbField<LowCategory, String?>(
-      "title", "TEXT",
-      (LowCategory item) => item.title,
-      (LowCategory item, String? title) => item.title = title,
-    );
-
-    var parentCategoryField = RelativeDbField<LowCategory, MiddleCategory?>(
-      "parent_category_id", middleCategoryRepository,
-      (LowCategory item) => item.parentCategory,
-      (LowCategory item, MiddleCategory? parentCategory) => item.parentCategory = parentCategory,
-      index: true,
-    );
-    
     super.init(
-        db, "low_categories", 
-        middleCategoryRepository,
+        db, "low_categories",
         () => LowCategory(),
-        [titleField, parentCategoryField]
+        [
+          DbField<LowCategory, String?>(
+              "title", "TEXT",
+              (LowCategory item) => item.title,
+              (LowCategory item, String? title) => item.title = title,
+          ),
+          RelativeDbField<LowCategory, MiddleCategory>(
+              "parent_category_id", middleCategoryRepository,
+              (LowCategory item) => item.parentCategory,
+              (LowCategory item, MiddleCategory? parentCategory) => item.parentCategory = parentCategory,
+              index: true,
+          )
+        ]
     );
   }
 }
 
 
-class MiddleCategoriesRepository  extends BaseDbRepository<MiddleCategory>{
+class MiddleCategoriesRepository  extends DbRepository<MiddleCategory>{
 
   MiddleCategoriesRepository(Database db, HighCategoriesRepository highCategoryRepository){
-    var titleField = DbField<MiddleCategory, String?>(
-      "title", "TEXT",
-      (MiddleCategory item) => item.title,
-      (MiddleCategory item, String? title) => item.title = title,
-    );
-
-    var parentCategoryField = RelativeDbField<MiddleCategory, HighCategory?>(
-      "parent_category_id", highCategoryRepository,
-      (MiddleCategory item) => item.parentCategory,
-      (MiddleCategory item, HighCategory? parentCategory) => item.parentCategory = parentCategory,
-      index: true,
-    );
-
     super.init(
         db, "middle_categories", 
         () => MiddleCategory(),
-        [titleField, parentCategoryField]
+        [
+          DbField<MiddleCategory, String?>(
+            "title", "TEXT",
+            (MiddleCategory item) => item.title,
+            (MiddleCategory item, String? title) => item.title = title,
+          ),
+          RelativeDbField<MiddleCategory, HighCategory>(
+            "parent_category_id", highCategoryRepository,
+            (MiddleCategory item) => item.parentCategory,
+            (MiddleCategory item, HighCategory? parentCategory) => item.parentCategory = parentCategory,
+            index: true,
+          )
+        ]
     );
   }
 
-  Future<Map<int,LowCategory>> getCildCategories(MiddleCategory middleCategory) async {
+  Future<Map<int,LowCategory>> getChildCategories(MiddleCategory middleCategory) async {
     return await getDependents(middleCategory);
   }
-
 }
 
 
-class HighCategoriesRepository  extends BaseDbRepository<HighCategory>{
+class HighCategoriesRepository  extends DbRepository<HighCategory>{
   
   HighCategoriesRepository(Database db){
-    
-    var titleField = DbField<HighCategory, String?>(
-      "title", "TEXT",
-      (HighCategory item) => item.title,
-      (HighCategory item, String? title) => item.title = title,
-    );
-    
     super.init(
         db, "high_categories",
-        () => MiddleCategory(),
-        [titleField]
+        () => HighCategory(),
+        [
+          DbField<HighCategory, String?>(
+            "title", "TEXT",
+            (HighCategory item) => item.title,
+            (HighCategory item, String? title) => item.title = title,
+          )
+        ]
     );
   }
 
-  Future<Map<int,MiddleCategory>> getCildCategories(HighCategory highCategory) async {
+  Future<Map<int,MiddleCategory>> getChildCategories(HighCategory highCategory) async {
     return await getDependents(highCategory);
   }
 }

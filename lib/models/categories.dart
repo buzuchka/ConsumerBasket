@@ -1,11 +1,10 @@
-import 'package:consumer_basket/common/logger.dart';
-import 'package:consumer_basket/models/repository_item.dart';
+import 'package:consumer_basket/repositories/categories.dart';
+import 'package:consumer_basket/base/repositories/repository_item.dart';
 
 
 class LowCategory extends RepositoryItem<LowCategory> {
   MiddleCategory? parentCategory;
   String? title;
-
 }
 
 class MiddleCategory extends  RepositoryItem<MiddleCategory> {
@@ -25,7 +24,7 @@ class HighCategory extends RepositoryItem<HighCategory> {
   
   Future<Map<int, MiddleCategory>> getChildCategories() async{
     if(repository != null){
-      return await (repository as HightCategoriesRepository).getChildCategories(this);
+      return await (repository as HighCategoriesRepository).getChildCategories(this);
     }
     return {};
   }

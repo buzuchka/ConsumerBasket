@@ -3,13 +3,12 @@ import 'package:sqflite/sqflite.dart';
 
 import 'package:consumer_basket/models/shop.dart';
 import 'package:consumer_basket/models/purchase.dart';
-import 'package:consumer_basket/repositories/base_repository.dart';
-import 'package:consumer_basket/repositories/db_field.dart';
+import 'package:consumer_basket/base/repositories/db_repository.dart';
+import 'package:consumer_basket/base/repositories/db_field.dart';
 
-class PurchasesRepository extends BaseDbRepository<Purchase> {
+class PurchasesRepository extends DbRepository<Purchase> {
 
   PurchasesRepository(Database db, ShopsRepository shopsRepository){
-    print("BINGO1");
     super.init(
       db,"purchases",
       () => Purchase(),
@@ -32,6 +31,5 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
         )
       ]
     );
-    print("BINGO2");
   }
 }
