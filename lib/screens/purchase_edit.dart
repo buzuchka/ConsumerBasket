@@ -111,6 +111,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                               );
                               widget.purchase.shop = selectedShop;
                               widget.purchase.saveToRepository();
+                              _isItemDataChanged = true;
                               setState(() {});
                             },
                           )
