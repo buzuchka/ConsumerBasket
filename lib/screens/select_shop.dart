@@ -16,7 +16,25 @@ class SelectShopScreen extends StatefulWidget {
 }
 
 class _SelectShopScreenState extends State<SelectShopScreen> {
-  int? selectedIndex;
+  late Future<Map<int, Shop>> _allShopsFuture;
+  int? _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _allShopsFuture = getShops();
+  }
+
+  Future<Map<int,Shop>> getShops() async {
+    return await DatabaseHelper.shopsRepository.getAll();
+  }
+
+  void refreshShopList() {
+    setState(() {
+      _allShopsFuture = getShops();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +44,7 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
           title: const Text("Select shop"),
         ),
         body: Container(
-          padding: const EdgeInsets.all(10),
+          //padding: const EdgeInsets.all(10),
           child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -35,42 +53,59 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
                 SizedBox(
                   height: 500,
                   child:
-                    FutureBuilder<Map>(
-                      future: DatabaseHelper.shopsRepository.getAll(),
+                    FutureBuilder<Map<int, Shop>>(
+                      future: _allShopsFuture,
                       initialData: {},
                       builder: (context, snapshot) {
-                        return (snapshot.connectionState != ConnectionState.waiting)
-                          ? ListView.separated(
-                          padding: const EdgeInsets.all(10.0),
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (_, int position) {
-                            final currentShop = snapshot.data!.values.elementAt(position);
-                            return InkWell(
-                              child: ShopListItem(shop: currentShop),
-                              onTap: () {
-                                setState(() {
-                                  selectedIndex = position;
-                                });
-                                widget.shop = snapshot.data!.values.elementAt(position);
-                              }
-                          );
-                        },
-                        separatorBuilder: (context, index) {
-                          return const Divider();
-                        },
-                      )
-                          : const Center(
-                          child: SizedBox(
+                        if(snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                            child: SizedBox(
                               width: 100.0,
                               height: 100.0,
                               child: CircularProgressIndicator(
                                 backgroundColor: Colors.deepPurple,
                                 color: Colors.grey,
                               )
-                          )
-                      );
-                    }
-                  ),
+                            )
+                          );
+                        } else if(snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          final Map items = snapshot.data ?? {};
+                          return ListView.separated(
+                            padding: const EdgeInsets.all(10.0),
+                            itemCount: items.length,
+                            itemBuilder: (_, int position) {
+                              final currentShop = items.values.elementAt(position);
+                              final bool isSelected = (position == _selectedIndex);
+                              return InkWell(
+                                child: Container (
+                                  padding: const EdgeInsets.all(10.0),
+                                  decoration: BoxDecoration(
+                                    color: (isSelected)
+                                      ? Colors.deepPurpleAccent.withOpacity(0.05)
+                                      : Colors.white,
+                                    border: isSelected
+                                      ? Border.all(color: Colors.deepPurple.withOpacity(0.3))
+                                      : null
+                                  ),
+                                  child: ShopListItem(shop: currentShop)
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    _selectedIndex = position;
+                                  });
+                                  widget.shop = currentShop;
+                                }
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const Divider();
+                            },
+                          );
+                        }
+                      }
+                   ),
                 ),
                 ElevatedButton(
                   child: const Text('Add new shop'),
