@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/models/purchase.dart';
+import 'package:consumer_basket/screens/select_shop.dart';
 
 // Окно для добавления, просмотра и редактирования Покупки
 class PurchaseEditScreen extends StatefulWidget {
@@ -22,16 +23,6 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
   static final DateFormat _viewDateFormat = DateFormat("dd.MM.yyyy");
   static const double _fontSize = 20.0;
   static const double _spacing = 10.0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +101,17 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                               ),
                             ),
                             onTap: () async {
-                              await _selectDate(context);
+                              // SELECT SHOP
+                              final selectedShop = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SelectShopScreen(
+                                        shop: widget.purchase.shop)
+                                ),
+                              );
+                              widget.purchase.shop = selectedShop;
+                              widget.purchase.saveToRepository();
+                              setState(() {});
                             },
                           )
                         ],

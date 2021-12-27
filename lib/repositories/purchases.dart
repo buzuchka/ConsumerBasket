@@ -15,7 +15,7 @@ class PurchasesRepository extends BaseDbRepository<Purchase> {
       () => Purchase(),
       [
         DbField<Purchase,String?>(
-            "date", "TEXT",
+            "date_text", "TEXT",
             (Purchase item) => item.date.toString(),
             (Purchase item, String? date) {
               if(date != null) {

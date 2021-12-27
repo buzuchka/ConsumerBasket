@@ -14,8 +14,7 @@ class ShopsRepository extends BaseDbRepository<Shop> {
           DbField<Shop,String?>(
               "title", "TEXT",
               (Shop item) => item.title,
-              (Shop item, String? title) => item.title = title//,
-              //unique: true
+              (Shop item, String? title) => item.title = title
           )
         ]
     );

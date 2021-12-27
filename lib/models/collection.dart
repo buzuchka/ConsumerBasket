@@ -142,7 +142,7 @@ abstract class AbstractCollection<ItemT> {
 }
 
 
-class RepositoryItemCollection<ItemT extends RepositoryItem> extends AbstractCollection<ItemT> {
+class RepositoryItemCollection<ItemT extends RepositoryItem<ItemT>> extends AbstractCollection<ItemT> {
   Map<int, ItemT> _itemById = {};
 
   final Logger _logger = Logger("RepositoryItemCollection<${ItemT.toString()}>");
