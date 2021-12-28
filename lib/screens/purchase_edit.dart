@@ -1,10 +1,14 @@
+import 'package:consumer_basket/lists/purchase_item_list_item.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/models/purchase.dart';
-import 'package:consumer_basket/screens/select_shop.dart';
+import 'package:consumer_basket/models/purchase_item.dart';
+import 'package:consumer_basket/screens/purchase_item_edit.dart';
+import 'package:consumer_basket/screens/purchase_select_goods_item.dart';
+import 'package:consumer_basket/screens/purchase_select_shop.dart';
 
 // Окно для добавления, просмотра и редактирования Покупки
 class PurchaseEditScreen extends StatefulWidget {
@@ -18,11 +22,28 @@ class PurchaseEditScreen extends StatefulWidget {
 }
 
 class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
+  late Future<List<PurchaseItem>> _allPurchaseItemsFuture;
+
   bool _isItemDataChanged = false;
 
   static final DateFormat _viewDateFormat = DateFormat("dd.MM.yyyy");
   static const double _fontSize = 20.0;
   static const double _spacing = 10.0;
+
+  static const String _currencyStr = 'р.';
+
+  @override
+  void initState() {
+    super.initState();
+
+    _allPurchaseItemsFuture = widget.purchase.getPurchaseItems();
+  }
+
+  void _refreshPurchaseItemList() {
+    setState(() {
+      _allPurchaseItemsFuture = widget.purchase.getPurchaseItems();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +69,8 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
         body: Container(
           padding: const EdgeInsets.all(10),
           child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -95,9 +116,10 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                             child: Text(
                               (widget.purchase.shop != null && widget.purchase.shop!.title != null)
                                   ? widget.purchase.shop!.title!
-                                  : 'Shop is undefined',
-                              style: const TextStyle(
+                                  : 'Not selected',
+                              style: TextStyle(
                                 fontSize: _fontSize,
+                                color: Theme.of(context).primaryColor,
                               ),
                             ),
                             onTap: () async {
@@ -108,12 +130,12 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                                     builder: (context) => const SelectShopScreen()
                                 ),
                               );
-                            if(selectedShop != null) {
-                              widget.purchase.shop = selectedShop;
-                              widget.purchase.saveToRepository();
-                              _isItemDataChanged = true;
-                              setState(() {});
-                            }
+                              if(selectedShop != null) {
+                                widget.purchase.shop = selectedShop;
+                                widget.purchase.saveToRepository();
+                                _isItemDataChanged = true;
+                                setState(() {});
+                              }
                             },
                           )
                         ],
@@ -122,8 +144,124 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   ],
                 ),
                 const SizedBox(height: _spacing),
-                const Text('To be continued...')
+                Row(
+                  children: [
+                    const Text('List of Goods:'),
+                    const SizedBox(width: _spacing),
+                    FutureBuilder<List>(
+                      future: _allPurchaseItemsFuture,
+                      initialData: [],
+                      builder:  (context, snapshot) {
+                        String text;
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          text = 'Loading...';
+                        } else if (snapshot.hasError) {
+                          text = 'Empty';
+                        } else {
+                          final List items = snapshot.data ?? [];
+                          text = (items.isEmpty) ?  'Empty' : '';
+                        }
+                        return Text(text);
+                      }
+                    )
+                  ],
+                ),
+                const SizedBox(height: _spacing),
+                Expanded(
+                  child: FutureBuilder<List<PurchaseItem>>(
+                      future: _allPurchaseItemsFuture,
+                      initialData: [],
+                      builder: (context, snapshot) {
+                        if(snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                              child: SizedBox(
+                                  width: 100.0,
+                                  height: 100.0,
+                                  child: CircularProgressIndicator(
+                                    backgroundColor: Colors.deepPurple,
+                                    color: Colors.grey,
+                                  )
+                              )
+                          );
+                        } else if(snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          final List items = snapshot.data ?? [];
+                          return ListView.separated(
+                            padding: const EdgeInsets.all(10.0),
+                            shrinkWrap: true,
+                            itemCount: items.length,
+                            itemBuilder: (_, int position) {
+                              final currentItem = items.elementAt(position);
+                              return InkWell(
+                                child: PurchaseItemListItem(item: currentItem),
+                                onTap: () {}
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const Divider();
+                            },
+                          );
+                        }
+                      }
+                  ),
+                ),
+                const SizedBox(height: _spacing),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text('Goods quantity:'),
+                    const SizedBox(width: _spacing),
+                    FutureBuilder<List>(
+                        future: _allPurchaseItemsFuture,
+                        initialData: [],
+                        builder:  (context, snapshot) {
+                          String text;
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            text = 'Loading...';
+                          } else if (snapshot.hasError) {
+                            text = '0';
+                          } else {
+                            final List items = snapshot.data ?? [];
+                            text = (items.isEmpty) ?  '0' : items.length.toString();
+                          }
+                          return Text(text);
+                        }
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text('Sum:'),
+                    SizedBox(width: _spacing),
+                    Text('1000 ${_currencyStr}')
+                  ],
+                )
               ]),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            // CREATE NEW PURCHASE ITEM
+            PurchaseItem newPurchaseItem = PurchaseItem();
+            newPurchaseItem.parent = widget.purchase;
+            await DatabaseHelper.purchaseItemsRepository.insert(newPurchaseItem);
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => PurchaseItemEditScreen(
+                      item: newPurchaseItem)
+              ),
+            );
+            _refreshPurchaseItemList();
+          },
+          child: const Icon(Icons.add),
         ),
       ),
       onWillPop: () async {
