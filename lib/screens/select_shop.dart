@@ -6,10 +6,7 @@ import 'package:consumer_basket/models/shop.dart';
 
 // Окно для выбора магазина
 class SelectShopScreen extends StatefulWidget {
-  Shop? shop;
-
-  SelectShopScreen({Key? key, required this.shop})
-      : super(key: key);
+  const SelectShopScreen({Key? key}) : super(key: key);
 
   @override
   _SelectShopScreenState createState() => _SelectShopScreenState();
@@ -18,6 +15,7 @@ class SelectShopScreen extends StatefulWidget {
 class _SelectShopScreenState extends State<SelectShopScreen> {
   late Future<Map<int, Shop>> _allShopsFuture;
   int? _selectedIndex;
+  Shop? _selectedShop;
 
   @override
   void initState() {
@@ -43,81 +41,78 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
         appBar: AppBar(
           title: const Text("Select shop"),
         ),
-        body: Container(
-          //padding: const EdgeInsets.all(10),
-          child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 500,
-                  child:
-                    FutureBuilder<Map<int, Shop>>(
-                      future: _allShopsFuture,
-                      initialData: {},
-                      builder: (context, snapshot) {
-                        if(snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(
-                            child: SizedBox(
-                              width: 100.0,
-                              height: 100.0,
-                              child: CircularProgressIndicator(
-                                backgroundColor: Colors.deepPurple,
-                                color: Colors.grey,
-                              )
-                            )
-                          );
-                        } else if(snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          final Map items = snapshot.data ?? {};
-                          return ListView.separated(
+        body: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FutureBuilder<Map<int, Shop>>(
+                future: _allShopsFuture,
+                initialData: {},
+                builder: (context, snapshot) {
+                  if(snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: SizedBox(
+                        width: 100.0,
+                        height: 100.0,
+                        child: CircularProgressIndicator(
+                          backgroundColor: Colors.deepPurple,
+                          color: Colors.grey,
+                        )
+                      )
+                    );
+                  } else if(snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    final Map items = snapshot.data ?? {};
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(10.0),
+                      shrinkWrap: true,
+                      itemCount: items.length,
+                      itemBuilder: (_, int position) {
+                        final currentShop = items.values.elementAt(position);
+                        final bool isSelected = (position == _selectedIndex);
+                        return InkWell(
+                          child: Container(
                             padding: const EdgeInsets.all(10.0),
-                            itemCount: items.length,
-                            itemBuilder: (_, int position) {
-                              final currentShop = items.values.elementAt(position);
-                              final bool isSelected = (position == _selectedIndex);
-                              return InkWell(
-                                child: Container (
-                                  padding: const EdgeInsets.all(10.0),
-                                  decoration: BoxDecoration(
-                                    color: (isSelected)
-                                      ? Colors.deepPurpleAccent.withOpacity(0.05)
-                                      : Colors.white,
-                                    border: isSelected
-                                      ? Border.all(color: Colors.deepPurple.withOpacity(0.3))
-                                      : null
-                                  ),
-                                  child: ShopListItem(shop: currentShop)
-                                ),
-                                onTap: () {
-                                  setState(() {
-                                    _selectedIndex = position;
-                                  });
-                                  widget.shop = currentShop;
-                                }
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              return const Divider();
-                            },
-                          );
-                        }
-                      }
-                   ),
-                ),
-                ElevatedButton(
-                  child: const Text('Add new shop'),
-                  onPressed: () {}
-                )
-              ]),
+                            decoration: BoxDecoration(
+                              color: (isSelected)
+                                ? Colors.deepPurpleAccent.withOpacity(0.05)
+                                : Colors.white,
+                              border: isSelected
+                                ? Border.all(color: Colors.deepPurple.withOpacity(0.3))
+                                : null
+                            ),
+                            child: ShopListItem(shop: currentShop)
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = position;
+                            });
+                            _selectedShop = currentShop;
+                          }
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Divider();
+                      },
+                    );
+                  }
+                }
+              ),
+            ]),
+        floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () {}
         ),
       ),
       onWillPop: () async {
-        Navigator.pop(context, widget.shop);
-        return true;
-        //return widget.shop;
+        if(_selectedShop != null) {
+          Navigator.pop(context, _selectedShop);
+          return true;
+        }
+        Navigator.pop(context);
+        return false;
       },
     );
   }

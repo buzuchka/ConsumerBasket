@@ -105,14 +105,15 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                               final selectedShop = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => SelectShopScreen(
-                                        shop: widget.purchase.shop)
+                                    builder: (context) => const SelectShopScreen()
                                 ),
                               );
+                            if(selectedShop != null) {
                               widget.purchase.shop = selectedShop;
                               widget.purchase.saveToRepository();
                               _isItemDataChanged = true;
                               setState(() {});
+                            }
                             },
                           )
                         ],
