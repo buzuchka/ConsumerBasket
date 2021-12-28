@@ -1,5 +1,5 @@
-import 'package:consumer_basket/models/repository_item.dart';
+import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 
-class Shop extends RepositoryItem<Shop>{
+class Shop extends AbstractRepositoryItem<Shop>{
   String? title;
 }

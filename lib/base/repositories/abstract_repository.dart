@@ -1,9 +1,9 @@
-import 'package:consumer_basket/common/logger.dart';
-
-typedef Hook<ItemT> = Future<void> Function(ItemT);
+import 'package:consumer_basket/base/logger.dart';
 
 abstract class AbstractRepository<ItemT> {
   final Logger _logger = Logger("AbstractRepository<${ItemT.toString()}>");
+
+  String get itemType => ItemT.toString();
 
   // returns items as id->value (get form cache or get from db and create cache)
   Future<Map<int,ItemT>> getAll() async {
@@ -34,25 +34,4 @@ abstract class AbstractRepository<ItemT> {
     return false;
   }
 
-}
-
-
-abstract class AbstractRelativesRepository<ItemT, ParentT, ChildT> {
-
-  final Logger _aLogger = Logger("AbstractRelativesRepository<${ItemT.toString()},${ChildT.toString()}>");
-
-  Future<Map<int,ChildT>> getChildren(ItemT item) async {
-    _aLogger.abstractMethodError("getChildren()");
-    return {};
-  }
-
-  Future<Map<int,ItemT>> getItemsByParent(ParentT parent) async{
-    _aLogger.abstractMethodError("getItemsByParent()");
-    return {};
-  }
-
-  // internal
-  void setParent(ItemT item, ParentT? parent) {
-    _aLogger.abstractMethodError("setParent()");
-  }
 }
