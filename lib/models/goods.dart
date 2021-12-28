@@ -1,16 +1,7 @@
-import 'package:consumer_basket/models/repository_item.dart';
+import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 
-class GoodsItem extends RepositoryItem<GoodsItem> {
-
-  int? id;
+// Товар
+class GoodsItem extends AbstractRepositoryItem<GoodsItem> {
   String? title;
   String? imagePath;
-
-  GoodsItem();
-
-  GoodsItem.Full(this.id, this.title, this.imagePath);
-
-  GoodsItem.Short(String _title){
-    title = _title;
-  }
 }

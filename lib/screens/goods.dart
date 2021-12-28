@@ -1,12 +1,9 @@
-import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
-import 'package:consumer_basket/screens/goods_item_view_edit.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
+import 'package:consumer_basket/screens/goods_item_edit.dart';
 
 class GoodsScreen extends StatefulWidget {
   const GoodsScreen({Key? key}) : super(key: key);
@@ -31,16 +28,16 @@ class _GoodsScreenState extends State<GoodsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: FutureBuilder<List>(
+        body: FutureBuilder<Map>(
             future: DatabaseHelper.goodsRepository.getAll(),
-            initialData: [],
+            initialData: {},
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
                   ? ListView.separated(
                       padding: const EdgeInsets.all(10.0),
                       itemCount: snapshot.data!.length,
                       itemBuilder: (_, int position) {
-                        final currentGoodsItem = snapshot.data![position];
+                        final currentGoodsItem = snapshot.data!.values.elementAt(position);
                         return InkWell(
                             child: GoodsListItem(goodsItem: currentGoodsItem),
                             onTap: () async {
