@@ -1,17 +1,14 @@
 import 'package:consumer_basket/base/logger.dart';
-import 'package:consumer_basket/base/repositories/repository_item.dart';
-import 'package:consumer_basket/base/repositories/db_repository.dart';
+import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
+import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 
 abstract class AbstractField {
   String name;
 
   AbstractField(this.name);
 
-  Object? abstractGet(Object item) {
-  }
-
-  abstractSet(Object item, Object? fieldValue) {
-  }
+  Object? abstractGet(Object item) {}
+  abstractSet(Object item, Object? fieldValue) {}
 }
 
 typedef Getter<ItemT,FieldT> = FieldT Function(ItemT);
@@ -28,6 +25,25 @@ class DbField<ItemT, FieldT> extends AbstractField {
   bool index = false;
   bool unique = false;
 
+
+  DbField(
+      String name,
+      this.sqlType,
+      this.getter,
+      this.setter,
+      {bool? index, bool? unique}
+  ): super(name){
+    if(index != null){
+      this.index = index;
+    }
+    if(unique != null){
+      this.unique = unique;
+      if(unique == true){
+        this.index = true;
+      }
+    }
+  }
+
   String? getIndexSchema(String tableName) {
     if(!index){
       return null;
@@ -37,19 +53,6 @@ class DbField<ItemT, FieldT> extends AbstractField {
       uniqueStr = "UNIQUE";
     } 
     return "CREATE $uniqueStr INDEX IF NOT EXISTS index_$name ON $tableName ($name);";
-  }
-
-
-  DbField(String name, this.sqlType , this.getter, this.setter, {bool? index, bool? unique}): super(name){
-    if(index != null){
-      this.index = index;
-    }
-    if(unique != null){
-      this.unique = unique;
-      if(unique == true){
-        this.index = true;
-      } 
-    }
   }
 
   @override
@@ -66,7 +69,6 @@ class DbField<ItemT, FieldT> extends AbstractField {
     }
   }
 
-  // abstractSet(Object item, Object? fieldValue) => setter(item as ItemT, fieldValue as FieldT);
   @override
   abstractSet(Object item, Object? fieldValue) {
     var logger = _logger.subModule("abstractSet()");
@@ -83,11 +85,12 @@ class DbField<ItemT, FieldT> extends AbstractField {
   }
 }
 
+class RelativeDbField<
+    ItemT extends AbstractRepositoryItem<ItemT>,
+    FieldT extends AbstractRepositoryItem<FieldT>
+> extends DbField<ItemT, int?> {
 
-
-class RelativeDbField<ItemT extends RepositoryItem<ItemT>,  FieldT extends RepositoryItem<FieldT>> extends DbField<ItemT, int?> {
-
-  DbRepository<FieldT> relativeRepository;
+  AbstractDbRepository<FieldT> relativeRepository;
 
   RelativeDbField(
     String idName, 
@@ -111,13 +114,11 @@ class RelativeDbField<ItemT extends RepositoryItem<ItemT>,  FieldT extends Repos
           unique: unique
           );
 
-  void setDependentRepository(DbRepository<ItemT> repository){
-
+  void setDependentRepository(AbstractDbRepository<ItemT> repository, Hook<int?> idHook){
     relativeRepository.dependentRepositoriesByType[ItemT.toString()] =
         DependentRepositoryInfo(this, repository);
-
     relativeRepository.onDeleteHooks.add(
-            (FieldT item) async => await repository.handleRelativeDeletion(this, item.id)
+            (FieldT item) async => await idHook(item.id)
     );
   }
 }

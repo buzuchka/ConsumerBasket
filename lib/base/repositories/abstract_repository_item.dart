@@ -2,7 +2,7 @@ import 'package:consumer_basket/base/repositories/abstract_repository.dart';
 import 'package:consumer_basket/base/logger.dart';
 
 
-abstract class RepositoryItem<ItemT extends RepositoryItem<ItemT>> {
+abstract class AbstractRepositoryItem<ItemT extends AbstractRepositoryItem<ItemT>> {
   
   AbstractRepository<ItemT>? repository;
   int? id;
@@ -24,7 +24,7 @@ abstract class RepositoryItem<ItemT extends RepositoryItem<ItemT>> {
   }
 }
 
-bool isValidRepositoryItem<ItemT extends RepositoryItem<ItemT>>(
+bool isValidRepositoryItem<ItemT extends AbstractRepositoryItem<ItemT>>(
     ItemT? item, {AbstractRepository<ItemT>? repository, Logger? logger}){
   Logger? _logger = logger?.subModule("IsValidRepositoryItem");
   if(item == null){
