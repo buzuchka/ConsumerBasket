@@ -160,7 +160,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     DependentT extends AbstractRepositoryItem<DependentT>
     >(ItemT item) async {
     var logger = _logger.subModule("getDependents<${DependentT.toString()}>()");
-    if(item.isValid(repository: this, logger: logger)){
+    if(!item.isValid(repository: this, logger: logger)){
       return {};
     }
     var depRep = dependentRepositoriesByType[DependentT.toString()];
