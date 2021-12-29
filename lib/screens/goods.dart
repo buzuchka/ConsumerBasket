@@ -44,7 +44,7 @@ class _GoodsScreenState extends State<GoodsScreen> {
                               final isNeed2Rebuild = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => GoodsItemViewEditScreen(
+                                    builder: (context) => GoodsItemEditScreen(
                                         goodsItem: currentGoodsItem)),
                               );
                               if(isNeed2Rebuild) {
@@ -76,7 +76,7 @@ class _GoodsScreenState extends State<GoodsScreen> {
             await Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => GoodsItemViewEditScreen(
+                  builder: (context) => GoodsItemEditScreen(
                       goodsItem: newGoodsItem)
               ),
             );
