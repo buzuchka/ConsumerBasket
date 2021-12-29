@@ -11,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/models/shop.dart';
 
-// Окно для добавления, просмотра и редактирования Товара
+// Окно для добавления, просмотра и редактирования Магазина
 class ShopEditScreen extends StatefulWidget {
   final Shop shop; // item to view and update
 
