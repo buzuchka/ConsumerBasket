@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
-//import 'package:consumer_basket/screens/purchase_select_goods_item.dart';
+import 'package:consumer_basket/screens/purchase_select_goods_item.dart';
 
 // Окно для создания, просмотра и редактирования элемента в покупке (товар+количество+цена=purchase_item)
 class PurchaseItemEditScreen extends StatefulWidget {
@@ -90,17 +90,35 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                         )
                       ),
                 ),
-                onTap: () {},
+                onTap: () async {
+                  // SELECT GOODS ITEM
+                  final selectedGoodsItem = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SelectGoodsItemScreen()
+                    ),
+                  );
+                  if(selectedGoodsItem != null) {
+                    widget.item.goodsItem = selectedGoodsItem;
+                    widget.item.saveToRepository();
+                    _isItemDataChanged = true;
+                    setState(() {});
+                  }
+                },
               ),
               Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _quantityTextController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                        signed: false,
+                      ),
                       decoration: const InputDecoration(labelText: 'Quantity'),
                       onChanged: (String value) {
-                        //widget.item.quantity = _quantityTextController.text;
-                        //_updatePurchaseItem2Database();
+                        widget.item.quantity = int.parse(value);
+                        _updatePurchaseItem2Database();
                       }
                     )
                   ),
@@ -108,14 +126,15 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
               ),
               Row(
                 mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _priceTextController,
                       decoration: const InputDecoration(labelText: 'Price'),
                       onChanged: (String value) {
-                        //widget.item.quantity = _quantityTextController.text;
-                        //_updatePurchaseItem2Database();
+                        widget.item.price = double.parse(value);
+                        _updatePurchaseItem2Database();
                       }
                     ),
                   ),

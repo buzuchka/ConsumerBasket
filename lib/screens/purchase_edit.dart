@@ -196,7 +196,19 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                               final currentItem = items.elementAt(position);
                               return InkWell(
                                 child: PurchaseItemListItem(item: currentItem),
-                                onTap: () {}
+                                onTap: () async {
+                                  final isNeed2Rebuild = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => PurchaseItemEditScreen(
+                                            item: currentItem
+                                        ),
+                                    )
+                                  );
+                                  if(isNeed2Rebuild) {
+                                    _refreshPurchaseItemList();
+                                  }
+                                }
                               );
                             },
                             separatorBuilder: (context, index) {
