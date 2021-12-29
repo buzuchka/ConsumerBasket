@@ -12,20 +12,20 @@ import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/models/goods.dart';
 
 // Окно для добавления, просмотра и редактирования Товара
-class GoodsItemViewEditScreen extends StatefulWidget {
+class GoodsItemEditScreen extends StatefulWidget {
   final GoodsItem goodsItem; // item to view and update
 
-  const GoodsItemViewEditScreen({
+  const GoodsItemEditScreen({
     Key? key,
     required this.goodsItem
   })
       : super(key: key);
 
   @override
-  _GoodsItemViewEditScreenState createState() => _GoodsItemViewEditScreenState();
+  _GoodsItemEditScreenState createState() => _GoodsItemEditScreenState();
 }
 
-class _GoodsItemViewEditScreenState extends State<GoodsItemViewEditScreen> {
+class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
   bool _isItemDataChanged = false;
 
   final TextEditingController _titleTextController = TextEditingController();

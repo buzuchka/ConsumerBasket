@@ -1,8 +1,9 @@
-import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/common/database_helper.dart';
+import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
+import 'package:consumer_basket/screens/goods_item_edit.dart';
 
 // Окно для добавления товара в покупку
 class SelectGoodsItemScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
     return await DatabaseHelper.goodsRepository.getAll();
   }
 
-  void refreshShopList() {
+  void _refreshItemsList() {
     setState(() {
       _allItemsFuture = getGoods();
     });
@@ -102,8 +103,19 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
               ),
             ]),
         floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add),
-            onPressed: () {}
+          child: const Icon(Icons.add),
+          onPressed: () async {
+            GoodsItem newGoodsItem = GoodsItem();
+            await DatabaseHelper.goodsRepository.insert(newGoodsItem);
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => GoodsItemEditScreen(
+                    goodsItem: newGoodsItem)
+              ),
+            );
+            _refreshItemsList();
+          },
         ),
       ),
       onWillPop: () async {
