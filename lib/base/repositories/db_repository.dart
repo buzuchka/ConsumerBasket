@@ -4,6 +4,9 @@ import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 import 'package:consumer_basket/base/logger.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 
+typedef DependentAction<ItemT extends AbstractRepositoryItem<ItemT>, DepItemT extends AbstractRepositoryItem<DepItemT>> =
+    Function(DependentDbField<ItemT,DepItemT>, ItemT, DepItemT);
+
 abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     extends AbstractDbRepository<ItemT> {
 
@@ -29,14 +32,16 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
 
   @override
-  Map<String,DbField> get fieldsByName => _fieldsByName;
-  late Map<String,DbField> _fieldsByName;
+  Map<String,DbField> get fieldsByName => _dbFieldsByName;
+  late Map<String,DbField> _dbFieldsByName;
 
   late Database _db;
   late String _schema;
   late String _indexes;
   late List<DbField> _simpleFields;
   late List<RelativeDbField> _relativeFields;
+  // depType -> depField
+  late Map<String,DependentDbField<ItemT, dynamic>> _depFieldByType;
   late ItemCreator<ItemT> _itemCreator;
   Map<int,ItemT>? _itemsCache;
 
@@ -60,28 +65,34 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         Database db,
         String table,
         ItemCreator<ItemT> itemCreator,
-        List<DbField> fields
+        List<AbstractField> fields
         ){
     _db = db;
     this._tableName = table;
-    _fieldsByName = {};
+    _dbFieldsByName = {};
     _simpleFields = [];
     _relativeFields = [];
+    _depFieldByType = {};
     List<String> indexList = [];
     for(var field in fields){
-      if(field is RelativeDbField){
-        _relativeFields.add(field);
-        field.setDependentRepository(
-            this,
-            (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id)
-        );
-      } else {
-        _simpleFields.add(field);
-      }
-      _fieldsByName[field.name] = field;
-      var index = field.getIndexSchema(table);
-      if(index != null){
-        indexList.add(index);
+      if(field is DbField) {
+        if (field is RelativeDbField) {
+          _relativeFields.add(field);
+          field.setDependentRepository(
+              this,
+                  (int? id) async =>
+              await _handleRelativeDeletion(field as RelativeDbField, id)
+          );
+        } else {
+          _simpleFields.add(field);
+        }
+        _dbFieldsByName[field.name] = field;
+        var index = field.getIndexSchema(table);
+        if (index != null) {
+          indexList.add(index);
+        }
+      } else if(field is DependentDbField<ItemT, dynamic>){
+        _depFieldByType[field.fieldType] = field;
       }
     }
     _itemCreator = itemCreator;
@@ -100,6 +111,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     List<Map<String, dynamic>> raw_objs = await _db.query(_tableName);
     for (var raw_obj in raw_objs){
       ItemT? obj = await fromDbMap(raw_obj);
+
       if(obj == null){
         _logger.subModule("getAll()").error("fromMap() returns null obj, skip it");
         continue;
@@ -108,6 +120,10 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       int id = raw_obj[_columnIdName] as int;
       obj.id = id;
       _itemsCache![id] = obj;
+
+      for(var field in _depFieldByType.values) {
+        await field.set(obj,this);
+      }
     }
     return _itemsCache!;
   }
@@ -249,7 +265,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   Future<Map<String, Object?>?> toDbMap(ItemT item) async{
     var map = <String, Object?>{};
-    for(var field in _fieldsByName.values){
+    for(var field in _dbFieldsByName.values){
       map[field.name] = field.abstractGet(item);
     }
     return map;
@@ -267,6 +283,67 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     }
     return item;
   }
+
+
+  @override
+  handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+    var logger = _logger.subModule("handleDependentInsertion<${DepItemT.toString()}>()");
+    await _handleDependentAction(
+        depItem,
+        (DependentDbField<ItemT,DepItemT> depField, ItemT myItem, DepItemT depItem) {
+          depField.onInsert(myItem, depItem);
+        },
+        logger
+    );
+  }
+
+  @override
+  handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+    var logger = _logger.subModule("handleDependentDeletion<${DepItemT.toString()}>()");
+    await _handleDependentAction(
+        depItem,
+        (DependentDbField<ItemT,DepItemT> depField, ItemT myItem, DepItemT depItem) {
+          depField.onDelete(myItem, depItem);
+        },
+        logger
+    );
+  }
+
+  _handleDependentAction<DepItemT extends AbstractRepositoryItem<DepItemT>>(
+      DepItemT depItem, DependentAction<ItemT, DepItemT> depAction, Logger logger) async {
+    if(_itemsCache == null){
+      return;
+    }
+    var depTypeStr =  DepItemT.toString();
+
+    if(depItem.isValid(logger:logger)){
+      return;
+    }
+    var depField = _depFieldByType[depTypeStr] as DependentDbField<ItemT,DepItemT>?;
+    if(depField == null){
+      logger.info("dependent field not found for type ${depTypeStr}");
+      return;
+    }
+    var depRep = dependentRepositoriesByType[depTypeStr];
+    if(depRep == null){
+      logger.error("dependent repository does not exist for type $depTypeStr");
+      return;
+    }
+    var fieldInDepRep = depRep.field as RelativeDbField<DepItemT, ItemT>;
+    var myItemId = fieldInDepRep.getter(depItem);
+    if(myItemId == null){
+      logger.error("there is no relative id in dependent item");
+      return;
+    }
+    var myItem = _itemsCache![myItemId];
+    if(myItem == null){
+      logger.error("there is no item in cache with id=$myItemId");
+      return;
+    }
+    depAction(depField, myItem, depItem);
+  }
+
+
 
   Future<bool> _deleteById(int id) async {
     var logger = _logger.subModule("_deleteById()");
