@@ -94,6 +94,19 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
                                 _selectedIndex = position;
                               });
                               _selectedShop = currentShop;
+                            },
+                            onDoubleTap: () async {
+                              final isNeed2Rebuild = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ShopEditScreen(
+                                        shop: currentShop
+                                    ),
+                                  )
+                              );
+                              if(isNeed2Rebuild) {
+                                _refreshShopList();
+                              }
                             }
                           );
                         },
