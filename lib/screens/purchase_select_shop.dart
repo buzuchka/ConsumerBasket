@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/common/database_helper.dart';
 import 'package:consumer_basket/lists/shop_list_item.dart';
 import 'package:consumer_basket/models/shop.dart';
+import 'package:consumer_basket/screens/shop_edit_screen.dart';
 
 // Окно для выбора магазина
 class SelectShopScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
     return await DatabaseHelper.shopsRepository.getAll();
   }
 
-  void refreshShopList() {
+  void _refreshShopList() {
     setState(() {
       _allShopsFuture = getShops();
     });
@@ -102,8 +103,19 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
               ),
             ]),
         floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add),
-            onPressed: () {}
+          child: const Icon(Icons.add),
+          onPressed: () async {
+            Shop newShop = Shop();
+            await DatabaseHelper.shopsRepository.insert(newShop);
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ShopEditScreen(
+                      shop: newShop)
+              ),
+            );
+            _refreshShopList();
+          },
         ),
       ),
       onWillPop: () async {
