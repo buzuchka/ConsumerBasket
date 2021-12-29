@@ -316,7 +316,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     }
     var depTypeStr =  DepItemT.toString();
 
-    if(depItem.isValid(logger:logger)){
+    if(!depItem.isValid(logger:logger)){
       return;
     }
     var depField = _depFieldByType[depTypeStr] as DependentDbField<ItemT,DepItemT>?;

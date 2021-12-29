@@ -1,3 +1,4 @@
+import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:consumer_basket/base/repositories/db_repository.dart';
@@ -28,6 +29,9 @@ class PurchasesRepository extends DbRepository<Purchase> {
           (Purchase item) => item.shop,
           (Purchase item, Shop? shop) => item.shop = shop,
           index: true,
+        ),
+        DependentDbField<Purchase, PurchaseItem>(
+          (Purchase item) => item.items
         )
       ]
     );
