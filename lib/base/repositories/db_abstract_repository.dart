@@ -141,5 +141,15 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return {};
   }
 
+  // internal
+  handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async{
+    _logger.abstractMethodError("handleDependentInsertion()");
+  }
+
+  // internal
+  handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+    _logger.abstractMethodError("handleDependentDeletion()");
+  }
+
   final Logger _logger = Logger("AbstractDbRepository<${ItemT.toString()}>");
 }
