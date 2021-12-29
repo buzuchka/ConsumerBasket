@@ -31,6 +31,8 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
 
   void _refreshItemsList() {
     setState(() {
+      _selectedIndex = null;
+      _selectedItem = null;
       _allItemsFuture = getGoods();
     });
   }
@@ -47,61 +49,64 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              FutureBuilder<Map<int, GoodsItem>>(
-                future: _allItemsFuture,
-                initialData: {},
-                builder: (context, snapshot) {
-                  if(snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: SizedBox(
-                        width: 100.0,
-                        height: 100.0,
-                        child: CircularProgressIndicator(
-                          backgroundColor: Colors.deepPurple,
-                          color: Colors.grey,
+              Expanded(
+                child: FutureBuilder<Map<int, GoodsItem>>(
+                  future: _allItemsFuture,
+                  initialData: {},
+                  builder: (context, snapshot) {
+                    if(snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: SizedBox(
+                          width: 100.0,
+                          height: 100.0,
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.deepPurple,
+                            color: Colors.grey,
+                          )
                         )
-                      )
-                    );
-                  } else if(snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    final Map items = snapshot.data ?? {};
-                    return ListView.separated(
-                      padding: const EdgeInsets.all(10.0),
-                      shrinkWrap: true,
-                      itemCount: items.length,
-                      itemBuilder: (_, int position) {
-                        final currentItem = items.values.elementAt(position);
-                        final bool isSelected = (position == _selectedIndex);
-                        return InkWell(
-                          child: Container(
-                            padding: const EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                              color: (isSelected)
-                                ? Colors.deepPurpleAccent.withOpacity(0.05)
-                                : Colors.white,
-                              border: isSelected
-                                ? Border.all(color: Colors.deepPurple.withOpacity(0.3))
-                                : null
+                      );
+                    } else if(snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      final Map items = snapshot.data ?? {};
+                      return ListView.separated(
+                        padding: const EdgeInsets.all(10.0),
+                        shrinkWrap: true,
+                        itemCount: items.length,
+                        itemBuilder: (_, int position) {
+                          final currentItem = items.values.elementAt(position);
+                          final bool isSelected = (position == _selectedIndex);
+                          return InkWell(
+                            child: Container(
+                              padding: const EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                color: (isSelected)
+                                  ? Colors.deepPurpleAccent.withOpacity(0.05)
+                                  : Colors.white,
+                                border: isSelected
+                                  ? Border.all(color: Colors.deepPurple.withOpacity(0.3))
+                                  : null
+                              ),
+                              child: GoodsListItem(goodsItem: currentItem)
                             ),
-                            child: GoodsListItem(goodsItem: currentItem)
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _selectedIndex = position;
-                            });
-                            _selectedItem = currentItem;
-                          }
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const Divider();
-                      },
-                    );
+                            onTap: () {
+                              setState(() {
+                                _selectedIndex = position;
+                              });
+                              _selectedItem = currentItem;
+                            }
+                          );
+                        },
+                        separatorBuilder: (context, index) {
+                          return const Divider();
+                        },
+                      );
+                    }
                   }
-                }
+                ),
               ),
-            ]),
+            ]
+        ),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
           onPressed: () async {
