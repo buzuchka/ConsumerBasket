@@ -1,10 +1,11 @@
-import 'package:consumer_basket/repositories/shops.dart';
+import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'package:consumer_basket/models/shop.dart';
-import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/base/repositories/db_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
+import 'package:consumer_basket/models/shop.dart';
+import 'package:consumer_basket/models/purchase.dart';
+import 'package:consumer_basket/repositories/shops.dart';
 
 class PurchasesRepository extends DbRepository<Purchase> {
 
@@ -14,13 +15,13 @@ class PurchasesRepository extends DbRepository<Purchase> {
       () => Purchase(),
       [
         DbField<Purchase,String?>(
-            "date_text", "TEXT",
-            (Purchase item) => item.date.toString(),
-            (Purchase item, String? date) {
-              if(date != null) {
-                item.date = DateTime.parse(date);
-              }
+          "date_text", "TEXT",
+          (Purchase item) => item.date.toString(),
+          (Purchase item, String? date) {
+            if(date != null) {
+              item.date = DateTime.parse(date);
             }
+          }
         ),
         RelativeDbField<Purchase, Shop>(
           "shop_id",
@@ -28,6 +29,9 @@ class PurchasesRepository extends DbRepository<Purchase> {
           (Purchase item) => item.shop,
           (Purchase item, Shop? shop) => item.shop = shop,
           index: true,
+        ),
+        DependentDbField<Purchase, PurchaseItem>(
+          (Purchase item) => item.items
         )
       ]
     );
