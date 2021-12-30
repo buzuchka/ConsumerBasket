@@ -1,12 +1,47 @@
+import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/base/logger.dart';
 
 
-class DbRepositoryVersionControl {
+class DbRepositoryVcs {
 
-  final Logger _logger = Logger("DbRepositoryVersionControl");
+  DbRepositoryVcs(List<AbstractDbRepository> repositories) :
+        _impl = DbRepositoryVcsImpl(repositories);
+
+  // opens database and updates schemas in db if required
+  openDatabase(String databaseName) async {
+    await _impl.openDb(databaseName);
+  }
+
+  final DbRepositoryVcsImpl _impl;
+}
+
+
+//----------------------------------------
+// Internal
+
+class DbRepositoryVcsImpl {
+
+  late String databaseName;
+  final List<AbstractDbRepository> repositories;
+
+  DbRepositoryVcsImpl(this.repositories);
+
+  openDb(String databaseName) async {
+    this.databaseName = databaseName;
+    String _databaseFilePath = join(await getDatabasesPath(), databaseName);
+    _db = await openDatabase(
+        _databaseFilePath,
+        version: 1,
+        onCreate: (Database db, int version) async => await onDbCreate(db),
+        onOpen: (Database db) async => onDbOpen(db)
+    );
+  }
+
+
+  final Logger _logger = Logger("DbRepositoryVcs");
 
   static const String _tableName = "repository_version_control";
   static const String _columnTableName = "table_name";
@@ -18,28 +53,26 @@ class DbRepositoryVersionControl {
 
   late Database _db;
 
-  final List<AbstractDbRepository> _repositories;
-
   // table_name -> column_name -> type
   final Map<String, Map<String, DbColumnInfo>> _columnsByTable = {};
 
-  DbRepositoryVersionControl(List<AbstractDbRepository> repositories) :
-        _repositories = repositories;
 
-  createDdSchema(Database db) async{
+  onDbCreate(Database db) async {
+    _logger.info("onDbCreate");
     _db = db;
     await _createVersionControlTable();
-    await _updateDbSchema();
   }
 
-  updateDbSchema(Database db) async {
+  onDbOpen(Database db) async {
+    _logger.info("onDbOpen");
     _db = db;
     await _loadColumnInfo();
     await _updateDbSchema();
+    _setRepDb(db);
   }
 
-  setRepDb(Database db){
-    for(var rep in _repositories){
+  _setRepDb(Database db) {
+    for (var rep in repositories) {
       rep.db = db;
     }
   }
@@ -47,7 +80,7 @@ class DbRepositoryVersionControl {
   _createVersionControlTable() async{
     await _db.execute("""
       CREATE TABLE IF NOT EXISTS $_tableName (
-         $_columnId INTEGER PRIMARY KEY NOT NULL
+         $_columnId INTEGER PRIMARY KEY NOT NULL,
          $_columnTableName TEXT NOT NULL,
          $_columnColumnName TEXT NOT NULL,
          $_columnColumnType TEXT NOT NULL,
@@ -78,7 +111,7 @@ class DbRepositoryVersionControl {
     var logger = _logger.subModule("_updateDbSchema()");
     List<String> executingLines = [];
 
-    for(var repository in _repositories){
+    for(var repository in repositories){
       var tableName = repository.tableName;
       var repFields = repository.fieldsByName.values;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});
@@ -127,12 +160,17 @@ class DbRepositoryVersionControl {
         dbColumns[repField.columnName] = repField;
       }
     }
+    for(var exLine in executingLines){
+      logger.info("to execute: $exLine");
+    }
+    var toExecute = executingLines.join(" ");
+    await _db.execute(toExecute);
   }
 
   String _createTable(String tableName){
     return """
      CREATE TABLE IF NOT EXISTS $tableName (
-             $_columnId INTEGER PRIMARY KEY NOT NULL,
+             $_columnId INTEGER PRIMARY KEY NOT NULL
      );
     """;
   }

@@ -59,7 +59,6 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
   // initialize repository (do not initialize db)
   init(
-      Database db,
       String table,
       ItemCreator<ItemT> itemCreator,
       List<DbField> fields){

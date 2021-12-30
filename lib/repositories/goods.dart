@@ -6,9 +6,9 @@ import 'package:consumer_basket/base/repositories/db_field.dart';
 
 class GoodsRepository extends DbRepository<GoodsItem> {
 
-  GoodsRepository(Database db){
+  GoodsRepository(){
     super.init(
-        db, "goods",
+        "goods",
         () => GoodsItem(),
         [
           DbField<GoodsItem,String?>(

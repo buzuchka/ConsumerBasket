@@ -62,12 +62,10 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
   @override
   init(
-        Database db,
         String table,
         ItemCreator<ItemT> itemCreator,
         List<AbstractField> fields
         ){
-    _db = db;
     _tableName = table;
     _dbFieldsByName = {};
     _simpleFields = [];
@@ -103,7 +101,10 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   }
 
   @override
-  set db(Database db) => _db = db;
+  set db(Database db) {
+    _db = db;
+    _itemsCache = null;
+  }
 
   // returns items as id->value (get form cache or get from db and create cache)
   @override

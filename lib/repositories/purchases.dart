@@ -9,9 +9,9 @@ import 'package:consumer_basket/repositories/shops.dart';
 
 class PurchasesRepository extends DbRepository<Purchase> {
 
-  PurchasesRepository(Database db, ShopsRepository shopsRepository){
+  PurchasesRepository(ShopsRepository shopsRepository){
     super.init(
-      db,"purchases",
+      "purchases",
       () => Purchase(),
       [
         DbField<Purchase,String?>(

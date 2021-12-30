@@ -9,19 +9,19 @@ class CategoriesRepositories {
   late MiddleCategoriesRepository middleCategories;
   late HighCategoriesRepository highCategories;
 
-  CategoriesRepositories(Database db) {
-    highCategories = HighCategoriesRepository(db);
-    middleCategories = MiddleCategoriesRepository(db, highCategories);
-    lowCategories = LowCategoriesRepository(db, middleCategories);
+  CategoriesRepositories() {
+    highCategories = HighCategoriesRepository();
+    middleCategories = MiddleCategoriesRepository(highCategories);
+    lowCategories = LowCategoriesRepository(middleCategories);
   }
 }
 
 
 class LowCategoriesRepository extends DbRepository<LowCategory> {
 
-  LowCategoriesRepository(Database db, MiddleCategoriesRepository middleCategoryRepository){
+  LowCategoriesRepository(MiddleCategoriesRepository middleCategoryRepository){
     super.init(
-        db, "low_categories",
+        "low_categories",
         () => LowCategory(),
         [
           DbField<LowCategory, String?>(
@@ -43,9 +43,9 @@ class LowCategoriesRepository extends DbRepository<LowCategory> {
 
 class MiddleCategoriesRepository  extends DbRepository<MiddleCategory>{
 
-  MiddleCategoriesRepository(Database db, HighCategoriesRepository highCategoryRepository){
+  MiddleCategoriesRepository(HighCategoriesRepository highCategoryRepository){
     super.init(
-        db, "middle_categories", 
+        "middle_categories",
         () => MiddleCategory(),
         [
           DbField<MiddleCategory, String?>(
@@ -71,9 +71,9 @@ class MiddleCategoriesRepository  extends DbRepository<MiddleCategory>{
 
 class HighCategoriesRepository  extends DbRepository<HighCategory>{
   
-  HighCategoriesRepository(Database db){
+  HighCategoriesRepository(){
     super.init(
-        db, "high_categories",
+        "high_categories",
         () => HighCategory(),
         [
           DbField<HighCategory, String?>(

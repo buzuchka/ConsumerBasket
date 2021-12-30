@@ -15,8 +15,8 @@ class DbColumnInfo{
   late String tableName;
   late String columnName;
   late String sqlType;
-  late bool isIndexed;
-  late bool isUnique;
+  bool isIndexed = false;
+  bool isUnique = false;
   String get indexName => "index_${tableName}_${columnName}";
   String get sqlColumnDef => "$columnName $sqlType";
   String get tableColumnName =>"$tableName.$columnName";
