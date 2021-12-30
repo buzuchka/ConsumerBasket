@@ -68,7 +68,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         List<AbstractField> fields
         ){
     _db = db;
-    this._tableName = table;
+    _tableName = table;
     _dbFieldsByName = {};
     _simpleFields = [];
     _relativeFields = [];
@@ -76,6 +76,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     List<String> indexList = [];
     for(var field in fields){
       if(field is DbField) {
+        field.tableName = tableName;
         if (field is RelativeDbField) {
           _relativeFields.add(field);
           field.setDependentRepository(
@@ -86,7 +87,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         } else {
           _simpleFields.add(field);
         }
-        _dbFieldsByName[field.name] = field;
+        _dbFieldsByName[field.columnName] = field;
         var index = field.getIndexSchema(table);
         if (index != null) {
           indexList.add(index);
@@ -100,6 +101,9 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     _indexes = indexList.join(" ");
     _logger.info("successfully inited");
   }
+
+  @override
+  set db(Database db) => _db = db;
 
   // returns items as id->value (get form cache or get from db and create cache)
   @override
@@ -155,7 +159,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     List<Map> rawResult = await _db.rawQuery("""
       SELECT $_columnIdName 
       FROM $_tableName 
-      WHERE ${field.name} = $value;
+      WHERE ${field.columnName} = $value;
     """);
     for(var row in rawResult){
       var id = row["id"];
@@ -266,7 +270,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Future<Map<String, Object?>?> toDbMap(ItemT item) async{
     var map = <String, Object?>{};
     for(var field in _dbFieldsByName.values){
-      map[field.name] = field.abstractGet(item);
+      map[field.columnName] = field.abstractGet(item);
     }
     return map;
   }
@@ -276,10 +280,10 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     var item = _itemCreator();
     for(var field in _relativeFields){
       await field.relativeRepository.getAll(); // create cache
-      field.abstractSet(item, map[field.name]);
+      field.abstractSet(item, map[field.columnName]);
     }
     for(var field in _simpleFields) {
-      field.abstractSet(item, map[field.name]);
+      field.abstractSet(item, map[field.columnName]);
     }
     return item;
   }
@@ -370,8 +374,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     }
     await _db.execute("""
       UPDATE $_tableName 
-      SET ${field.name} = NULL
-      WHERE ${field.name} = $id;
+      SET ${field.columnName} = NULL
+      WHERE ${field.columnName} = $id;
     """);
   }
 

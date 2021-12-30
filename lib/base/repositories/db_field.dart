@@ -10,55 +10,75 @@ abstract class AbstractField {
 typedef Getter<ItemT,FieldT> = FieldT Function(ItemT);
 typedef Setter<ItemT,FieldT> = Function(ItemT, FieldT);
 
-class DbField<ItemT, FieldT> extends AbstractField {
+
+class DbColumnInfo{
+  late String tableName;
+  late String columnName;
+  late String sqlType;
+  late bool isIndexed;
+  late bool isUnique;
+  String get indexName => "index_${tableName}_${columnName}";
+  String get sqlColumnDef => "$columnName $sqlType";
+  String get tableColumnName =>"$tableName.$columnName";
+
+  @override
+  String toString(){
+    return sqlColumnDef;
+  }
+
+
+  // DbFieldInfo(this.columnName,this.sqlType,this.isIndexed,this.isUnique);
+}
+
+
+class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
 
   Logger _logger = Logger(" DbField<${ItemT.toString()}, ${FieldT.toString()}>");
 
   String get fieldType => FieldT.toString();
 
-  String name;
-  String sqlType;
-  Getter<ItemT,FieldT> getter;
   Setter<ItemT,FieldT> setter;
+  Getter<ItemT,FieldT> getter;
 
-  bool index = false;
-  bool unique = false;
+  // String columnName;
+  // String sqlType;
+  // bool isIndexed = false;
+  // bool isUnique = false;
 
   DbField(
-      this.name,
-      this.sqlType,
+      columnName,
+      sqlType,
       this.getter,
       this.setter,
       {bool? index, bool? unique}
   ){
+    super.columnName = columnName;
+    super.sqlType = sqlType;
     if(index != null){
-      this.index = index;
+      super.isIndexed = index;
     }
     if(unique != null){
-      this.unique = unique;
+      super.isUnique = unique;
       if(unique == true){
-        this.index = true;
+        super.isIndexed = true;
       }
     }
   }
 
   String? getIndexSchema(String tableName) {
-    if(!index){
+    if(!isIndexed){
       return null;
     }
     String uniqueStr = "";
-    if(unique){
+    if(isUnique){
       uniqueStr = "UNIQUE";
     } 
-    return "CREATE $uniqueStr INDEX IF NOT EXISTS index_$name ON $tableName ($name);";
+    return "CREATE $uniqueStr INDEX IF NOT EXISTS index_$columnName ON $tableName ($columnName);";
   }
 
-  @override
-  String toString(){
-    return "$name $sqlType";
-  }
 
-  String get fieldId => "${ItemT.toString()}_$name";
+
+  String get fieldId => "${ItemT.toString()}_$columnName";
 
   @override
   Object? abstractGet(Object item) {

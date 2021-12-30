@@ -151,5 +151,10 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     _logger.abstractMethodError("handleDependentDeletion()");
   }
 
+  // internal
+  set db(Database db) {
+    _logger.abstractMethodError("set db");
+  }
+
   final Logger _logger = Logger("AbstractDbRepository<${ItemT.toString()}>");
 }
