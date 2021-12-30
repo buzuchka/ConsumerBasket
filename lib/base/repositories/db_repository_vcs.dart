@@ -236,8 +236,11 @@ class DbRepositorySupervisorImpl {
     result.tableName = dbRawObj[_columnTableName] as String;
     result.columnName = dbRawObj[_columnColumnName] as String;
     result.sqlType = dbRawObj[_columnColumnType] as String;
-    result.isIndexed = dbRawObj[_columnIsIndexed] as bool;
-    result.isUnique = dbRawObj[_columnIsUnique] as bool;
+    var isIndex = dbRawObj[_columnIsIndexed] as int;
+    result.isIndexed = isIndex!=0;
+    var isUnique = dbRawObj[_columnIsUnique] as int;
+    result.isUnique = isUnique != 0;
+
     return result;
   }
 
