@@ -5,29 +5,29 @@ import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/base/logger.dart';
 
 
-class DbRepositoryVcs {
+class DbRepositorySupervisor {
 
-  DbRepositoryVcs(List<AbstractDbRepository> repositories) :
-        _impl = DbRepositoryVcsImpl(repositories);
+  DbRepositorySupervisor(List<AbstractDbRepository> repositories) :
+        _impl = DbRepositorySupervisorImpl(repositories);
 
   // opens database and updates schemas in db if required
   openDatabase(String databaseName) async {
     await _impl.openDb(databaseName);
   }
 
-  final DbRepositoryVcsImpl _impl;
+  final DbRepositorySupervisorImpl _impl;
 }
 
 
 //----------------------------------------
 // Internal
 
-class DbRepositoryVcsImpl {
+class DbRepositorySupervisorImpl {
 
   late String databaseName;
   final List<AbstractDbRepository> repositories;
 
-  DbRepositoryVcsImpl(this.repositories);
+  DbRepositorySupervisorImpl(this.repositories);
 
   openDb(String databaseName) async {
     this.databaseName = databaseName;
@@ -41,7 +41,7 @@ class DbRepositoryVcsImpl {
   }
 
 
-  final Logger _logger = Logger("DbRepositoryVcs");
+  final Logger _logger = Logger("DbRepositorySupervisor");
 
   static const String _tableName = "repository_version_control";
   static const String _columnTableName = "table_name";
@@ -64,11 +64,16 @@ class DbRepositoryVcsImpl {
   }
 
   onDbOpen(Database db) async {
-    _logger.info("onDbOpen");
+    var logger = _logger.subModule("onDbOpen()");
+    // logger.info("");
     _db = db;
+    logger.debugMarker(1);
     await _loadColumnInfo();
+    logger.debugMarker(2);
     await _updateDbSchema();
+    logger.debugMarker(3);
     _setRepDb(db);
+    logger.debugMarker(4);
   }
 
   _setRepDb(Database db) {
@@ -78,62 +83,71 @@ class DbRepositoryVcsImpl {
   }
 
   _createVersionControlTable() async{
-    await _db.execute("""
-      CREATE TABLE IF NOT EXISTS $_tableName (
-         $_columnId INTEGER PRIMARY KEY NOT NULL,
-         $_columnTableName TEXT NOT NULL,
-         $_columnColumnName TEXT NOT NULL,
-         $_columnColumnType TEXT NOT NULL,
-         $_columnIsIndexed BOOLEAN NOT NULL,
-         $_columnIsUnique BOOLEAN NOT NULL
-      );            
-      CREATE UNIQUE INDEX IF NOT EXISTS 
-        index_table_field ON $_tableName ($_columnTableName, $_columnColumnName);
-      """
-    );
+    await _execute("""
+        CREATE TABLE IF NOT EXISTS $_tableName (
+           $_columnId INTEGER PRIMARY KEY NOT NULL,
+           $_columnTableName TEXT NOT NULL,
+           $_columnColumnName TEXT NOT NULL,
+           $_columnColumnType TEXT NOT NULL,
+           $_columnIsIndexed BOOLEAN NOT NULL,
+           $_columnIsUnique BOOLEAN NOT NULL
+        );            
+    """);
+    await _execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS 
+          index_table_field ON $_tableName ($_columnTableName, $_columnColumnName)
+        ;
+    """);
   }
 
   _loadColumnInfo() async {
+    var logger = _logger.subModule("_loadColumnInfo()");
     _columnsByTable.clear();
+    logger.debugMarker(1);
     List<Map<String, Object?>> rawFields = await _db.query(_tableName);
     for(var rawField in rawFields){
+      logger.debugMarker(2);
       DbColumnInfo columnInfo = _columnInfoFromDbMap(rawField);
+      logger.debugMarker(3);
       Map<String,DbColumnInfo> fields = _columnsByTable.putIfAbsent(
           columnInfo.tableName, () => <String,DbColumnInfo>{});
+      logger.debugMarker(4);
       if(fields.containsKey(columnInfo.columnName)){
         _logger.subModule("updateDbSchema()").error("Found duplicated column info ${columnInfo.tableColumnName}");
       }
+      logger.debugMarker(5);
       fields[columnInfo.columnName] = columnInfo;
+      logger.debugMarker(6);
     }
   }
 
   _updateDbSchema() async {
     var logger = _logger.subModule("_updateDbSchema()");
-    List<String> executingLines = [];
+    // List<String> executingLines = [];
 
-    for(var repository in repositories){
+    for (var repository in repositories) {
       var tableName = repository.tableName;
       var repFields = repository.fieldsByName.values;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});
 
-      if(dbColumns.isEmpty){
+      if (dbColumns.isEmpty) {
         logger.warning("table $tableName does not exist");
-        executingLines.add(_createTable(tableName));            //!
+        _execute(_createTable(tableName)); //!
       }
 
-      for(var repField in repFields){
+      for (var repField in repFields) {
         var dbColumnInfo = dbColumns[repField.columnName];
         bool dropColumn = false;
         bool dropIndex = false;
         bool addColumn = false;
         bool addIndex = false;
 
-        if(dbColumnInfo != null){
-          if(dbColumnInfo.sqlType != repField.sqlType){
+        if (dbColumnInfo != null) {
+          if (dbColumnInfo.sqlType != repField.sqlType) {
             dropColumn = true;
             dropIndex = dbColumnInfo.isIndexed;
-          } else if(dbColumnInfo.isIndexed != repField.isIndexed
-              || dbColumnInfo.isUnique != repField.isUnique){
+          } else if (dbColumnInfo.isIndexed != repField.isIndexed
+              || dbColumnInfo.isUnique != repField.isUnique) {
             dropIndex = dbColumnInfo.isIndexed;
             addIndex = repField.isIndexed;
           }
@@ -142,28 +156,28 @@ class DbRepositoryVcsImpl {
           addIndex = repField.isIndexed;
         }
 
-        if(dropIndex){
-          executingLines.add(_dropIndex(dbColumnInfo!));
+        if (dropIndex) {
+          _execute(_dropIndex(dbColumnInfo!));
         }
-        if(dropColumn){
-          executingLines.add(_dropColumn(dbColumnInfo!));
+        if (dropColumn) {
+          _execute(_dropColumn(dbColumnInfo!));
         }
-        if(addColumn){
-          executingLines.add(_addColumn(repField));
+        if (addColumn) {
+          _execute(_addColumn(repField));
         }
-        if(addIndex){
-          executingLines.add(_addIndex(repField));
+        if (addIndex) {
+          _execute(_addIndex(repField));
         }
-        if(dropIndex || dropColumn || addColumn || addIndex){
-          executingLines.add(_updateColumnInfo(repField));
+        if (dropIndex || dropColumn || addColumn || addIndex) {
+          _execute(_updateColumnInfo(repField));
         }
         dbColumns[repField.columnName] = repField;
       }
     }
-    for(var exLine in executingLines){
-      logger.info("to execute: $exLine");
-    }
-    var toExecute = executingLines.join(" ");
+  }
+
+  _execute(String toExecute) async {
+    _logger.info("Db update: $toExecute");
     await _db.execute(toExecute);
   }
 
@@ -207,10 +221,10 @@ class DbRepositoryVcsImpl {
     return """
       INSERT INTO $_tableName 
         ($_columnTableName, $_columnColumnName, $_columnColumnType, $_columnIsIndexed, $_columnIsUnique)
-        VALUES(${info.tableName}, ${info.columnName}, ${info.sqlType}, ${info.isIndexed}, ${info.isUnique})
+        VALUES('${info.tableName}', '${info.columnName}', '${info.sqlType}', ${info.isIndexed}, ${info.isUnique})
         ON CONFLICT($_columnTableName, $_columnColumnName)
         DO UPDATE SET 
-        $_columnColumnType = ${info.sqlType},
+        $_columnColumnType = '${info.sqlType}',
         $_columnIsIndexed =  ${info.isIndexed},
         $_columnIsUnique = ${info.isUnique}
       ;
@@ -222,8 +236,8 @@ class DbRepositoryVcsImpl {
     result.tableName = dbRawObj[_columnTableName] as String;
     result.columnName = dbRawObj[_columnColumnName] as String;
     result.sqlType = dbRawObj[_columnColumnType] as String;
-    result.isIndexed = dbRawObj[_columnColumnType] as bool;
-    result.isUnique = dbRawObj[_columnColumnType] as bool;
+    result.isIndexed = dbRawObj[_columnIsIndexed] as bool;
+    result.isUnique = dbRawObj[_columnIsUnique] as bool;
     return result;
   }
 

@@ -16,9 +16,7 @@ abstract class DatabaseHelper {
   static late ShopsRepository shopsRepository;
   static late PurchasesRepository purchasesRepository;
   static late PurchaseItemsRepository purchaseItemsRepository;
-  static late DbRepositoryVcs dbRepositoryVcs;
-
-  static int get _version => 1;
+  static late DbRepositorySupervisor dbRepositorySupervisor;
 
   static Future<void> init() async {
     try {
@@ -27,14 +25,14 @@ abstract class DatabaseHelper {
       purchasesRepository = PurchasesRepository(shopsRepository);
       purchaseItemsRepository = PurchaseItemsRepository(purchasesRepository, goodsRepository);
 
-      dbRepositoryVcs = DbRepositoryVcs([
+      dbRepositorySupervisor = DbRepositorySupervisor([
         goodsRepository,
         shopsRepository,
         purchasesRepository,
         purchaseItemsRepository
       ]);
 
-      await dbRepositoryVcs.openDatabase(databaseName);
+      await dbRepositorySupervisor.openDatabase(databaseName);
       // await goodsRepository.createIfNotExists();
       // await shopsRepository.createIfNotExists();
       // await purchasesRepository.createIfNotExists();

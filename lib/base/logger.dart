@@ -3,6 +3,7 @@
 
 class Logger {
   String? module;
+  int debugMarkerCouter = 0;
 
   Logger([this.module = null]);
 
@@ -25,8 +26,24 @@ class Logger {
     _log("Info", message);
   }
 
+  void debug(String message){
+    _log("DEBUG", message);
+  }
+
   void abstractMethodError(String method){
     subModule(method).error("abstract method default implementation is called");
+  }
+
+  void debugMarker([Object? marker]){
+    if(marker != null) {
+      if(marker is int){
+        debugMarkerCouter = marker + 1;
+      }
+    }else {
+      marker = debugMarkerCouter;
+      debugMarkerCouter++;
+    }
+    debug("Debug maker [$marker]");
   }
 
   void _log(String level, String message){
