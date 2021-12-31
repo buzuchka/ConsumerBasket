@@ -14,19 +14,27 @@ class Logger {
   }
 
   void error(String message){
-    _log("Error", message);
+    _log("ERROR", message);
   }
 
   void warning(String message){
-    _log("Warning", message);
+    _log("WARNING", message);
   }
 
   void info(String message){
-    _log("Info", message);
+    _log("INFO", message);
+  }
+
+  void debug(String message){
+    _log("DEBUG", message);
   }
 
   void abstractMethodError(String method){
     subModule(method).error("abstract method default implementation is called");
+  }
+
+  void debugMarker([Object? marker]){
+    debug("DEBUG MARKER [$marker]");
   }
 
   void _log(String level, String message){

@@ -36,10 +36,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   late Map<String,DbField> _dbFieldsByName;
 
   late Database _db;
-  late String _schema;
-  late String _indexes;
-  late List<DbField> _simpleFields;
-  late List<RelativeDbField> _relativeFields;
+  late List<DbField<ItemT,dynamic>> _simpleFields;
+  late List<RelativeDbField<ItemT,dynamic>> _relativeFields;
   // depType -> depField
   late Map<String,DependentDbField<ItemT, dynamic>> _depFieldByType;
   late ItemCreator<ItemT> _itemCreator;
@@ -50,55 +48,49 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   static const String _columnIdName = 'id';
 
   @override
-  createIfNotExists() async{
-    _db.execute("""
-      CREATE TABLE IF NOT EXISTS $_tableName (
-        $_columnIdName INTEGER PRIMARY KEY NOT NULL,
-        $_schema
-      ); 
-      $_indexes
-    """);
-  }
-
-  @override
   init(
-        Database db,
         String table,
         ItemCreator<ItemT> itemCreator,
         List<AbstractField> fields
         ){
-    _db = db;
-    this._tableName = table;
+    _tableName = table;
     _dbFieldsByName = {};
     _simpleFields = [];
     _relativeFields = [];
     _depFieldByType = {};
-    List<String> indexList = [];
     for(var field in fields){
-      if(field is DbField) {
-        if (field is RelativeDbField) {
+      if(field is DbField<ItemT,dynamic>) {
+        field.tableName = tableName;
+        if (field is RelativeDbField<ItemT, dynamic>) {
           _relativeFields.add(field);
           field.setDependentRepository(
               this,
-                  (int? id) async =>
-              await _handleRelativeDeletion(field as RelativeDbField, id)
+              (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
+              (AbstractDbRepository rep, ItemT item) async {
+                return await (rep as DbRepository)._handleDependentInsertion(item);
+              },
+              (AbstractDbRepository rep, ItemT item) async {
+                await (rep as DbRepository)._handleDependentDeletion(item);
+              },
           );
         } else {
           _simpleFields.add(field);
         }
-        _dbFieldsByName[field.name] = field;
-        var index = field.getIndexSchema(table);
-        if (index != null) {
-          indexList.add(index);
-        }
+        _dbFieldsByName[field.columnName] = field;
       } else if(field is DependentDbField<ItemT, dynamic>){
         _depFieldByType[field.fieldType] = field;
+      } else {
+        _logger.error("Unexpected field: ${field.runtimeType}");
       }
     }
     _itemCreator = itemCreator;
-    _schema = fields.join(", ");
-    _indexes = indexList.join(" ");
-    _logger.info("successfully inited");
+    _logger.info("successfully initialized");
+  }
+
+  @override
+  set db(Database db) {
+    _db = db;
+    _itemsCache = null;
   }
 
   // returns items as id->value (get form cache or get from db and create cache)
@@ -155,7 +147,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     List<Map> rawResult = await _db.rawQuery("""
       SELECT $_columnIdName 
       FROM $_tableName 
-      WHERE ${field.name} = $value;
+      WHERE ${field.columnName} = $value;
     """);
     for(var row in rawResult){
       var id = row["id"];
@@ -266,7 +258,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Future<Map<String, Object?>?> toDbMap(ItemT item) async{
     var map = <String, Object?>{};
     for(var field in _dbFieldsByName.values){
-      map[field.name] = field.abstractGet(item);
+      map[field.columnName] = field.abstractGet(item);
     }
     return map;
   }
@@ -276,17 +268,15 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     var item = _itemCreator();
     for(var field in _relativeFields){
       await field.relativeRepository.getAll(); // create cache
-      field.abstractSet(item, map[field.name]);
+      field.abstractSet(item, map[field.columnName]);
     }
     for(var field in _simpleFields) {
-      field.abstractSet(item, map[field.name]);
+      field.abstractSet(item, map[field.columnName]);
     }
     return item;
   }
 
-
-  @override
-  handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+  _handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
     var logger = _logger.subModule("handleDependentInsertion<${DepItemT.toString()}>()");
     await _handleDependentAction(
         depItem,
@@ -297,8 +287,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     );
   }
 
-  @override
-  handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+  _handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
     var logger = _logger.subModule("handleDependentDeletion<${DepItemT.toString()}>()");
     await _handleDependentAction(
         depItem,
@@ -344,7 +333,6 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   }
 
 
-
   Future<bool> _deleteById(int id) async {
     var logger = _logger.subModule("_deleteById()");
     int deleteCount = await _db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
@@ -370,8 +358,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     }
     await _db.execute("""
       UPDATE $_tableName 
-      SET ${field.name} = NULL
-      WHERE ${field.name} = $id;
+      SET ${field.columnName} = NULL
+      WHERE ${field.columnName} = $id;
     """);
   }
 

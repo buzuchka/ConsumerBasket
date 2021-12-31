@@ -10,55 +10,52 @@ abstract class AbstractField {
 typedef Getter<ItemT,FieldT> = FieldT Function(ItemT);
 typedef Setter<ItemT,FieldT> = Function(ItemT, FieldT);
 
-class DbField<ItemT, FieldT> extends AbstractField {
+
+class DbColumnInfo{
+  late String tableName;
+  late String columnName;
+  late String sqlType;
+  bool isIndexed = false;
+  bool isUnique = false;
+  String get indexName => "index_${tableName}_${columnName}";
+  String get sqlColumnDef => "$columnName $sqlType";
+  String get tableColumnName =>"$tableName.$columnName";
+
+  @override
+  String toString(){
+    return sqlColumnDef;
+  }
+}
+
+class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
 
   Logger _logger = Logger(" DbField<${ItemT.toString()}, ${FieldT.toString()}>");
 
   String get fieldType => FieldT.toString();
+  String get fieldId => "${ItemT.toString()}_$columnName";
 
-  String name;
-  String sqlType;
-  Getter<ItemT,FieldT> getter;
   Setter<ItemT,FieldT> setter;
-
-  bool index = false;
-  bool unique = false;
+  Getter<ItemT,FieldT> getter;
 
   DbField(
-      this.name,
-      this.sqlType,
+      columnName,
+      sqlType,
       this.getter,
       this.setter,
       {bool? index, bool? unique}
   ){
+    super.columnName = columnName;
+    super.sqlType = sqlType;
     if(index != null){
-      this.index = index;
+      super.isIndexed = index;
     }
     if(unique != null){
-      this.unique = unique;
+      super.isUnique = unique;
       if(unique == true){
-        this.index = true;
+        super.isIndexed = true;
       }
     }
   }
-
-  String? getIndexSchema(String tableName) {
-    if(!index){
-      return null;
-    }
-    String uniqueStr = "";
-    if(unique){
-      uniqueStr = "UNIQUE";
-    } 
-    return "CREATE $uniqueStr INDEX IF NOT EXISTS index_$name ON $tableName ($name);";
-  }
-
-  @override
-  String toString(){
-    return "$name $sqlType";
-  }
-
-  String get fieldId => "${ItemT.toString()}_$name";
 
   @override
   Object? abstractGet(Object item) {
@@ -74,14 +71,21 @@ class DbField<ItemT, FieldT> extends AbstractField {
       logger.error("item is not ${ItemT.toString()}");
       return;
     }
-
+    if(FieldT is bool &&  fieldValue is int){
+      setter(item as ItemT, (fieldValue!=0) as FieldT);
+    }
     if(fieldValue is! FieldT){
       logger.error("fieldValue is not ${FieldT.toString()}");
       return;
     }
-    setter(item as ItemT, fieldValue as FieldT);
+    setter(item as ItemT, fieldValue);
   }
 }
+
+
+typedef DepRepHook<ItemT> =
+  Future<void> Function(AbstractDbRepository, ItemT);
+
 
 class RelativeDbField<
     ItemT extends AbstractRepositoryItem<ItemT>,
@@ -115,17 +119,22 @@ class RelativeDbField<
           unique: unique
           );
 
-  void setDependentRepository(AbstractDbRepository<ItemT> repository, Hook<int?> idHook){
+  void setDependentRepository(
+      AbstractDbRepository<ItemT> repository,
+      Hook<int?> idHook,
+      DepRepHook<ItemT> depOnInsertHook,
+      DepRepHook<ItemT> depOnDeleteHook,
+      ){
     relativeRepository.dependentRepositoriesByType[ItemT.toString()] =
         DependentRepositoryInfo(this, repository);
     relativeRepository.onDeleteHooks.add(
             (FieldT item) async => await idHook(item.id)
     );
     repository.onInsertHooks.add(
-            (ItemT item) async => await relativeRepository.handleDependentInsertion(item)
+            (ItemT item) async => await depOnInsertHook(relativeRepository,item)
     );
     repository.onDeleteHooks.add(
-            (ItemT item) async => await relativeRepository.handleDependentDeletion(item)
+            (ItemT item) async => await depOnDeleteHook(relativeRepository,item)
     );
   }
 }

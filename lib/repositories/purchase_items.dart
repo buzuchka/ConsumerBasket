@@ -11,11 +11,10 @@ import 'package:consumer_basket/repositories/purchases.dart';
 class PurchaseItemsRepository extends DbRepository<PurchaseItem> {
 
   PurchaseItemsRepository(
-      Database db,
       PurchasesRepository purchasesRepository,
       GoodsRepository goodsRepository) {
     super.init(
-        db,"purchase_items",
+        "purchase_items",
             () => PurchaseItem(),
         [
           RelativeDbField<PurchaseItem, Purchase>(

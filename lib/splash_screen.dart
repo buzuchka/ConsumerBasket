@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'common/database_helper.dart';
+import 'helpers/repositories_helper.dart';
 import 'basic_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -43,7 +43,7 @@ class _SplashScreen extends State<SplashScreen> {
 
   initialization() async {
     // Инициализация БД
-    await DatabaseHelper.init();
+    await RepositoriesHelper.init();
   }
 
   afterInitialization() {

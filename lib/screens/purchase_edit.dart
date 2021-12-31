@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/common/database_helper.dart';
+import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/screens/purchase_item_edit.dart';
@@ -263,7 +263,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
             // CREATE NEW PURCHASE ITEM
             PurchaseItem newPurchaseItem = PurchaseItem();
             newPurchaseItem.parent = widget.purchase;
-            await DatabaseHelper.purchaseItemsRepository.insert(newPurchaseItem);
+            await RepositoriesHelper.purchaseItemsRepository.insert(newPurchaseItem);
             await Navigator.push(
               context,
               MaterialPageRoute(
@@ -303,7 +303,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
   }
 
   _deletePurchase2Database() async {
-    await DatabaseHelper.purchasesRepository.delete(widget.purchase);
+    await RepositoriesHelper.purchasesRepository.delete(widget.purchase);
     _isItemDataChanged = true;
   }
 
