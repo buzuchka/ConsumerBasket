@@ -114,9 +114,11 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                           const SizedBox(height: _spacing),
                           InkWell(
                             child: Text(
-                              (widget.purchase.shop != null && widget.purchase.shop!.title != null)
+                              (widget.purchase.shop == null)
+                                  ? 'Not selected'
+                                  : (widget.purchase.shop!.title != null)
                                   ? widget.purchase.shop!.title!
-                                  : 'Not selected',
+                                  : 'Untitled',
                               style: TextStyle(
                                 fontSize: _fontSize,
                                 color: Theme.of(context).primaryColor,
