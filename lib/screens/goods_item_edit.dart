@@ -1,15 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
-import 'package:path/path.dart' as Path;
-
-import 'package:path_provider/path_provider.dart';
-
-import 'package:image_picker/image_picker.dart';
-
+import 'package:consumer_basket/helpers/path_helper.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/goods.dart';
+import 'package:consumer_basket/widgets/item_picture.dart';
 
 // Окно для добавления, просмотра и редактирования Товара
 class GoodsItemEditScreen extends StatefulWidget {
@@ -29,8 +23,6 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
   bool _isItemDataChanged = false;
 
   final TextEditingController _titleTextController = TextEditingController();
-
-  XFile? _imageFile;
 
   @override
   void initState() {
@@ -85,23 +77,14 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          InkWell(
-                            child: getImageWidget(),
-                            onTap: () async {
-                              _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-                              // Если пользователь не выбрал ничего и нажал Назад
-                              if(_imageFile == null) {
-                                return;
-                              }
-
-                              final currentImagePath = await _copySelectedImage2ExternalDir();
-                              widget.goodsItem.imagePath = currentImagePath;
+                          ItemPicture(
+                            imageFilePath: widget.goodsItem.imagePath,
+                            destinationDir: PathHelper.goodsImagesDir,
+                            onImageChanged: (String newImagePath) {
+                              widget.goodsItem.imagePath = newImagePath;
                               _updateGoodsItem2Database();
-
-                              setState(() {});
                             },
-                          )
+                          ),
                         ],
                       )
                   ),
@@ -142,24 +125,6 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
     );
   }
 
-  Image getImageWidget() {
-    if(widget.goodsItem.imagePath != null) {
-      return Image.file(
-          File(widget.goodsItem.imagePath!),
-          width: 100,
-          height: 100,
-          fit: BoxFit.cover
-      );
-    } else {
-      return const Image(
-          image: AssetImage('assets/images/no_photo.jpg'),
-          width: 100,
-          height: 100,
-          fit: BoxFit.cover
-      );
-    }
-  }
-
   _updateGoodsItem2Database() async {
     await widget.goodsItem.saveToRepository();
     _isItemDataChanged = true;
@@ -170,23 +135,7 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
     _isItemDataChanged = true;
   }
 
-  Future<String> _copySelectedImage2ExternalDir() async {
-    // Путь до папки с файлами приложения
-    final extDir = await getExternalStorageDirectory();
-    final goodsImagesDir = '${extDir!.path}/images/goods/';
-
-    // Создание папки, в которую будет скопирован файл
-    await Directory(goodsImagesDir).create(recursive: true);
-
-    // Копирование файла
-    final newImageFilePath = Path.join(goodsImagesDir, _imageFile!.name);
-    await _imageFile!.saveTo(newImageFilePath);
-
-    return newImageFilePath;
-  }
-
   void _clear() {
     _titleTextController.clear();
   }
-
 }

@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'helpers/path_helper.dart';
 import 'helpers/repositories_helper.dart';
+
 import 'basic_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -44,6 +46,9 @@ class _SplashScreen extends State<SplashScreen> {
   initialization() async {
     // Инициализация БД
     await RepositoriesHelper.init();
+
+    // Инициализация путей до папок приложения
+    await PathHelper.init();
   }
 
   afterInitialization() {
