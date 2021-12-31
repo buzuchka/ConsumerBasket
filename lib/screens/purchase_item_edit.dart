@@ -1,5 +1,5 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
-
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
@@ -133,7 +133,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                       controller: _priceTextController,
                       decoration: const InputDecoration(labelText: 'Price'),
                       onChanged: (String value) {
-                        widget.item.price = double.parse(value);
+                        widget.item.price = Decimal.parse(value);
                         _updatePurchaseItem2Database();
                       }
                     ),

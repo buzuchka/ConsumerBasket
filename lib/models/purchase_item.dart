@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 import 'package:consumer_basket/models/goods.dart';
 import 'package:consumer_basket/models/purchase.dart';
@@ -6,6 +7,6 @@ import 'package:consumer_basket/models/purchase.dart';
 class PurchaseItem extends AbstractRepositoryItem<PurchaseItem> {
   Purchase? parent;
   GoodsItem? goodsItem;
-  double? price;
+  Decimal? price;
   int? quantity;
 }
