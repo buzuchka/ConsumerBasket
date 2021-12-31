@@ -15,13 +15,14 @@ class PurchasesRepository extends DbRepository<Purchase> {
       () => Purchase(),
       [
         DbField<Purchase,String?>(
-          "date_text", "TEXT",
+          "date", "DATE",
           (Purchase item) => item.date.toString(),
           (Purchase item, String? date) {
             if(date != null) {
               item.date = DateTime.parse(date);
             }
-          }
+          },
+          index: true
         ),
         RelativeDbField<Purchase, Shop>(
           "shop_id",
