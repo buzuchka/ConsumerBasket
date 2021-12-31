@@ -1,10 +1,8 @@
-import 'package:consumer_basket/models/purchase_item.dart';
-import 'package:sqflite/sqflite.dart';
-
 import 'package:consumer_basket/base/repositories/db_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/models/shop.dart';
 import 'package:consumer_basket/models/purchase.dart';
+import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/repositories/shops.dart';
 
 class PurchasesRepository extends DbRepository<Purchase> {
