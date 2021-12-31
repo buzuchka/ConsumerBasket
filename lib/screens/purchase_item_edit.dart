@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/repositories/repositories_collection.dart';
+import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/screens/purchase_select_goods_item.dart';
@@ -157,7 +157,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
   }
 
   _deletePurchaseItem2Database() async {
-    await RepositoriesCollection.purchaseItemsRepository.delete(widget.item);
+    await RepositoriesHelper.purchaseItemsRepository.delete(widget.item);
     _isItemDataChanged = true;
   }
 

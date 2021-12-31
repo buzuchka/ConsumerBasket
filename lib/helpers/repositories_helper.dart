@@ -6,7 +6,7 @@ import 'package:consumer_basket/repositories/shops.dart';
 import 'package:consumer_basket/base/repositories/db_repository_supervisor.dart';
 
 
-abstract class RepositoriesCollection {
+abstract class RepositoriesHelper {
 
   static const String databaseName = 'CustomerBasket';
 
@@ -27,7 +27,7 @@ abstract class RepositoriesCollection {
       await dbRepositorySupervisor.openDatabase(databaseName);
     }
     catch(ex) {
-      Logger("RepositoryCollection").error("Initialization failed: $ex");
+      Logger("RepositoriesHelper").error("Initialization failed: $ex");
     }
   }
 }

@@ -32,14 +32,10 @@ class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
   Logger _logger = Logger(" DbField<${ItemT.toString()}, ${FieldT.toString()}>");
 
   String get fieldType => FieldT.toString();
+  String get fieldId => "${ItemT.toString()}_$columnName";
 
   Setter<ItemT,FieldT> setter;
   Getter<ItemT,FieldT> getter;
-
-  // String columnName;
-  // String sqlType;
-  // bool isIndexed = false;
-  // bool isUnique = false;
 
   DbField(
       columnName,
@@ -60,21 +56,6 @@ class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
       }
     }
   }
-
-  String? getIndexSchema(String tableName) {
-    if(!isIndexed){
-      return null;
-    }
-    String uniqueStr = "";
-    if(isUnique){
-      uniqueStr = "UNIQUE";
-    } 
-    return "CREATE $uniqueStr INDEX IF NOT EXISTS index_$columnName ON $tableName ($columnName);";
-  }
-
-
-
-  String get fieldId => "${ItemT.toString()}_$columnName";
 
   @override
   Object? abstractGet(Object item) {
@@ -150,10 +131,10 @@ class RelativeDbField<
             (FieldT item) async => await idHook(item.id)
     );
     repository.onInsertHooks.add(
-            (ItemT item) async => await depOnInsertHook(relativeRepository,item) // relativeRepository.handleDependentInsertion(item)
+            (ItemT item) async => await depOnInsertHook(relativeRepository,item)
     );
     repository.onDeleteHooks.add(
-            (ItemT item) async => await depOnDeleteHook(relativeRepository,item) //relativeRepository.handleDependentDeletion(item)
+            (ItemT item) async => await depOnDeleteHook(relativeRepository,item)
     );
   }
 }

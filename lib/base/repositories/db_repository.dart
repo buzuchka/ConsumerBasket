@@ -58,7 +58,6 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     _simpleFields = [];
     _relativeFields = [];
     _depFieldByType = {};
-    List<String> indexList = [];
     for(var field in fields){
       if(field is DbField<ItemT,dynamic>) {
         field.tableName = tableName;
@@ -78,10 +77,6 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
           _simpleFields.add(field);
         }
         _dbFieldsByName[field.columnName] = field;
-        var index = field.getIndexSchema(table);
-        if (index != null) {
-          indexList.add(index);
-        }
       } else if(field is DependentDbField<ItemT, dynamic>){
         _depFieldByType[field.fieldType] = field;
       } else {

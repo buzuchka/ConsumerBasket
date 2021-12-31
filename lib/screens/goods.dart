@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/repositories/repositories_collection.dart';
+import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
 import 'package:consumer_basket/screens/goods_item_edit.dart';
@@ -29,7 +29,7 @@ class _GoodsScreenState extends State<GoodsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<Map>(
-            future: RepositoriesCollection.goodsRepository.getAll(),
+            future: RepositoriesHelper.goodsRepository.getAll(),
             initialData: {},
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
@@ -72,7 +72,7 @@ class _GoodsScreenState extends State<GoodsScreen> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             GoodsItem newGoodsItem = GoodsItem();
-            await RepositoriesCollection.goodsRepository.insert(newGoodsItem);
+            await RepositoriesHelper.goodsRepository.insert(newGoodsItem);
             await Navigator.push(
               context,
               MaterialPageRoute(

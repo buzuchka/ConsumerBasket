@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/repositories/repositories_collection.dart';
+import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
 import 'package:consumer_basket/screens/goods_item_edit.dart';
@@ -26,7 +26,7 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
   }
 
   Future<Map<int,GoodsItem>> getGoods() async {
-    return await RepositoriesCollection.goodsRepository.getAll();
+    return await RepositoriesHelper.goodsRepository.getAll();
   }
 
   void _refreshItemsList() {
@@ -111,7 +111,7 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
           child: const Icon(Icons.add),
           onPressed: () async {
             GoodsItem newGoodsItem = GoodsItem();
-            await RepositoriesCollection.goodsRepository.insert(newGoodsItem);
+            await RepositoriesHelper.goodsRepository.insert(newGoodsItem);
             await Navigator.push(
               context,
               MaterialPageRoute(
