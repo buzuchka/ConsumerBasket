@@ -6,7 +6,7 @@ import 'package:consumer_basket/repositories/goods.dart';
 import 'package:consumer_basket/repositories/purchases.dart';
 import 'package:consumer_basket/repositories/purchase_items.dart';
 import 'package:consumer_basket/repositories/shops.dart';
-import 'package:consumer_basket/base/repositories/db_repository_vcs.dart';
+import 'package:consumer_basket/base/repositories/db_repository_supervisor.dart';
 
 const String databaseName = 'CustomerBasket';
 

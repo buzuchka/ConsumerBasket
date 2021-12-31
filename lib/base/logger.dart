@@ -3,7 +3,6 @@
 
 class Logger {
   String? module;
-  int debugMarkerCouter = 0;
 
   Logger([this.module = null]);
 
@@ -15,15 +14,15 @@ class Logger {
   }
 
   void error(String message){
-    _log("Error", message);
+    _log("ERROR", message);
   }
 
   void warning(String message){
-    _log("Warning", message);
+    _log("WARNING", message);
   }
 
   void info(String message){
-    _log("Info", message);
+    _log("INFO", message);
   }
 
   void debug(String message){
@@ -35,15 +34,7 @@ class Logger {
   }
 
   void debugMarker([Object? marker]){
-    if(marker != null) {
-      if(marker is int){
-        debugMarkerCouter = marker + 1;
-      }
-    }else {
-      marker = debugMarkerCouter;
-      debugMarkerCouter++;
-    }
-    debug("Debug maker [$marker]");
+    debug("DEBUG MARKER [$marker]");
   }
 
   void _log(String level, String message){

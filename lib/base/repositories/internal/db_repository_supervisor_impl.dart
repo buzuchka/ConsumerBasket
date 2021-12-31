@@ -5,21 +5,6 @@ import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/base/logger.dart';
 
 
-class DbRepositorySupervisor {
-
-  DbRepositorySupervisor(List<AbstractDbRepository> repositories) :
-        _impl = DbRepositorySupervisorImpl(repositories);
-
-  // opens database and updates schemas in db if required
-  openDatabase(String databaseName) async {
-    await _impl.openDb(databaseName);
-  }
-
-  final DbRepositorySupervisorImpl _impl;
-}
-
-
-//----------------------------------------
 // Internal
 
 class DbRepositorySupervisorImpl {
@@ -67,13 +52,9 @@ class DbRepositorySupervisorImpl {
     var logger = _logger.subModule("onDbOpen()");
     // logger.info("");
     _db = db;
-    logger.debugMarker(1);
     await _loadColumnInfo();
-    logger.debugMarker(2);
     await _updateDbSchema();
-    logger.debugMarker(3);
     _setRepDb(db);
-    logger.debugMarker(4);
   }
 
   _setRepDb(Database db) {
@@ -103,77 +84,127 @@ class DbRepositorySupervisorImpl {
   _loadColumnInfo() async {
     var logger = _logger.subModule("_loadColumnInfo()");
     _columnsByTable.clear();
-    logger.debugMarker(1);
     List<Map<String, Object?>> rawFields = await _db.query(_tableName);
     for(var rawField in rawFields){
-      logger.debugMarker(2);
       DbColumnInfo columnInfo = _columnInfoFromDbMap(rawField);
-      logger.debugMarker(3);
       Map<String,DbColumnInfo> fields = _columnsByTable.putIfAbsent(
           columnInfo.tableName, () => <String,DbColumnInfo>{});
-      logger.debugMarker(4);
       if(fields.containsKey(columnInfo.columnName)){
         _logger.subModule("updateDbSchema()").error("Found duplicated column info ${columnInfo.tableColumnName}");
       }
-      logger.debugMarker(5);
       fields[columnInfo.columnName] = columnInfo;
-      logger.debugMarker(6);
+    }
+  }
+
+  _updateDbSchema_3_35_0() async {
+    //var logger = _logger.subModule("_updateDbSchema()");
+
+    for (var repository in repositories) {
+      var tableName = repository.tableName;
+      var repFields = repository.fieldsByName;
+      var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});
+
+      if (dbColumns.isEmpty) {
+        await _createTable(tableName, repFields);
+      } else{
+        await _updateFields(dbColumns,repFields);
+      }
+
     }
   }
 
   _updateDbSchema() async {
-    var logger = _logger.subModule("_updateDbSchema()");
-    // List<String> executingLines = [];
+    //var logger = _logger.subModule("_updateDbSchema()");
 
     for (var repository in repositories) {
       var tableName = repository.tableName;
-      var repFields = repository.fieldsByName.values;
+      var repFields = repository.fieldsByName;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});
 
       if (dbColumns.isEmpty) {
-        logger.warning("table $tableName does not exist");
-        _execute(_createTable(tableName)); //!
-      }
-
-      for (var repField in repFields) {
-        var dbColumnInfo = dbColumns[repField.columnName];
-        bool dropColumn = false;
-        bool dropIndex = false;
-        bool addColumn = false;
-        bool addIndex = false;
-
-        if (dbColumnInfo != null) {
-          if (dbColumnInfo.sqlType != repField.sqlType) {
-            dropColumn = true;
-            dropIndex = dbColumnInfo.isIndexed;
-          } else if (dbColumnInfo.isIndexed != repField.isIndexed
-              || dbColumnInfo.isUnique != repField.isUnique) {
-            dropIndex = dbColumnInfo.isIndexed;
-            addIndex = repField.isIndexed;
-          }
+        await _createTable(tableName, repFields);
+        dbColumns.addAll(repFields);
+      } else {
+        if (_isNeedDropTable(dbColumns, repFields)) {
+          await _dropTable(tableName);
+          await _createTable(tableName, repFields);
         } else {
-          addColumn = true;
-          addIndex = repField.isIndexed;
+          await _updateFields(dbColumns, repFields);
         }
+      }
+      dbColumns.clear();
+      dbColumns.addAll(repFields);
 
-        if (dropIndex) {
-          _execute(_dropIndex(dbColumnInfo!));
+    }
+  }
+
+  _isNeedDropTable(
+      Map<String, DbColumnInfo> dbColumns,
+      Map<String, DbColumnInfo> repFields) {
+    for (var repField in repFields.values){
+      var dbColumnInfo = dbColumns[repField.columnName];
+      if (dbColumnInfo != null) {
+        if(dbColumnInfo.sqlType != repField.sqlType) {
+          return true;
         }
-        if (dropColumn) {
-          _execute(_dropColumn(dbColumnInfo!));
+        if(!dbColumnInfo.isUnique && repField.isUnique){
+          return true;
         }
-        if (addColumn) {
-          _execute(_addColumn(repField));
-        }
-        if (addIndex) {
-          _execute(_addIndex(repField));
-        }
-        if (dropIndex || dropColumn || addColumn || addIndex) {
-          _execute(_updateColumnInfo(repField));
-        }
-        dbColumns[repField.columnName] = repField;
       }
     }
+    return false;
+  }
+
+  _updateFields(
+      Map<String, DbColumnInfo> dbColumns,
+      Map<String, DbColumnInfo> repFields) async {
+    for (var repField in repFields.values) {
+      var dbColumnInfo = dbColumns[repField.columnName];
+      bool dropColumn = false;
+      bool dropIndex = false;
+      bool addColumn = false;
+      bool addIndex = false;
+
+      if (dbColumnInfo != null) {
+        if (dbColumnInfo.sqlType != repField.sqlType) {
+          dropColumn = true;
+          dropIndex = dbColumnInfo.isIndexed;
+        } else if (dbColumnInfo.isIndexed != repField.isIndexed
+            || dbColumnInfo.isUnique != repField.isUnique) {
+          dropIndex = dbColumnInfo.isIndexed;
+          addIndex = repField.isIndexed;
+        }
+      } else {
+        addColumn = true;
+        addIndex = repField.isIndexed;
+      }
+
+      if (dropIndex) {
+        await _dropIndex(dbColumnInfo!);
+      }
+      if (dropColumn) {
+        await _dropColumn(dbColumnInfo!);
+      }
+      if (addColumn) {
+        await _addColumn(repField);
+      }
+      if (addIndex) {
+        await _addIndex(repField);
+      }
+      if (dropIndex || dropColumn || addColumn || addIndex) {
+        await _updateColumnInfo(repField);
+      }
+    }
+  }
+
+  _dropTable(String tableName) async{
+    await _execute("""
+      DROP TABLE IF EXISTS $tableName;
+    """);
+
+    await _execute("""
+      DELETE FROM $_tableName WHERE $_columnTableName = '$tableName';
+    """);
   }
 
   _execute(String toExecute) async {
@@ -181,44 +212,52 @@ class DbRepositorySupervisorImpl {
     await _db.execute(toExecute);
   }
 
-  String _createTable(String tableName){
-    return """
+  _createTable(String tableName, Map<String, DbColumnInfo> repFields) async{
+    await _execute( """
      CREATE TABLE IF NOT EXISTS $tableName (
              $_columnId INTEGER PRIMARY KEY NOT NULL
      );
-    """;
+    """);
+
+    for(var repField in repFields.values){
+      await _addColumn(repField);
+      if(repField.isIndexed){
+        await _addIndex(repField);
+      }
+      await _updateColumnInfo(repField);
+    }
   }
 
-  String _dropColumn(DbColumnInfo dbColumnInfo) {
-    return """
+  _dropColumn(DbColumnInfo dbColumnInfo) async {
+    await _execute("""
       ALTER TABLE ${dbColumnInfo.tableName} 
         DROP COLUMN ${dbColumnInfo.columnName};
-    """;
+    """);
   }
 
-  String _dropIndex(DbColumnInfo dbColumnInfo) {
-    return "DROP INDEX IF EXISTS ${dbColumnInfo.indexName};";
+  _dropIndex(DbColumnInfo dbColumnInfo) async {
+    await _execute("DROP INDEX IF EXISTS ${dbColumnInfo.indexName};");
   }
 
-  String _addColumn(DbColumnInfo info) {
-    return """
+  _addColumn(DbColumnInfo info) async{
+    await _execute("""
       ALTER TABLE ${info.tableName} ADD COLUMN ${info.sqlColumnDef};
-    """;
+    """);
   }
 
-  String _addIndex(DbColumnInfo info) {
+  _addIndex(DbColumnInfo info) async {
     String uniqueStr = "";
     if(info.isUnique){
       uniqueStr = "UNIQUE";
     }
-    return """
+    await _execute("""
       CREATE $uniqueStr INDEX IF NOT EXISTS 
         ${info.indexName} ON ${info.tableName} (${info.columnName});
-     """;
+     """);
   }
 
-  String _updateColumnInfo(DbColumnInfo info) {
-    return """
+  _updateColumnInfo(DbColumnInfo info) async {
+    await _execute("""
       INSERT INTO $_tableName 
         ($_columnTableName, $_columnColumnName, $_columnColumnType, $_columnIsIndexed, $_columnIsUnique)
         VALUES('${info.tableName}', '${info.columnName}', '${info.sqlType}', ${info.isIndexed}, ${info.isUnique})
@@ -228,7 +267,7 @@ class DbRepositorySupervisorImpl {
         $_columnIsIndexed =  ${info.isIndexed},
         $_columnIsUnique = ${info.isUnique}
       ;
-    """;
+    """);
   }
 
   DbColumnInfo _columnInfoFromDbMap(Map<String, Object?> dbRawObj){
@@ -236,11 +275,8 @@ class DbRepositorySupervisorImpl {
     result.tableName = dbRawObj[_columnTableName] as String;
     result.columnName = dbRawObj[_columnColumnName] as String;
     result.sqlType = dbRawObj[_columnColumnType] as String;
-    var isIndex = dbRawObj[_columnIsIndexed] as int;
-    result.isIndexed = isIndex!=0;
-    var isUnique = dbRawObj[_columnIsUnique] as int;
-    result.isUnique = isUnique != 0;
-
+    result.isIndexed = (dbRawObj[_columnIsIndexed] as int) != 0;
+    result.isUnique = (dbRawObj[_columnIsUnique] as int) != 0;
     return result;
   }
 
