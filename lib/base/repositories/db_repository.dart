@@ -4,6 +4,9 @@ import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 import 'package:consumer_basket/base/logger.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 
+typedef DependentAction<ItemT extends AbstractRepositoryItem<ItemT>, DepItemT extends AbstractRepositoryItem<DepItemT>> =
+    Function(DependentDbField<ItemT,DepItemT>, ItemT, DepItemT);
+
 abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     extends AbstractDbRepository<ItemT> {
 
@@ -29,14 +32,14 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
 
   @override
-  Map<String,DbField> get fieldsByName => _fieldsByName;
-  late Map<String,DbField> _fieldsByName;
+  Map<String,DbField> get fieldsByName => _dbFieldsByName;
+  late Map<String,DbField> _dbFieldsByName;
 
   late Database _db;
-  late String _schema;
-  late String _indexes;
-  late List<DbField> _simpleFields;
-  late List<RelativeDbField> _relativeFields;
+  late List<DbField<ItemT,dynamic>> _simpleFields;
+  late List<RelativeDbField<ItemT,dynamic>> _relativeFields;
+  // depType -> depField
+  late Map<String,DependentDbField<ItemT, dynamic>> _depFieldByType;
   late ItemCreator<ItemT> _itemCreator;
   Map<int,ItemT>? _itemsCache;
 
@@ -45,49 +48,49 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   static const String _columnIdName = 'id';
 
   @override
-  createIfNotExists() async{
-    _db.execute("""
-      CREATE TABLE IF NOT EXISTS $_tableName (
-        $_columnIdName INTEGER PRIMARY KEY NOT NULL,
-        $_schema
-      ); 
-      $_indexes
-    """);
-  }
-
-  @override
   init(
-        Database db,
         String table,
         ItemCreator<ItemT> itemCreator,
-        List<DbField> fields
+        List<AbstractField> fields
         ){
-    _db = db;
-    this._tableName = table;
-    _fieldsByName = {};
+    _tableName = table;
+    _dbFieldsByName = {};
     _simpleFields = [];
     _relativeFields = [];
-    List<String> indexList = [];
+    _depFieldByType = {};
     for(var field in fields){
-      if(field is RelativeDbField){
-        _relativeFields.add(field);
-        field.setDependentRepository(
-            this,
-            (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id)
-        );
+      if(field is DbField<ItemT,dynamic>) {
+        field.tableName = tableName;
+        if (field is RelativeDbField<ItemT, dynamic>) {
+          _relativeFields.add(field);
+          field.setDependentRepository(
+              this,
+              (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
+              (AbstractDbRepository rep, ItemT item) async {
+                return await (rep as DbRepository)._handleDependentInsertion(item);
+              },
+              (AbstractDbRepository rep, ItemT item) async {
+                await (rep as DbRepository)._handleDependentDeletion(item);
+              },
+          );
+        } else {
+          _simpleFields.add(field);
+        }
+        _dbFieldsByName[field.columnName] = field;
+      } else if(field is DependentDbField<ItemT, dynamic>){
+        _depFieldByType[field.fieldType] = field;
       } else {
-        _simpleFields.add(field);
-      }
-      _fieldsByName[field.name] = field;
-      var index = field.getIndexSchema(table);
-      if(index != null){
-        indexList.add(index);
+        _logger.error("Unexpected field: ${field.runtimeType}");
       }
     }
     _itemCreator = itemCreator;
-    _schema = fields.join(", ");
-    _indexes = indexList.join(" ");
-    _logger.info("successfully inited");
+    _logger.info("successfully initialized");
+  }
+
+  @override
+  set db(Database db) {
+    _db = db;
+    _itemsCache = null;
   }
 
   // returns items as id->value (get form cache or get from db and create cache)
@@ -100,6 +103,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     List<Map<String, dynamic>> raw_objs = await _db.query(_tableName);
     for (var raw_obj in raw_objs){
       ItemT? obj = await fromDbMap(raw_obj);
+
       if(obj == null){
         _logger.subModule("getAll()").error("fromMap() returns null obj, skip it");
         continue;
@@ -108,6 +112,10 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       int id = raw_obj[_columnIdName] as int;
       obj.id = id;
       _itemsCache![id] = obj;
+
+      for(var field in _depFieldByType.values) {
+        await field.set(obj,this);
+      }
     }
     return _itemsCache!;
   }
@@ -139,7 +147,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     List<Map> rawResult = await _db.rawQuery("""
       SELECT $_columnIdName 
       FROM $_tableName 
-      WHERE ${field.name} = $value;
+      WHERE ${field.columnName} = $value;
     """);
     for(var row in rawResult){
       var id = row["id"];
@@ -249,8 +257,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   Future<Map<String, Object?>?> toDbMap(ItemT item) async{
     var map = <String, Object?>{};
-    for(var field in _fieldsByName.values){
-      map[field.name] = field.abstractGet(item);
+    for(var field in _dbFieldsByName.values){
+      map[field.columnName] = field.abstractGet(item);
     }
     return map;
   }
@@ -260,13 +268,70 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     var item = _itemCreator();
     for(var field in _relativeFields){
       await field.relativeRepository.getAll(); // create cache
-      field.abstractSet(item, map[field.name]);
+      field.abstractSet(item, map[field.columnName]);
     }
     for(var field in _simpleFields) {
-      field.abstractSet(item, map[field.name]);
+      field.abstractSet(item, map[field.columnName]);
     }
     return item;
   }
+
+  _handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+    var logger = _logger.subModule("handleDependentInsertion<${DepItemT.toString()}>()");
+    await _handleDependentAction(
+        depItem,
+        (DependentDbField<ItemT,DepItemT> depField, ItemT myItem, DepItemT depItem) {
+          depField.onInsert(myItem, depItem);
+        },
+        logger
+    );
+  }
+
+  _handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+    var logger = _logger.subModule("handleDependentDeletion<${DepItemT.toString()}>()");
+    await _handleDependentAction(
+        depItem,
+        (DependentDbField<ItemT,DepItemT> depField, ItemT myItem, DepItemT depItem) {
+          depField.onDelete(myItem, depItem);
+        },
+        logger
+    );
+  }
+
+  _handleDependentAction<DepItemT extends AbstractRepositoryItem<DepItemT>>(
+      DepItemT depItem, DependentAction<ItemT, DepItemT> depAction, Logger logger) async {
+    if(_itemsCache == null){
+      return;
+    }
+    var depTypeStr =  DepItemT.toString();
+
+    if(!depItem.isValid(logger:logger)){
+      return;
+    }
+    var depField = _depFieldByType[depTypeStr] as DependentDbField<ItemT,DepItemT>?;
+    if(depField == null){
+      logger.info("dependent field not found for type ${depTypeStr}");
+      return;
+    }
+    var depRep = dependentRepositoriesByType[depTypeStr];
+    if(depRep == null){
+      logger.error("dependent repository does not exist for type $depTypeStr");
+      return;
+    }
+    var fieldInDepRep = depRep.field as RelativeDbField<DepItemT, ItemT>;
+    var myItemId = fieldInDepRep.getter(depItem);
+    if(myItemId == null){
+      logger.error("there is no relative id in dependent item");
+      return;
+    }
+    var myItem = _itemsCache![myItemId];
+    if(myItem == null){
+      logger.error("there is no item in cache with id=$myItemId");
+      return;
+    }
+    depAction(depField, myItem, depItem);
+  }
+
 
   Future<bool> _deleteById(int id) async {
     var logger = _logger.subModule("_deleteById()");
@@ -293,8 +358,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     }
     await _db.execute("""
       UPDATE $_tableName 
-      SET ${field.name} = NULL
-      WHERE ${field.name} = $id;
+      SET ${field.columnName} = NULL
+      WHERE ${field.columnName} = $id;
     """);
   }
 

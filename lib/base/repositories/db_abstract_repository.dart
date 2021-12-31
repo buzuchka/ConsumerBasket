@@ -59,7 +59,6 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
   // initialize repository (do not initialize db)
   init(
-      Database db,
       String table,
       ItemCreator<ItemT> itemCreator,
       List<DbField> fields){
@@ -139,6 +138,11 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Map<String, DbField> get fieldsByName {
     _logger.abstractMethodError("get fieldsByName");
     return {};
+  }
+
+  // internal
+  set db(Database db) {
+    _logger.abstractMethodError("set db");
   }
 
   final Logger _logger = Logger("AbstractDbRepository<${ItemT.toString()}>");

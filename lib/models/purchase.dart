@@ -13,6 +13,8 @@ class Purchase extends AbstractRepositoryItem<Purchase> {
   DateTime date = DateTime.now();
   Map<int, PurchaseItem> items = {};
 
+  Map<int, PurchaseItem> items = {};
+
   Future<List<PurchaseItem>> getPurchaseItems() async {
     if(repository != null) {
       var rep = repository as DbRepository<Purchase>;

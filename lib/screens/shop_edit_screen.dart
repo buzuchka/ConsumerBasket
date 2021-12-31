@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:image_picker/image_picker.dart';
 
-import 'package:consumer_basket/common/database_helper.dart';
+import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/shop.dart';
 
 // Окно для добавления, просмотра и редактирования Магазина
@@ -167,7 +167,7 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
   }
 
   _deleteShop2Database() async {
-    await DatabaseHelper.shopsRepository.delete(widget.shop);
+    await RepositoriesHelper.shopsRepository.delete(widget.shop);
     _isItemDataChanged = true;
   }
 
