@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/models/shop.dart';
+import 'package:consumer_basket/widgets/list_item_picture.dart';
 
 class ShopListItem extends StatelessWidget {
   final Shop shop;
@@ -19,7 +18,7 @@ class ShopListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          //_getImageWidget(),
+          ListItemPicture(imageFilePath: shop.imagePath),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),

@@ -42,7 +42,7 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Select goods item"),
+          title: const Text("Select Goods Item"),
         ),
         body: Column(
             mainAxisSize: MainAxisSize.max,

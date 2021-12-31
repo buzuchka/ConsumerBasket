@@ -1,25 +1,18 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
-import 'package:path/path.dart' as Path;
-
-import 'package:path_provider/path_provider.dart';
-
-import 'package:image_picker/image_picker.dart';
-
+import 'package:consumer_basket/helpers/path_helper.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/shop.dart';
+import 'package:consumer_basket/widgets/item_picture.dart';
 
-// Окно для добавления, просмотра и редактирования Товара
+// Окно для добавления, просмотра и редактирования Магазина
 class ShopEditScreen extends StatefulWidget {
   final Shop shop; // item to view and update
 
   const ShopEditScreen({
     Key? key,
     required this.shop
-  })
-      : super(key: key);
+  }) : super(key: key);
 
   @override
   _ShopEditScreenState createState() => _ShopEditScreenState();
@@ -29,8 +22,6 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
   bool _isItemDataChanged = false;
 
   final TextEditingController _titleTextController = TextEditingController();
-
-  XFile? _imageFile;
 
   @override
   void initState() {
@@ -79,32 +70,23 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /*SizedBox(
+                    SizedBox(
                         width: 100,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            InkWell(
-                              child: getImageWidget(),
-                              onTap: () async {
-                                _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-                                // Если пользователь не выбрал ничего и нажал Назад
-                                if(_imageFile == null) {
-                                  return;
-                                }
-
-                                final currentImagePath = await _copySelectedImage2ExternalDir();
-                                widget.goodsItem.imagePath = currentImagePath;
-                                _updateGoodsItem2Database();
-
-                                setState(() {});
+                            ItemPicture(
+                              imageFilePath: widget.shop.imagePath,
+                              destinationDir: PathHelper.shopsImagesDir,
+                              onImageChanged: (String newImagePath) {
+                                widget.shop.imagePath = newImagePath;
+                                _updateShop2Database();
                               },
-                            )
+                            ),
                           ],
                         )
-                    ),*/
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                         child: Column(
@@ -142,25 +124,6 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
     );
   }
 
-  /*
-  Image getImageWidget() {
-    if(widget.goodsItem.imagePath != null) {
-      return Image.file(
-          File(widget.goodsItem.imagePath!),
-          width: 100,
-          height: 100,
-          fit: BoxFit.cover
-      );
-    } else {
-      return const Image(
-          image: AssetImage('assets/images/no_photo.jpg'),
-          width: 100,
-          height: 100,
-          fit: BoxFit.cover
-      );
-    }
-  }*/
-
   _updateShop2Database() async {
     await widget.shop.saveToRepository();
     _isItemDataChanged = true;
@@ -169,21 +132,6 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
   _deleteShop2Database() async {
     await RepositoriesHelper.shopsRepository.delete(widget.shop);
     _isItemDataChanged = true;
-  }
-
-  Future<String> _copySelectedImage2ExternalDir() async {
-    // Путь до папки с файлами приложения
-    final extDir = await getExternalStorageDirectory();
-    final goodsImagesDir = '${extDir!.path}/images/goods/';
-
-    // Создание папки, в которую будет скопирован файл
-    await Directory(goodsImagesDir).create(recursive: true);
-
-    // Копирование файла
-    final newImageFilePath = Path.join(goodsImagesDir, _imageFile!.name);
-    await _imageFile!.saveTo(newImageFilePath);
-
-    return newImageFilePath;
   }
 
   void _clear() {

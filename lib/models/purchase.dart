@@ -11,7 +11,6 @@ class Purchase extends AbstractRepositoryItem<Purchase> {
 
   Shop? shop;
   DateTime date = DateTime.now();
-
   Map<int, PurchaseItem> items = {};
 
   Future<List<PurchaseItem>> getPurchaseItems() async {
