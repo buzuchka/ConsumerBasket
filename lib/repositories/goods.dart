@@ -18,7 +18,7 @@ class GoodsRepository extends DbRepository<GoodsItem> {
           DbField<GoodsItem,String?>(
               "image_path", "TEXT",
                   (GoodsItem item) => item.imagePath,
-                  (GoodsItem item, String? imagePath) => item.imagePath = imagePath ),
+                  (GoodsItem item, String? imagePath) => item.imagePath = imagePath),
         ]
     );
   }

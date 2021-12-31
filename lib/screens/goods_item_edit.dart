@@ -12,8 +12,7 @@ class GoodsItemEditScreen extends StatefulWidget {
   const GoodsItemEditScreen({
     Key? key,
     required this.goodsItem
-  })
-      : super(key: key);
+  }) : super(key: key);
 
   @override
   _GoodsItemEditScreenState createState() => _GoodsItemEditScreenState();
