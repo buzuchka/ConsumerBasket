@@ -100,6 +100,12 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                   );
                   if(selectedGoodsItem != null) {
                     widget.item.goodsItem = selectedGoodsItem;
+
+                    var lastPurchase = await RepositoriesHelper.purchaseItemsRepository.findLastPurchases(selectedGoodsItem, 1);
+                    if(lastPurchase.isNotEmpty){
+                      widget.item.price = lastPurchase.first.price;
+                      _priceTextController.text = widget.item.price.toString();
+                    }
                     widget.item.saveToRepository();
                     _isItemDataChanged = true;
                     setState(() {});

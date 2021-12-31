@@ -185,6 +185,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   getByQuery(String query, ItemInserter<ItemT> itemInserter) async {
     var logger = _logger.subModule("getByQuery()");
+    logger.info("Query: \n$query");
     var allItems = await getAll();
     List<Map> rawResult = await _db.rawQuery(query);
     for(var row in rawResult){
@@ -198,7 +199,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     }
   }
 
-  // returns dependnet items (from dependent repository)
+  // returns dependent items (from dependent repository)
   // only one dependent by type can be resolved
   @override
   Future<Map<int, DependentT>> getDependents<
