@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:consumer_basket/helpers/path_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path_lib;
 
 // Виджет с картинкой
+// При нажатии открывается окно выбора картинки из Галереи
 class ItemPicture extends StatefulWidget {
   final String? imageFilePath; // путь до картинки
   final String destinationDir; // путь до папки, в которую необходимо поместить выбранную картинку
@@ -77,7 +79,7 @@ class _ItemPictureState extends State<ItemPicture> {
       );
     } else {
       return Image(
-          image: const AssetImage('assets/images/no_photo.jpg'),
+          image: const AssetImage(PathHelper.noPhotoImageFilePath),
           width: widget.width,
           height: widget.height,
           fit: BoxFit.cover
@@ -95,6 +97,3 @@ class _ItemPictureState extends State<ItemPicture> {
     return newImageFilePath;
   }
 }
-
-
-

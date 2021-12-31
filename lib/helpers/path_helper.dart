@@ -5,6 +5,8 @@ import 'package:path/path.dart' as path_lib;
 import 'package:path_provider/path_provider.dart';
 
 class PathHelper {
+  static const noPhotoImageFilePath = 'assets/images/no_photo.jpg';
+
   static late String goodsImagesDir;
   static late String shopsImagesDir;
 
