@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/common/database_helper.dart';
+import 'package:consumer_basket/repositories/repositories_collection.dart';
 import 'package:consumer_basket/lists/shop_list_item.dart';
 import 'package:consumer_basket/models/shop.dart';
 import 'package:consumer_basket/screens/shop_edit_screen.dart';
@@ -26,7 +26,7 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
   }
 
   Future<Map<int,Shop>> getShops() async {
-    return await DatabaseHelper.shopsRepository.getAll();
+    return await RepositoriesCollection.shopsRepository.getAll();
   }
 
   void _refreshShopList() {
@@ -124,7 +124,7 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
           child: const Icon(Icons.add),
           onPressed: () async {
             Shop newShop = Shop();
-            await DatabaseHelper.shopsRepository.insert(newShop);
+            await RepositoriesCollection.shopsRepository.insert(newShop);
             await Navigator.push(
               context,
               MaterialPageRoute(

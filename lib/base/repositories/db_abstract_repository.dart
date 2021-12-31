@@ -141,16 +141,6 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   }
 
   // internal
-  handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async{
-    _logger.abstractMethodError("handleDependentInsertion()");
-  }
-
-  // internal
-  handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
-    _logger.abstractMethodError("handleDependentDeletion()");
-  }
-
-  // internal
   set db(Database db) {
     _logger.abstractMethodError("set db");
   }

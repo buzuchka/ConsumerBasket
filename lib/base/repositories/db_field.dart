@@ -25,11 +25,7 @@ class DbColumnInfo{
   String toString(){
     return sqlColumnDef;
   }
-
-
-  // DbFieldInfo(this.columnName,this.sqlType,this.isIndexed,this.isUnique);
 }
-
 
 class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
 
@@ -94,14 +90,21 @@ class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
       logger.error("item is not ${ItemT.toString()}");
       return;
     }
-
+    if(FieldT is bool &&  fieldValue is int){
+      setter(item as ItemT, (fieldValue!=0) as FieldT);
+    }
     if(fieldValue is! FieldT){
       logger.error("fieldValue is not ${FieldT.toString()}");
       return;
     }
-    setter(item as ItemT, fieldValue as FieldT);
+    setter(item as ItemT, fieldValue);
   }
 }
+
+
+typedef DepRepHook<ItemT> =
+  Future<void> Function(AbstractDbRepository, ItemT);
+
 
 class RelativeDbField<
     ItemT extends AbstractRepositoryItem<ItemT>,
@@ -135,17 +138,22 @@ class RelativeDbField<
           unique: unique
           );
 
-  void setDependentRepository(AbstractDbRepository<ItemT> repository, Hook<int?> idHook){
+  void setDependentRepository(
+      AbstractDbRepository<ItemT> repository,
+      Hook<int?> idHook,
+      DepRepHook<ItemT> depOnInsertHook,
+      DepRepHook<ItemT> depOnDeleteHook,
+      ){
     relativeRepository.dependentRepositoriesByType[ItemT.toString()] =
         DependentRepositoryInfo(this, repository);
     relativeRepository.onDeleteHooks.add(
             (FieldT item) async => await idHook(item.id)
     );
     repository.onInsertHooks.add(
-            (ItemT item) async => await relativeRepository.handleDependentInsertion(item)
+            (ItemT item) async => await depOnInsertHook(relativeRepository,item) // relativeRepository.handleDependentInsertion(item)
     );
     repository.onDeleteHooks.add(
-            (ItemT item) async => await relativeRepository.handleDependentDeletion(item)
+            (ItemT item) async => await depOnDeleteHook(relativeRepository,item) //relativeRepository.handleDependentDeletion(item)
     );
   }
 }

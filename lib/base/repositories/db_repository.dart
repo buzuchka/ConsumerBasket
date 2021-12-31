@@ -36,10 +36,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   late Map<String,DbField> _dbFieldsByName;
 
   late Database _db;
-  late String _schema;
-  late String _indexes;
-  late List<DbField> _simpleFields;
-  late List<RelativeDbField> _relativeFields;
+  late List<DbField<ItemT,dynamic>> _simpleFields;
+  late List<RelativeDbField<ItemT,dynamic>> _relativeFields;
   // depType -> depField
   late Map<String,DependentDbField<ItemT, dynamic>> _depFieldByType;
   late ItemCreator<ItemT> _itemCreator;
@@ -48,17 +46,6 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   final Logger _logger = Logger("BaseRepository<${ItemT.toString()}>");
 
   static const String _columnIdName = 'id';
-
-  @override
-  createIfNotExists() async{
-    _db.execute("""
-      CREATE TABLE IF NOT EXISTS $_tableName (
-        $_columnIdName INTEGER PRIMARY KEY NOT NULL,
-        $_schema
-      ); 
-      $_indexes
-    """);
-  }
 
   @override
   init(
@@ -73,14 +60,19 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     _depFieldByType = {};
     List<String> indexList = [];
     for(var field in fields){
-      if(field is DbField) {
+      if(field is DbField<ItemT,dynamic>) {
         field.tableName = tableName;
-        if (field is RelativeDbField) {
+        if (field is RelativeDbField<ItemT, dynamic>) {
           _relativeFields.add(field);
           field.setDependentRepository(
               this,
-                  (int? id) async =>
-              await _handleRelativeDeletion(field as RelativeDbField, id)
+              (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
+              (AbstractDbRepository rep, ItemT item) async {
+                return await (rep as DbRepository)._handleDependentInsertion(item);
+              },
+              (AbstractDbRepository rep, ItemT item) async {
+                await (rep as DbRepository)._handleDependentDeletion(item);
+              },
           );
         } else {
           _simpleFields.add(field);
@@ -92,12 +84,12 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         }
       } else if(field is DependentDbField<ItemT, dynamic>){
         _depFieldByType[field.fieldType] = field;
+      } else {
+        _logger.error("Unexpected field: ${field.runtimeType}");
       }
     }
     _itemCreator = itemCreator;
-    _schema = fields.join(", ");
-    _indexes = indexList.join(" ");
-    _logger.info("successfully inited");
+    _logger.info("successfully initialized");
   }
 
   @override
@@ -289,9 +281,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return item;
   }
 
-
-  @override
-  handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+  _handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
     var logger = _logger.subModule("handleDependentInsertion<${DepItemT.toString()}>()");
     await _handleDependentAction(
         depItem,
@@ -302,8 +292,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     );
   }
 
-  @override
-  handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+  _handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
     var logger = _logger.subModule("handleDependentDeletion<${DepItemT.toString()}>()");
     await _handleDependentAction(
         depItem,
@@ -347,7 +336,6 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     }
     depAction(depField, myItem, depItem);
   }
-
 
 
   Future<bool> _deleteById(int id) async {

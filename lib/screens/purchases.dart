@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/common/database_helper.dart';
+import 'package:consumer_basket/repositories/repositories_collection.dart';
 import 'package:consumer_basket/lists/purchase_list_item.dart';
 import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/screens/purchase_edit.dart';
@@ -29,7 +29,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: FutureBuilder<Map>(
-            future: DatabaseHelper.purchasesRepository.getAll(),
+            future: RepositoriesCollection.purchasesRepository.getAll(),
             initialData: {},
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
@@ -73,7 +73,7 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             Purchase newPurchase = Purchase();
-            await DatabaseHelper.purchasesRepository.insert(newPurchase);
+            await RepositoriesCollection.purchasesRepository.insert(newPurchase);
             await Navigator.push(
               context,
               MaterialPageRoute(
