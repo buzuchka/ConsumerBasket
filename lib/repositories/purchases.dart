@@ -7,13 +7,15 @@ import 'package:consumer_basket/repositories/shops.dart';
 
 class PurchasesRepository extends DbRepository<Purchase> {
 
+  static const String columnDate = "date";
+
   PurchasesRepository(ShopsRepository shopsRepository){
     super.init(
       "purchases",
       () => Purchase(),
       [
         DbField<Purchase,String?>(
-          "date", "DATE",
+          columnDate, "DATE",
           (Purchase item) => item.date.toString(),
           (Purchase item, String? date) {
             if(date != null) {

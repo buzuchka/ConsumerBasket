@@ -5,8 +5,8 @@ import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 
 typedef Hook<ItemT> = Future<void> Function(ItemT);
-
 typedef ItemCreator<ItemT> = ItemT Function();
+typedef ItemInserter<ItemT> = void Function(ItemT);
 
 class DependentRepositoryInfo{
   RelativeDbField field;
@@ -83,6 +83,23 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       DbField<ItemT,dynamic> field, FieldT value) async{
     _logger.abstractMethodError("getByDbField()");
     return {};
+  }
+
+  // Returns ordered item list by query. Query should return item ids.
+  Future<List<ItemT>> getByQueryOrdered(String query) async{
+    _logger.abstractMethodError("getByQueryOrdered()");
+    return [];
+  }
+
+  // Returns mapped id->items by query. Query should return item ids.
+  Future<Map<int,ItemT>> getByQueryMapped(String query) async{
+    _logger.abstractMethodError("getByQueryMapped()");
+    return {};
+  }
+
+  // Inserts items by query. Query should return item ids.
+  getByQuery(String query, ItemInserter<ItemT> itemInserter) async {
+    _logger.abstractMethodError("getByQuery()");
   }
 
   // returns dependent items (from dependent repository)

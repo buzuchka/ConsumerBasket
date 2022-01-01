@@ -7,6 +7,7 @@ import 'package:consumer_basket/base/repositories/db_field.dart';
 typedef DependentAction<ItemT extends AbstractRepositoryItem<ItemT>, DepItemT extends AbstractRepositoryItem<DepItemT>> =
     Function(DependentDbField<ItemT,DepItemT>, ItemT, DepItemT);
 
+
 abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     extends AbstractDbRepository<ItemT> {
 
@@ -35,6 +36,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Map<String,DbField> get fieldsByName => _dbFieldsByName;
   late Map<String,DbField> _dbFieldsByName;
 
+  static const String columnIdName = 'id';
+
   late Database _db;
   late List<DbField<ItemT,dynamic>> _simpleFields;
   late List<RelativeDbField<ItemT,dynamic>> _relativeFields;
@@ -45,7 +48,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
   final Logger _logger = Logger("BaseRepository<${ItemT.toString()}>");
 
-  static const String _columnIdName = 'id';
+
 
   @override
   init(
@@ -109,7 +112,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         continue;
       }
       obj.repository = this;
-      int id = raw_obj[_columnIdName] as int;
+      int id = raw_obj[columnIdName] as int;
       obj.id = id;
       _itemsCache![id] = obj;
 
@@ -125,6 +128,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Map<int,ItemT>? getAllCache() {
     return _itemsCache;
   }
+
 
   // return items with certen relative field
   @override
@@ -145,7 +149,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     Map<int,ItemT> result = {};
     var allItems = await getAll();
     List<Map> rawResult = await _db.rawQuery("""
-      SELECT $_columnIdName 
+      SELECT $columnIdName 
       FROM $_tableName 
       WHERE ${field.columnName} = $value;
     """);
@@ -161,7 +165,41 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return result;
   }
 
-  // returns dependnet items (from dependent repository)
+  // Returns ordered item list by query.  Query should return ids.
+  @override
+  Future<List<ItemT>> getByQueryOrdered(String query) async{
+    List<ItemT> result = [];
+    await getByQuery(query,(ItemT item) => result.add(item));
+    return result;
+  }
+
+  // Returns mapped items by query. Query should return ids.
+  @override
+  Future<Map<int,ItemT>> getByQueryMapped(String query) async{
+    Map<int,ItemT> result = {};
+    await getByQuery(query,(ItemT item) => result[item.id!] = item);
+    return result;
+  }
+
+  // Inserts items by query. Query should return ids.
+  @override
+  getByQuery(String query, ItemInserter<ItemT> itemInserter) async {
+    var logger = _logger.subModule("getByQuery()");
+    logger.info("Query: \n$query");
+    var allItems = await getAll();
+    List<Map> rawResult = await _db.rawQuery(query);
+    for(var row in rawResult){
+      var id = row["id"];
+      var item = allItems[id];
+      if(item != null){
+        itemInserter(item);
+      } else {
+        logger.error("item not found in cache for id=$id");
+      }
+    }
+  }
+
+  // returns dependent items (from dependent repository)
   // only one dependent by type can be resolved
   @override
   Future<Map<int, DependentT>> getDependents<
@@ -195,7 +233,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       return 0;
     }
     if (item.id != null) {
-      map[_columnIdName] = item.id;
+      map[columnIdName] = item.id;
     }
     int id = await _db.insert(_tableName, map);
     if(id != 0){
@@ -225,7 +263,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       logger.error("no db mapping for object, can not update");
       return false;
     }
-    int count = await _db.update(_tableName, map, where: '$_columnIdName = ?', whereArgs: [id]);
+    int count = await _db.update(_tableName, map, where: '$columnIdName = ?', whereArgs: [id]);
     if(count == 0) {
       logger.error("failed to update item in db");
       return false;
