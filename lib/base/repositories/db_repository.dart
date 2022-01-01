@@ -105,20 +105,16 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     _itemsCache = <int,ItemT>{};
     List<Map<String, dynamic>> raw_objs = await _db.query(_tableName);
     for (var raw_obj in raw_objs){
-      ItemT? obj = await fromDbMap(raw_obj);
-
-      if(obj == null){
-        _logger.subModule("getAll()").error("fromMap() returns null obj, skip it");
+      ItemT? item = await fromDbMap(raw_obj);
+      if(item == null){
+        _logger.subModule("getAll()").error("fromMap() returns null item, skip it");
         continue;
       }
-      obj.repository = this;
-      int id = raw_obj[columnIdName] as int;
-      obj.id = id;
-      _itemsCache![id] = obj;
-
-      for(var field in _depFieldByType.values) {
-        await field.set(obj,this);
-      }
+      _itemsCache![item.id!] = item;
+    }
+    // WARNING: cause self calling in dependentRepository.getByRelative()
+    for(var item in _itemsCache!.values) {
+      await _fillDependentFields(item);
     }
     return _itemsCache!;
   }
@@ -129,8 +125,34 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return _itemsCache;
   }
 
+  Future<List<ItemT>> getOrdered(
+      String orderColumnName,
+      {Ordering? ordering, int? limitCount, int? offsetCount, String? whereClause}) async {
+    ordering ??= Ordering.desc;
+    String order ="ORDER BY $orderColumnName ${ordering.toString().split(".").last}";
+    String where = "";
+    if(whereClause != null){
+      where = "WHERE $whereClause";
+    }
+    String limit = "";
+    if(limitCount != null){
+      limit = "LIMIT $limitCount";
+      if(offsetCount !=null){
+        limit = "$limit OFFSET $offsetCount";
+      }
+    }
+    return await getByQueryOrdered(
+        """
+          SELECT $columnIdName 
+          FROM $_tableName 
+          $where $order $limit
+          ;
+        """,
+        _logger.subModule("getOrdered()")
+    );
+  }
 
-  // return items with certen relative field
+  // return items with certain relative field
   @override
   Future<Map<int,ItemT>> getByRelative<
     FieldT extends  AbstractRepositoryItem<FieldT>
@@ -138,56 +160,49 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     if(relative.id == null){
       _logger.subModule("getByRelative<${FieldT.toString()}>()").error("relative id is null");
     }
-    return await getByDbField(field, relative.id!);
+    return await getByDbField(field.columnName, relative.id!);
   }
 
 
-  // return items with certen field (do not check that index exists)
+  // return items with certain field (do not check that index exists)
   @override
-  Future<Map<int,ItemT>> getByDbField<FieldT>(DbField<ItemT,dynamic> field, FieldT value) async{
-    var logger = _logger.subModule("getByField<${FieldT.toString()}>()");
-    Map<int,ItemT> result = {};
-    var allItems = await getAll();
-    List<Map> rawResult = await _db.rawQuery("""
-      SELECT $columnIdName 
-      FROM $_tableName 
-      WHERE ${field.columnName} = $value;
-    """);
-    for(var row in rawResult){
-      var id = row["id"];
-      var item = allItems[id];
-      if(item != null){
-        result[id] = item;
-      } else {
-        logger.error("item not found in cache for id=$id");
-      }
-    }
-    return result;
+  Future<Map<int,ItemT>> getByDbField<FieldT>(String columnName, FieldT value) async{
+    return await getByQueryMapped(
+        """
+          SELECT $columnIdName 
+          FROM $_tableName 
+          WHERE $columnName = $value;
+        """,
+        _logger.subModule("getByField<${FieldT.toString()}>()")
+    );
   }
 
   // Returns ordered item list by query.  Query should return ids.
   @override
-  Future<List<ItemT>> getByQueryOrdered(String query) async{
+  Future<List<ItemT>> getByQueryOrdered(String query, [Logger? logger]) async{
     List<ItemT> result = [];
-    await getByQuery(query,(ItemT item) => result.add(item));
+    logger ??= _logger.subModule("getByQueryOrdered()");
+    await getByQuery(query,(ItemT item) => result.add(item), logger);
     return result;
   }
 
   // Returns mapped items by query. Query should return ids.
   @override
-  Future<Map<int,ItemT>> getByQueryMapped(String query) async{
+  Future<Map<int,ItemT>> getByQueryMapped(String query, [Logger? logger]) async{
     Map<int,ItemT> result = {};
-    await getByQuery(query,(ItemT item) => result[item.id!] = item);
+    logger ??= _logger.subModule("getByQueryMapped()");
+    await getByQuery(query,(ItemT item) => result[item.id!] = item, logger);
     return result;
   }
 
   // Inserts items by query. Query should return ids.
   @override
-  getByQuery(String query, ItemInserter<ItemT> itemInserter) async {
-    var logger = _logger.subModule("getByQuery()");
+  getByQuery(String query, ItemInserter<ItemT> itemInserter, [Logger? logger]) async {
+    logger ??= _logger.subModule("getByQuery()");
     logger.info("Query: \n$query");
     var allItems = await getAll();
     List<Map> rawResult = await _db.rawQuery(query);
+    logger.info("got ${rawResult.length} items");
     for(var row in rawResult){
       var id = row["id"];
       var item = allItems[id];
@@ -283,11 +298,11 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     int id = item.id!;
     bool deleted = await _deleteById(id);
     if(deleted) {
+      await _callHooks(onDeleteHooks, item);
       item.repository = null;
       if (_itemsCache != null ) {
         _itemsCache!.remove(id);
       }
-      await _callHooks(onDeleteHooks, item);
     }
     return deleted;
   }
@@ -304,6 +319,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   Future<ItemT?> fromDbMap(Map map) async{
     var item = _itemCreator();
+    item.id = map[columnIdName] as int;
+    item.repository = this;
     for(var field in _relativeFields){
       await field.relativeRepository.getAll(); // create cache
       field.abstractSet(item, map[field.columnName]);
@@ -311,7 +328,14 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     for(var field in _simpleFields) {
       field.abstractSet(item, map[field.columnName]);
     }
+
     return item;
+  }
+
+  _fillDependentFields(ItemT item) async{
+    for(var field in _depFieldByType.values) {
+      await field.set(item, this);
+    }
   }
 
   _handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
@@ -334,21 +358,24 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         },
         logger
     );
+
   }
 
   _handleDependentAction<DepItemT extends AbstractRepositoryItem<DepItemT>>(
       DepItemT depItem, DependentAction<ItemT, DepItemT> depAction, Logger logger) async {
     if(_itemsCache == null){
+      logger.info("Cache is null. Nothing to do.");
       return;
     }
     var depTypeStr =  DepItemT.toString();
 
     if(!depItem.isValid(logger:logger)){
+      logger.debug("depItem is not valid");
       return;
     }
     var depField = _depFieldByType[depTypeStr] as DependentDbField<ItemT,DepItemT>?;
     if(depField == null){
-      logger.info("dependent field not found for type ${depTypeStr}");
+      logger.info("dependent field not found for type $depTypeStr");
       return;
     }
     var depRep = dependentRepositoriesByType[depTypeStr];
@@ -368,6 +395,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       return;
     }
     depAction(depField, myItem, depItem);
+    logger.info("successfully handled");
   }
 
 

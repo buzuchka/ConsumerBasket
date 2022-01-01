@@ -29,16 +29,16 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: FutureBuilder<Map>(
-            future: RepositoriesHelper.purchasesRepository.getAll(),
-            initialData: {},
+        body: FutureBuilder<List>(
+            future: RepositoriesHelper.purchasesRepository.getOrderedByDate(),
+            initialData: [],
             builder: (context, snapshot) {
               return (snapshot.connectionState != ConnectionState.waiting)
                   ? ListView.separated(
                 padding: const EdgeInsets.all(10.0),
                 itemCount: snapshot.data!.length,
                 itemBuilder: (_, int position) {
-                  final currentPurchase = snapshot.data!.values.elementAt(position);
+                  final currentPurchase = snapshot.data!.elementAt(position);
                   return InkWell(
                       child: PurchaseListItem(purchase: currentPurchase),
                       onTap: () async {

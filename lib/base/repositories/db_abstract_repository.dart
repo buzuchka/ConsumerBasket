@@ -14,6 +14,11 @@ class DependentRepositoryInfo{
   DependentRepositoryInfo(this.field, this.repository);
 }
 
+enum Ordering {
+  asc,
+  desc
+}
+
 // Db repository main interface
 // All methods are overridden in DbRepository
 abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
@@ -80,7 +85,7 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
   // return items by certain field (even index does not exist)
   Future<Map<int,ItemT>> getByDbField<FieldT>(
-      DbField<ItemT,dynamic> field, FieldT value) async{
+      String columnName, FieldT value) async{
     _logger.abstractMethodError("getByDbField()");
     return {};
   }

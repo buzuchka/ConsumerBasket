@@ -190,10 +190,10 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: const [
-                    Text('Sum:'),
-                    SizedBox(width: _spacing),
-                    Text('1000 ${_currencyStr}')
+                  children: [
+                    const Text('Sum:'),
+                    const SizedBox(width: _spacing),
+                    Text("${widget.purchase.amount.toString()} $_currencyStr")
                   ],
                 )
               ]),

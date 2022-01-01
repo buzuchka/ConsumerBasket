@@ -20,13 +20,13 @@ abstract class AbstractRepositoryItem<ItemT extends AbstractRepositoryItem<ItemT
   }
 
   bool isValid({AbstractRepository<ItemT>? repository, Logger? logger}){
-    return isValidRepositoryItem(this);
+    return isValidRepositoryItem(this, repository:repository, logger: logger);
   }
 }
 
 bool isValidRepositoryItem<ItemT extends AbstractRepositoryItem<ItemT>>(
     ItemT? item, {AbstractRepository<ItemT>? repository, Logger? logger}){
-  Logger? _logger = logger?.subModule("IsValidRepositoryItem");
+  Logger? _logger = logger?.subModule("IsValidRepositoryItem<${ItemT.toString()}>()");
   if(item == null){
     _logger?.error("item is null");
     return false;
