@@ -13,12 +13,14 @@ Widget getImageWidget(String? imageFilePath, double width, double height) {
         fit: BoxFit.cover
     );
   }
-  else {
-    return Image(
-        image: const AssetImage(PathHelper.noPhotoImageFilePath),
-        width: width,
-        height: height,
-        fit: BoxFit.cover
-    );
-  }
+  return getNoPhotoImageWidget(width, height);
+}
+
+Widget getNoPhotoImageWidget(double width, double height) {
+  return Image(
+      image: const AssetImage(PathHelper.noPhotoImageFilePath),
+      width: width,
+      height: height,
+      fit: BoxFit.cover
+  );
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/models/shop.dart';
 import 'package:consumer_basket/widgets/list_item_picture.dart';
 
+// Элемент списка Магазины - Магазин
 class ShopListItem extends StatelessWidget {
   final Shop shop;
 
@@ -29,14 +30,7 @@ class ShopListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          (shop.title != null) ? shop.title! : 'Untitled',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        _getShopTatileWidget()
                       ],
                     ),
                   ),
@@ -48,4 +42,23 @@ class ShopListItem extends StatelessWidget {
       ),
     );
   }
+
+  Widget _getShopTatileWidget() {
+    String text;
+    if(shop.title != null) {
+      text = shop.title!;
+    } else {
+      text = 'Untitled';
+    }
+
+    return Text(
+      text,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
 }
