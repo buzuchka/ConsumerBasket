@@ -5,6 +5,7 @@ import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
 import 'package:consumer_basket/screens/goods_item_edit.dart';
 
+// Окно со списком всех Товаров
 class GoodsScreen extends StatefulWidget {
   const GoodsScreen({Key? key}) : super(key: key);
 

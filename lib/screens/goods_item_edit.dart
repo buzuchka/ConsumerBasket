@@ -5,7 +5,7 @@ import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/goods.dart';
 import 'package:consumer_basket/widgets/item_picture.dart';
 
-// Окно для добавления, просмотра и редактирования Товара
+// Окно для просмотра и редактирования Товара
 class GoodsItemEditScreen extends StatefulWidget {
   final GoodsItem goodsItem; // item to view and update
 
@@ -76,14 +76,7 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ItemPicture(
-                            imageFilePath: widget.goodsItem.imagePath,
-                            destinationDir: PathHelper.goodsImagesDir,
-                            onImageChanged: (String newImagePath) {
-                              widget.goodsItem.imagePath = newImagePath;
-                              _updateGoodsItem2Database();
-                            },
-                          ),
+                          _getImageWidget()
                         ],
                       )
                   ),
@@ -95,16 +88,7 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
-                                child:
-                                  TextField(
-                                    controller: _titleTextController,
-                                    maxLines: 2,
-                                    decoration: const InputDecoration(labelText: 'Item Name'),
-                                    onChanged: (String value) {
-                                      widget.goodsItem.title = _titleTextController.text;
-                                      _updateGoodsItem2Database();
-                                    }
-                                  )
+                                child: _getTitleWidget()
                               ),
                             ],
                           ),
@@ -124,6 +108,29 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
     );
   }
 
+  Widget _getImageWidget() {
+    return ItemPicture(
+      imageFilePath: widget.goodsItem.imagePath,
+      destinationDir: PathHelper.goodsImagesDir,
+      onImageChanged: (String newImagePath) {
+        widget.goodsItem.imagePath = newImagePath;
+        _updateGoodsItem2Database();
+      },
+    );
+  }
+
+  Widget _getTitleWidget() {
+    return TextField(
+        controller: _titleTextController,
+        maxLines: 2,
+        decoration: const InputDecoration(labelText: 'Item Name'),
+        onChanged: (String value) {
+          widget.goodsItem.title = _titleTextController.text;
+          _updateGoodsItem2Database();
+        }
+    );
+  }
+
   _updateGoodsItem2Database() async {
     await widget.goodsItem.saveToRepository();
     _isItemDataChanged = true;
@@ -137,4 +144,5 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
   void _clear() {
     _titleTextController.clear();
   }
+
 }

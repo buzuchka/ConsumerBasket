@@ -5,6 +5,7 @@ import 'package:consumer_basket/lists/purchase_list_item.dart';
 import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/screens/purchase_edit.dart';
 
+// Окно со списком всех покупок
 class PurchasesScreen extends StatefulWidget {
   const PurchasesScreen({Key? key}) : super(key: key);
 
