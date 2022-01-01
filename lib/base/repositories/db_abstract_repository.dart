@@ -28,11 +28,28 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   String get itemType => ItemT.toString();
 
+  // initialize repository (do not initialize db)
+  init(
+      String table,
+      ItemCreator<ItemT> itemCreator,
+      List<DbField> fields){
+    _logger.abstractMethodError("init()");
+  }
+
   // returns items as id->value (get form cache or get from db and create cache)
   @override
   Future<Map<int,ItemT>> getAll() async {
     _logger.abstractMethodError("getAll()");
     return {};
+  }
+
+
+  // returns items as List ordered by id
+  // (get form cache or get from db and create cache)
+  @override
+  Future<List<ItemT>> getAllOrdered() async {
+    _logger.abstractMethodError("getAllOrdered()");
+    return [];
   }
 
   // returns items cache if it exists
@@ -62,19 +79,18 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return false;
   }
 
-  // initialize repository (do not initialize db)
-  init(
-      String table,
-      ItemCreator<ItemT> itemCreator,
-      List<DbField> fields){
-    _logger.abstractMethodError("init()");
+  // returns items ordered by certain column
+  Future<List<ItemT>> getOrdered(
+      String orderColumnName,
+      {
+        Ordering? ordering,
+        int? limitCount,
+        int? offsetCount,
+        String? whereClause
+      }) async {
+    _logger.abstractMethodError("getOrdered()");
+    return [];
   }
-
-  // create table and indexes in db if not exists
-  createIfNotExists() async {
-    _logger.abstractMethodError("createIfNotExists()");
-  }
-
 
   // return items by certain relative field
   Future<Map<int,ItemT>> getByRelative<FieldT extends  AbstractRepositoryItem<FieldT>>(

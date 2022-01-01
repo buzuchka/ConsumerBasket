@@ -217,6 +217,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
         ),
       ),
       onWillPop: () async {
+        _isItemDataChanged = true;
         Navigator.pop(context, _isItemDataChanged);
         return _isItemDataChanged;
       },
