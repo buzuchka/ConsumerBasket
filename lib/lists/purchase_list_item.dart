@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/widgets/shop.dart';
 
+// Элемент списка Покупки - Покупка
 class PurchaseListItem extends StatelessWidget {
   final Purchase purchase;
 
@@ -24,14 +25,7 @@ class PurchaseListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          (purchase.shop == null)
-              ? const Text(
-                  'Shop is undefined',
-                  style: TextStyle(
-                    fontSize: 18,
-                  ),
-                )
-              :  getShopWidget(purchase.shop, 20, textFontSize: 18),
+          _getShopWidget(),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
@@ -43,21 +37,8 @@ class PurchaseListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text(
-                          viewDateFormat.format(purchase.date).toString(),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          "${purchase.amount.toString()} $_currencyStr",
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.deepPurple,
-                            fontSize: 16,
-                          ),
-                        ),
+                        _getDateWidget(),
+                        _getSumWidget(),
                       ],
                     ),
                   ),
@@ -69,4 +50,39 @@ class PurchaseListItem extends StatelessWidget {
       ),
     );
   }
+
+  Widget _getShopWidget() {
+    if(purchase.shop == null) {
+      return const Text(
+          'Shop is undefined',
+          style: TextStyle(
+            fontSize: 18
+          )
+      );
+    }
+    return getShopWidget(purchase.shop, 20, textFontSize: 18);
+  }
+
+  Widget _getDateWidget() {
+    return Text(
+      viewDateFormat.format(purchase.date).toString(),
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontSize: 16,
+      ),
+    );
+  }
+
+  Widget _getSumWidget() {
+    return Text(
+      "${purchase.amount.toString()} $_currencyStr",
+
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        color: Colors.deepPurple,
+        fontSize: 16,
+      ),
+    );
+  }
+
 }

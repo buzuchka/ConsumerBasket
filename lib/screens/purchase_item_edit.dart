@@ -5,7 +5,7 @@ import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/screens/purchase_select_goods_item.dart';
 
-// Окно для создания, просмотра и редактирования элемента в покупке (товар+количество+цена=purchase_item)
+// Окно для просмотра и редактирования элемента в покупке (товар+количество+цена=purchase_item)
 class PurchaseItemEditScreen extends StatefulWidget {
   final PurchaseItem item; // item to view and update
 

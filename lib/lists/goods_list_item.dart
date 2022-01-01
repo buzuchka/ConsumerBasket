@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/models/goods.dart';
 import 'package:consumer_basket/widgets/list_item_picture.dart';
 
+// Элемент списка Товары - Товар
 class GoodsListItem extends StatelessWidget {
   final GoodsItem goodsItem;
 
@@ -29,14 +30,7 @@ class GoodsListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          (goodsItem.title != null) ? goodsItem.title! : 'Untitled',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        _getGoodsItemTitleWidget(),
                       ],
                     ),
                   ),
@@ -48,4 +42,23 @@ class GoodsListItem extends StatelessWidget {
       ),
     );
   }
+
+  Widget _getGoodsItemTitleWidget() {
+    String text;
+    if(goodsItem.title != null) {
+      text = goodsItem.title!;
+    } else {
+      text = 'Untitled';
+    }
+
+    return Text(
+      text,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
 }
