@@ -22,8 +22,6 @@ class PurchaseEditScreen extends StatefulWidget {
 }
 
 class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
-  late Future<List<PurchaseItem>> _allPurchaseItemsFuture;
-
   bool _isItemDataChanged = false;
 
   static final DateFormat _viewDateFormat = DateFormat("dd.MM.yyyy");
@@ -35,14 +33,10 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
   @override
   void initState() {
     super.initState();
-
-    _allPurchaseItemsFuture = widget.purchase.getPurchaseItems();
   }
 
   void _refreshPurchaseItemList() {
-    setState(() {
-      _allPurchaseItemsFuture = widget.purchase.getPurchaseItems();
-    });
+    setState(() {});
   }
 
   @override
@@ -145,75 +139,40 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   children: [
                     const Text('List of Goods:'),
                     const SizedBox(width: _spacing),
-                    FutureBuilder<List>(
-                      future: _allPurchaseItemsFuture,
-                      initialData: [],
-                      builder:  (context, snapshot) {
-                        String text;
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          text = 'Loading...';
-                        } else if (snapshot.hasError) {
-                          text = 'Empty';
-                        } else {
-                          final List items = snapshot.data ?? [];
-                          text = (items.isEmpty) ?  'Empty' : '';
-                        }
-                        return Text(text);
-                      }
-                    )
+                    Text((widget.purchase.items.isEmpty)
+                           ? 'Empty'
+                           : widget.purchase.items.length.toString()
+                    ),
                   ],
                 ),
                 const SizedBox(height: _spacing),
                 Expanded(
-                  child: FutureBuilder<List<PurchaseItem>>(
-                      future: _allPurchaseItemsFuture,
-                      initialData: [],
-                      builder: (context, snapshot) {
-                        if(snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(
-                              child: SizedBox(
-                                  width: 100.0,
-                                  height: 100.0,
-                                  child: CircularProgressIndicator(
-                                    backgroundColor: Colors.deepPurple,
-                                    color: Colors.grey,
-                                  )
-                              )
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(10.0),
+                    shrinkWrap: true,
+                    itemCount: widget.purchase.items.length,
+                    itemBuilder: (_, int position) {
+                      final currentItem = widget.purchase.items.values.elementAt(position);
+                      return InkWell(
+                        child: PurchaseItemListItem(item: currentItem),
+                        onTap: () async {
+                          final isNeed2Rebuild = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PurchaseItemEditScreen(
+                                    item: currentItem
+                                ),
+                            )
                           );
-                        } else if(snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else {
-                          final List items = snapshot.data ?? [];
-                          return ListView.separated(
-                            padding: const EdgeInsets.all(10.0),
-                            shrinkWrap: true,
-                            itemCount: items.length,
-                            itemBuilder: (_, int position) {
-                              final currentItem = items.elementAt(position);
-                              return InkWell(
-                                child: PurchaseItemListItem(item: currentItem),
-                                onTap: () async {
-                                  final isNeed2Rebuild = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PurchaseItemEditScreen(
-                                            item: currentItem
-                                        ),
-                                    )
-                                  );
-                                  if(isNeed2Rebuild) {
-                                    _refreshPurchaseItemList();
-                                  }
-                                }
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              return const Divider();
-                            },
-                          );
+                          if(isNeed2Rebuild) {
+                            _refreshPurchaseItemList();
+                          }
                         }
-                      }
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      return const Divider();
+                    },
                   ),
                 ),
                 const SizedBox(height: _spacing),
@@ -224,31 +183,15 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   children: [
                     const Text('Goods quantity:'),
                     const SizedBox(width: _spacing),
-                    FutureBuilder<List>(
-                        future: _allPurchaseItemsFuture,
-                        initialData: [],
-                        builder:  (context, snapshot) {
-                          String text;
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            text = 'Loading...';
-                          } else if (snapshot.hasError) {
-                            text = '0';
-                          } else {
-                            final List items = snapshot.data ?? [];
-                            text = (items.isEmpty) ?  '0' : items.length.toString();
-                          }
-                          return Text(text);
-                        }
-                    )
+                    Text(widget.purchase.items.length.toString()),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Text('Sum:'),
+                  children: const [
+                    Text('Sum:'),
                     SizedBox(width: _spacing),
                     Text('1000 ${_currencyStr}')
                   ],
