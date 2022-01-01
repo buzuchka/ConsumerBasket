@@ -47,7 +47,7 @@ class _ItemPictureState extends State<ItemPicture> {
 
         // Если картинка уже была, то ее надо сначала удалить
         if(widget.imageFilePath != null) {
-          _deletePreviousImage();
+          await _deletePreviousImage();
         }
 
         // Копировать выбранную картинку в нужную папку
@@ -87,8 +87,8 @@ class _ItemPictureState extends State<ItemPicture> {
     }
   }
 
-  void _deletePreviousImage() {
-
+  _deletePreviousImage() async {
+    return await File(widget.imageFilePath!).delete();
   }
 
   Future<String> _copySelectedImage(String destinationDir) async {
