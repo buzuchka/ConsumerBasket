@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 
+import 'package:decimal/decimal.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 import 'package:consumer_basket/base/repositories/db_repository.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
@@ -12,6 +13,16 @@ class Purchase extends AbstractRepositoryItem<Purchase> {
   Shop? shop;
   DateTime date = DateTime.now();
   Map<int, PurchaseItem> items = {};
+
+  Decimal get amount {
+    Decimal result = Decimal.zero;
+    for(var item in items.values){
+      if(item.price != null) {
+        result += item.price!;
+      }
+    }
+    return result;
+  }
 
   Future<List<PurchaseItem>> getPurchaseItems() async {
     if(repository != null) {

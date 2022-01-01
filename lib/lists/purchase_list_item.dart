@@ -10,6 +10,8 @@ class PurchaseListItem extends StatelessWidget {
 
   static final DateFormat viewDateFormat = DateFormat("dd.MM.yyyy");
 
+  static const String _currencyStr = 'р.';
+
   const PurchaseListItem({
     Key? key,
     required this.purchase,
@@ -48,10 +50,10 @@ class PurchaseListItem extends StatelessWidget {
                             fontSize: 16,
                           ),
                         ),
-                        const Text(
-                          'Sum Here',
+                        Text(
+                          "${purchase.amount.toString()} $_currencyStr",
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.deepPurple,
                             fontSize: 16,
                           ),
