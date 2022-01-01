@@ -129,8 +129,34 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return _itemsCache;
   }
 
+  Future<List<ItemT>> getOrdered(
+      String orderColumnName,
+      {Ordering? ordering, int? limitCount, int? offsetCount, String? whereClause}) async {
+    ordering ??= Ordering.desc;
+    String order ="ORDER BY $orderColumnName ${ordering.toString().split(".").last}";
+    String where = "";
+    if(whereClause != null){
+      where = "WHERE $whereClause";
+    }
+    String limit = "";
+    if(limitCount != null){
+      limit = "LIMIT $limitCount";
+      if(offsetCount !=null){
+        limit = "$limit OFFSET $offsetCount";
+      }
+    }
+    return await getByQueryOrdered(
+        """
+          SELECT $columnIdName 
+          FROM $_tableName 
+          $where $order $limit
+          ;
+        """,
+        _logger.subModule("getOrdered()")
+    );
+  }
 
-  // return items with certen relative field
+  // return items with certain relative field
   @override
   Future<Map<int,ItemT>> getByRelative<
     FieldT extends  AbstractRepositoryItem<FieldT>
@@ -138,53 +164,43 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     if(relative.id == null){
       _logger.subModule("getByRelative<${FieldT.toString()}>()").error("relative id is null");
     }
-    return await getByDbField(field, relative.id!);
+    return await getByDbField(field.columnName, relative.id!);
   }
 
 
-  // return items with certen field (do not check that index exists)
+  // return items with certain field (do not check that index exists)
   @override
-  Future<Map<int,ItemT>> getByDbField<FieldT>(DbField<ItemT,dynamic> field, FieldT value) async{
-    var logger = _logger.subModule("getByField<${FieldT.toString()}>()");
-    Map<int,ItemT> result = {};
-    var allItems = await getAll();
-    List<Map> rawResult = await _db.rawQuery("""
-      SELECT $columnIdName 
-      FROM $_tableName 
-      WHERE ${field.columnName} = $value;
-    """);
-    for(var row in rawResult){
-      var id = row["id"];
-      var item = allItems[id];
-      if(item != null){
-        result[id] = item;
-      } else {
-        logger.error("item not found in cache for id=$id");
-      }
-    }
-    return result;
+  Future<Map<int,ItemT>> getByDbField<FieldT>(String columnName, FieldT value) async{
+    return await getByQueryMapped(
+        """
+          SELECT $columnIdName 
+          FROM $_tableName 
+          WHERE $columnName = $value;
+        """,
+        _logger.subModule("getByField<${FieldT.toString()}>()")
+    );
   }
 
   // Returns ordered item list by query.  Query should return ids.
   @override
-  Future<List<ItemT>> getByQueryOrdered(String query) async{
+  Future<List<ItemT>> getByQueryOrdered(String query, [Logger? logger]) async{
     List<ItemT> result = [];
-    await getByQuery(query,(ItemT item) => result.add(item));
+    await getByQuery(query,(ItemT item) => result.add(item), logger);
     return result;
   }
 
   // Returns mapped items by query. Query should return ids.
   @override
-  Future<Map<int,ItemT>> getByQueryMapped(String query) async{
+  Future<Map<int,ItemT>> getByQueryMapped(String query, [Logger? logger]) async{
     Map<int,ItemT> result = {};
-    await getByQuery(query,(ItemT item) => result[item.id!] = item);
+    await getByQuery(query,(ItemT item) => result[item.id!] = item, logger);
     return result;
   }
 
   // Inserts items by query. Query should return ids.
   @override
-  getByQuery(String query, ItemInserter<ItemT> itemInserter) async {
-    var logger = _logger.subModule("getByQuery()");
+  getByQuery(String query, ItemInserter<ItemT> itemInserter, [Logger? logger]) async {
+    logger ??= _logger.subModule("getByQuery()");
     logger.info("Query: \n$query");
     var allItems = await getAll();
     List<Map> rawResult = await _db.rawQuery(query);

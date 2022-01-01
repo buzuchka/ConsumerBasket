@@ -1,3 +1,4 @@
+import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 import 'package:consumer_basket/base/repositories/db_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/models/shop.dart';
@@ -36,5 +37,9 @@ class PurchasesRepository extends DbRepository<Purchase> {
         )
       ]
     );
+  }
+
+  Future<List<Purchase>> getOrderedByDate([Ordering? ordering]) async{
+    return await getOrdered(columnDate, ordering: ordering);
   }
 }
