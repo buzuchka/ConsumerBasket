@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/widgets/list_future_builder.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/lists/purchase_list_item.dart';
 import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/screens/purchase_edit.dart';
 
+// Окно со списком всех покупок
 class PurchasesScreen extends StatefulWidget {
   const PurchasesScreen({Key? key}) : super(key: key);
 
@@ -28,48 +30,14 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: FutureBuilder<List>(
-            future: RepositoriesHelper.purchasesRepository.getOrderedByDate(),
-            initialData: [],
-            builder: (context, snapshot) {
-              return (snapshot.connectionState != ConnectionState.waiting)
-                  ? ListView.separated(
-                padding: const EdgeInsets.all(10.0),
-                itemCount: snapshot.data!.length,
-                itemBuilder: (_, int position) {
-                  final currentPurchase = snapshot.data!.elementAt(position);
-                  return InkWell(
-                      child: PurchaseListItem(purchase: currentPurchase),
-                      onTap: () async {
-                        final isNeed2Rebuild = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PurchaseEditScreen(
-                                  purchase: currentPurchase)
-                          ),
-                        );
-                        if(isNeed2Rebuild) {
-                          _rebuildScreen();
-                        }
-                      }
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return const Divider();
-                },
+          body: getListFutureBuilder(
+              RepositoriesHelper.purchasesRepository.getOrderedByDate(),
+              (Purchase purchase) => PurchaseListItem(purchase: purchase),
+              onTap: editItemOnTap(
+                (Purchase purchase) => PurchaseEditScreen(purchase:purchase),
+                () => _rebuildScreen()
               )
-                  : const Center(
-                  child: SizedBox(
-                      width: 100.0,
-                      height: 100.0,
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.deepPurple,
-                        color: Colors.grey,
-                      )
-                  )
-              );
-            }
-        ),
+          ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             Purchase newPurchase = Purchase();

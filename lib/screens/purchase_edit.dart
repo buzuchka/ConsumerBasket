@@ -10,7 +10,7 @@ import 'package:consumer_basket/screens/purchase_item_edit.dart';
 import 'package:consumer_basket/screens/purchase_select_shop.dart';
 import 'package:consumer_basket/widgets/shop.dart';
 
-// Окно для добавления, просмотра и редактирования Покупки
+// Окно для просмотра и редактирования Покупки
 class PurchaseEditScreen extends StatefulWidget {
   final Purchase purchase; // item to view and update
 
@@ -217,6 +217,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
         ),
       ),
       onWillPop: () async {
+        _isItemDataChanged = true;
         Navigator.pop(context, _isItemDataChanged);
         return _isItemDataChanged;
       },
@@ -247,5 +248,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
     _isItemDataChanged = true;
   }
 
-  void _clear() {}
+  void _clear() {
+  }
+
 }

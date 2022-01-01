@@ -5,7 +5,7 @@ import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/shop.dart';
 import 'package:consumer_basket/widgets/item_picture.dart';
 
-// Окно для добавления, просмотра и редактирования Магазина
+// Окно для просмотра и редактирования Магазина
 class ShopEditScreen extends StatefulWidget {
   final Shop shop; // item to view and update
 
@@ -76,14 +76,7 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            ItemPicture(
-                              imageFilePath: widget.shop.imagePath,
-                              destinationDir: PathHelper.shopsImagesDir,
-                              onImageChanged: (String newImagePath) {
-                                widget.shop.imagePath = newImagePath;
-                                _updateShop2Database();
-                              },
-                            ),
+                            _getImageWidget()
                           ],
                         )
                     ),
@@ -95,16 +88,7 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                    child:
-                                    TextField(
-                                        controller: _titleTextController,
-                                        maxLines: 2,
-                                        decoration: const InputDecoration(labelText: 'Item Name'),
-                                        onChanged: (String value) {
-                                          widget.shop.title = _titleTextController.text;
-                                          _updateShop2Database();
-                                        }
-                                    )
+                                    child: _getTitleWidget()
                                 ),
                               ],
                             ),
@@ -121,6 +105,29 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
         Navigator.pop(context, _isItemDataChanged);
         return _isItemDataChanged;
       },
+    );
+  }
+
+  Widget _getImageWidget() {
+    return ItemPicture(
+      imageFilePath: widget.shop.imagePath,
+      destinationDir: PathHelper.shopsImagesDir,
+      onImageChanged: (String newImagePath) {
+        widget.shop.imagePath = newImagePath;
+        _updateShop2Database();
+      },
+    );
+  }
+
+  Widget _getTitleWidget() {
+    return TextField(
+        controller: _titleTextController,
+        maxLines: 2,
+        decoration: const InputDecoration(labelText: 'Item Name'),
+        onChanged: (String value) {
+          widget.shop.title = _titleTextController.text;
+          _updateShop2Database();
+        }
     );
   }
 

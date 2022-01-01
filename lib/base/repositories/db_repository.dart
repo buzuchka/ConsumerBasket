@@ -119,6 +119,11 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return _itemsCache!;
   }
 
+  @override
+  Future<List<ItemT>> getAllOrdered() async {
+    return (await getAll()).values.toList();
+  }
+
   // returns items cache if it exists
   @override
   Map<int,ItemT>? getAllCache() {
