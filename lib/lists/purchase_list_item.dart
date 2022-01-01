@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/models/purchase.dart';
+import 'package:consumer_basket/widgets/shop.dart';
 
 class PurchaseListItem extends StatelessWidget {
   final Purchase purchase;
@@ -21,17 +22,14 @@ class PurchaseListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            (purchase.shop == null)
-                ? 'Shop is undefined'
-                : (purchase.shop!.title != null)
-                ? purchase.shop!.title!
-                : 'Untitled',
-            maxLines: 2,
-            style: const TextStyle(
-              fontSize: 18,
-            ),
-          ),
+          (purchase.shop == null)
+              ? const Text(
+                  'Shop is undefined',
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                )
+              :  getShopWidget(purchase.shop, 20, textFontSize: 18),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
