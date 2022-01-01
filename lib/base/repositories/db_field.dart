@@ -154,9 +154,9 @@ class DependentDbField<
 
   set(ItemT item, AbstractDbRepository<ItemT> rep) async {
     var depItemMap = getter(item);
-    await rep.getDependents<FieldT>(item);
+    var items = await rep.getDependents<FieldT>(item);
     depItemMap.clear();
-    depItemMap.addAll(depItemMap);
+    depItemMap.addAll(items);
   }
 
   onInsert(ItemT item, FieldT depItem){
