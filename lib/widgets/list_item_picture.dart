@@ -1,8 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/path_helper.dart';
+import 'package:consumer_basket/widgets/image.dart';
 
 // Виджет с картинкой для элемента в списке
 class ListItemPicture extends StatefulWidget {
@@ -23,30 +21,8 @@ class ListItemPicture extends StatefulWidget {
 
 class _ListItemPictureState extends State<ListItemPicture> {
 
-  Widget _getImageWidget() {
-    if (widget.imageFilePath != null) {
-      return Image(
-          image: FileImage(File(widget.imageFilePath!)),
-          width: 100,
-          height: 100,
-          fit: BoxFit.cover
-      );
-    }
-    else {
-      return const AspectRatio(
-          aspectRatio: 1.0,
-          child: Image(
-              image: AssetImage(PathHelper.noPhotoImageFilePath),
-              fit: BoxFit.cover)
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return _getImageWidget();
+    return getImageWidget(widget.imageFilePath, widget.width, widget.height);
   }
 }
-
-
-
