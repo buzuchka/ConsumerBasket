@@ -1,14 +1,14 @@
-import 'package:consumer_basket/lists/purchase_item_list_item.dart';
-import 'package:intl/intl.dart';
-
 import 'package:flutter/material.dart';
 
+import 'package:intl/intl.dart';
+
 import 'package:consumer_basket/helpers/repositories_helper.dart';
+import 'package:consumer_basket/lists/purchase_item_list_item.dart';
 import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/screens/purchase_item_edit.dart';
-import 'package:consumer_basket/screens/purchase_select_goods_item.dart';
 import 'package:consumer_basket/screens/purchase_select_shop.dart';
+import 'package:consumer_basket/widgets/shop.dart';
 
 // Окно для добавления, просмотра и редактирования Покупки
 class PurchaseEditScreen extends StatefulWidget {
@@ -113,16 +113,11 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                           ),
                           const SizedBox(height: _spacing),
                           InkWell(
-                            child: Text(
-                              (widget.purchase.shop == null)
-                                  ? 'Not selected'
-                                  : (widget.purchase.shop!.title != null)
-                                  ? widget.purchase.shop!.title!
-                                  : 'Untitled',
-                              style: TextStyle(
-                                fontSize: _fontSize,
-                                color: Theme.of(context).primaryColor,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                getShopWidget(widget.purchase.shop, 20.0, textColor: Theme.of(context).primaryColor),
+                              ],
                             ),
                             onTap: () async {
                               // SELECT SHOP
