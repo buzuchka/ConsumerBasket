@@ -1,11 +1,12 @@
 import 'dart:io';
 
-import 'package:consumer_basket/helpers/path_helper.dart';
 import 'package:flutter/material.dart';
 
 import 'package:image_picker/image_picker.dart';
 
 import 'package:path/path.dart' as path_lib;
+
+import 'package:consumer_basket/widgets/image.dart';
 
 // Виджет с картинкой
 // При нажатии открывается окно выбора картинки из Галереи
@@ -36,7 +37,7 @@ class _ItemPictureState extends State<ItemPicture> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      child: getImageWidget(),
+      child: _getImageWidget(),
       onTap: () async {
         _imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
@@ -62,7 +63,7 @@ class _ItemPictureState extends State<ItemPicture> {
     );
   }
 
-  Image getImageWidget() {
+  Widget _getImageWidget() {
     if(_selectedImageFilePath != null) {
       return Image.file(
           File(_selectedImageFilePath!),
@@ -70,20 +71,8 @@ class _ItemPictureState extends State<ItemPicture> {
           height: widget.height,
           fit: BoxFit.cover
       );
-    } else if(widget.imageFilePath != null) {
-      return Image.file(
-          File(widget.imageFilePath!),
-          width: widget.width,
-          height: widget.height,
-          fit: BoxFit.cover
-      );
     } else {
-      return Image(
-          image: const AssetImage(PathHelper.noPhotoImageFilePath),
-          width: widget.width,
-          height: widget.height,
-          fit: BoxFit.cover
-      );
+      return getImageWidget(widget.imageFilePath, widget.width, widget.height);
     }
   }
 
