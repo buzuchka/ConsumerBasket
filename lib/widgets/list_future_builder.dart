@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 
 typedef ItemWidgetCreator<ItemWidgetT extends Widget, ItemT> = ItemWidgetT? Function(ItemT);
 
-typedef OnTapAction<ItemT> = Future<void> Function(BuildContext, ItemT);
+typedef Action<ItemT> = Future<void> Function(BuildContext, ItemT);
 
 typedef OnRebuildAction = Function();
 
 FutureBuilder<List<ItemT>> getListFutureBuilder<ItemWidgetT extends Widget, ItemT>(
     Future<List<ItemT>> future,
     ItemWidgetCreator<ItemWidgetT, ItemT> itemWidgetCreator,
-    {OnTapAction<ItemT>? onTap}
+    {Action<ItemT>? onTap,
+    Action<ItemT>? onLongPress}
     ) {
   return FutureBuilder<List<ItemT>>(
       future: future,
@@ -21,13 +22,13 @@ FutureBuilder<List<ItemT>> getListFutureBuilder<ItemWidgetT extends Widget, Item
         } else if(snapshot.hasError) {
           return _getErrorWidget(snapshot.error.toString());
         } else {
-          return _getListWidget(context, snapshot.data!, itemWidgetCreator, onTap);
+          return _getListWidget(context, snapshot.data!, itemWidgetCreator, onTap, onLongPress);
         }
       }
   );
 }
 
-OnTapAction<ItemT> editItemOnTap<ItemEditorT extends Widget, ItemT>(
+Action<ItemT> editItemOnTap<ItemEditorT extends Widget, ItemT>(
     ItemWidgetCreator<ItemEditorT, ItemT> itemEditorCreator,
     OnRebuildAction onRebuildAction,
 ){
@@ -52,7 +53,8 @@ Widget _getListWidget<ItemWidgetT extends Widget, ItemT>(
     BuildContext context,
     List<ItemT> items,
     ItemWidgetCreator<ItemWidgetT, ItemT> itemWidgetCreator,
-    OnTapAction<ItemT>? onTapAction
+    Action<ItemT>? onTapAction,
+    Action<ItemT>? onLongPressAction,
     ) {
   return ListView.separated(
     padding: const EdgeInsets.all(10.0),
@@ -60,14 +62,21 @@ Widget _getListWidget<ItemWidgetT extends Widget, ItemT>(
     itemBuilder: (_, int position) {
       final currentItem = items.elementAt(position);
       GestureTapCallback? onTap;
+      GestureLongPressCallback? onLongPress;
       if(onTapAction != null){
         onTap = () async {
           await onTapAction(context, currentItem);
         };
       }
+      if(onLongPressAction != null){
+        onLongPress = () async {
+          await onLongPressAction(context, currentItem);
+        };
+      }
       return InkWell(
           child: itemWidgetCreator(currentItem),
-          onTap: onTap
+          onTap: onTap,
+          onLongPress: onLongPress,
       );
     },
     separatorBuilder: (context, index) {

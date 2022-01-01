@@ -4,6 +4,7 @@ import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/lists/shop_list_item.dart';
 import 'package:consumer_basket/models/shop.dart';
 import 'package:consumer_basket/screens/shop_edit_screen.dart';
+import 'package:consumer_basket/widgets/list_future_builder.dart';
 
 // Окно для выбора магазина
 class SelectShopScreen extends StatefulWidget {
@@ -14,9 +15,7 @@ class SelectShopScreen extends StatefulWidget {
 }
 
 class _SelectShopScreenState extends State<SelectShopScreen> {
-  late Future<Map<int, Shop>> _allShopsFuture;
-  int? _selectedIndex;
-  Shop? _selectedShop;
+  late Future<List<Shop>> _allShopsFuture;
 
   @override
   void initState() {
@@ -25,14 +24,12 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
     _allShopsFuture = getShops();
   }
 
-  Future<Map<int,Shop>> getShops() async {
-    return await RepositoriesHelper.shopsRepository.getAll();
+  Future<List<Shop>> getShops() async {
+    return await RepositoriesHelper.shopsRepository.getAllOrdered();
   }
 
   void _refreshShopList() {
     setState(() {
-      _selectedIndex = null;
-      _selectedShop = null;
       _allShopsFuture = getShops();
     });
   }
@@ -50,73 +47,27 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: FutureBuilder<Map<int, Shop>>(
-                  future: _allShopsFuture,
-                  initialData: {},
-                  builder: (context, snapshot) {
-                    if(snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: SizedBox(
-                          width: 100.0,
-                          height: 100.0,
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.deepPurple,
-                            color: Colors.grey,
-                          )
-                        )
-                      );
-                    } else if(snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      final Map items = snapshot.data ?? {};
-                      return ListView.separated(
-                        padding: const EdgeInsets.all(10.0),
-                        shrinkWrap: true,
-                        itemCount: items.length,
-                        itemBuilder: (_, int position) {
-                          final currentShop = items.values.elementAt(position);
-                          final bool isSelected = (position == _selectedIndex);
-                          return InkWell(
-                            child: Container(
-                              padding: const EdgeInsets.all(10.0),
-                              decoration: BoxDecoration(
-                                color: (isSelected)
-                                  ? Colors.deepPurpleAccent.withOpacity(0.05)
-                                  : Colors.white,
-                                border: isSelected
-                                  ? Border.all(color: Colors.deepPurple.withOpacity(0.3))
-                                  : null
-                              ),
-                              child: ShopListItem(shop: currentShop)
+                child: getListFutureBuilder(
+                    _allShopsFuture,
+                    (Shop shop) => ShopListItem(shop: shop),
+                    onTap: (BuildContext context, Shop selectedItem) async {
+                      Navigator.pop(context, selectedItem);
+                    },
+                    onLongPress: (BuildContext context, Shop selectedItem) async {
+                      final isNeed2Rebuild = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ShopEditScreen(
+                                shop: selectedItem
                             ),
-                            onTap: () {
-                              setState(() {
-                                _selectedIndex = position;
-                              });
-                              _selectedShop = currentShop;
-                            },
-                            onDoubleTap: () async {
-                              final isNeed2Rebuild = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ShopEditScreen(
-                                        shop: currentShop
-                                    ),
-                                  )
-                              );
-                              if(isNeed2Rebuild) {
-                                _refreshShopList();
-                              }
-                            }
-                          );
-                        },
-                        separatorBuilder: (context, index) {
-                          return const Divider();
-                        },
+                          )
                       );
+
+                      if(isNeed2Rebuild) {
+                        _refreshShopList();
+                      }
                     }
-                  }
-                ),
+                )
               ),
             ]
         ),
@@ -137,10 +88,6 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
         ),
       ),
       onWillPop: () async {
-        if(_selectedShop != null) {
-          Navigator.pop(context, _selectedShop);
-          return true;
-        }
         Navigator.pop(context);
         return false;
       },
