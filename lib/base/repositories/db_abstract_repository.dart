@@ -166,6 +166,24 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return [];
   }
 
+  // hooks on insert cache item (is also called when onInsertHooks is called)
+  List<Hook<ItemT>> get onCacheInsertHooks{
+    _logger.abstractMethodError("get onCacheInsertHooks");
+    return [];
+  }
+
+  // hooks on update cache item (is also called when onUpdateHooks is called)
+  List<Hook<ItemT>> get onCacheUpdateHooks {
+    _logger.abstractMethodError("get onCacheUpdateHooks");
+    return [];
+  }
+
+  // hooks on delete cache item (is also called when onDeleteHooks is called)
+  List<Hook<ItemT>> get onCacheDeleteHooks {
+    _logger.abstractMethodError("get onCacheDeleteHooks");
+    return [];
+  }
+
   // dependent repository by its item type
   Map<String, DependentRepositoryInfo> get dependentRepositoriesByType {
     _logger.abstractMethodError("get onDeleteHooks");

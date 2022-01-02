@@ -122,59 +122,81 @@ class RelativeDbField<
   void setDependentRepository(
       AbstractDbRepository<ItemT> repository,
       Hook<int?> idHook,
-      DepRepHook<ItemT> depOnInsertHook,
-      DepRepHook<ItemT> depOnDeleteHook,
+      DepRepHook<ItemT> depOnCacheInsertHook,
+      DepRepHook<ItemT> depOnCacheDeleteHook,
+      DepRepHook<ItemT> depOnCacheUpdateHook,
       ){
     relativeRepository.dependentRepositoriesByType[ItemT.toString()] =
         DependentRepositoryInfo(this, repository);
     relativeRepository.onDeleteHooks.add(
             (FieldT item) async => await idHook(item.id)
     );
-    repository.onInsertHooks.add(
-            (ItemT item) async => await depOnInsertHook(relativeRepository,item)
+    repository.onCacheInsertHooks.add(
+            (ItemT item) async => await depOnCacheInsertHook(relativeRepository,item)
     );
-    repository.onDeleteHooks.add(
-            (ItemT item) async => await depOnDeleteHook(relativeRepository,item)
+    repository.onCacheDeleteHooks.add(
+            (ItemT item) async => await depOnCacheDeleteHook(relativeRepository,item)
+    );
+    repository.onCacheUpdateHooks.add(
+            (ItemT item) async => await depOnCacheUpdateHook(relativeRepository,item)
     );
   }
 }
 
-class DependentDbField<
+
+typedef DependentHook<ItemT extends AbstractRepositoryItem<ItemT>, DepItemT extends AbstractRepositoryItem<DepItemT>> =
+    Function(ItemT, DepItemT);
+
+class DependnentDbField<
     ItemT extends AbstractRepositoryItem<ItemT>,
-    FieldT extends AbstractRepositoryItem<FieldT>
+    DepFieldT extends AbstractRepositoryItem<FieldT>
 > extends AbstractField {
 
-  String get fieldType => FieldT.toString();
+  String get fieldType => DepFieldT.toString();
 
-  Logger _logger = Logger("DependentDbField<${ItemT.toString()},${FieldT.toString()}>");
+  DependentHook<ItemT, DepFieldT>? onCacheInsert;
+  DependentHook<ItemT, DepFieldT>? onCaheDelete;
+  DependentHook<ItemT, DepFieldT>? onCacheUpdate;
 
-  Getter<ItemT,Map<int,FieldT>> getter;
+  DependnentDbField({
+    this.onCacheInsert,
+    this.onCaheDelete,
+    this.onCacheUpdate,
+  });
 
-  DependentDbField(this.getter);
+  // Logger _logger = Logger("DependnentDbField<${ItemT.toString()},${FieldT.toString()}>");
+}
 
-  set(ItemT item, AbstractDbRepository<ItemT> rep) async {
-    var depItemMap = getter(item);
-    var items = await rep.getDependents<FieldT>(item);
-    depItemMap.clear();
-    depItemMap.addAll(items);
+
+class DependentMapDbField<
+    ItemT extends AbstractRepositoryItem<ItemT>,
+    DepFieldT extends AbstractRepositoryItem<DepFieldT>
+> extends DependnentDbField<ItemT,DepFieldT> {
+  Getter<ItemT,Map<int,DepFieldT>> depMapGetter;
+  late Getter<DepFieldT, dynamic> depKeyGetter;
+
+  DependentMapDbField({
+    @required this.depMapGetter, 
+    Getter<DepFieldT, dynamic>? depKeyGetter}):super(
+    onInsert: (ItemT item, DepFieldT depItem) => _onInsert(depItem),
+    onDelete: (ItemT item, DepFieldT depItem) => _onDelete(depItem),
+    onUpdate: (ItemT item, DepFieldT depItem) {
+      if(depKeyGetter != null){
+        this.depKeyGetter = depKeyGetter;
+      } else {
+        this.depKeyGetter = (DepFieldT depField) => depField.id!;
+      }
+    }
+    );
+
+  _onInsert(ItemT item, DepFieldT depItem){
+    var depItemMap = depMapGetter(item);
+    depItemMap[depKeyGetter(depItem)] = depItem;
   }
 
-  onInsert(ItemT item, FieldT depItem){
-    var logger = _logger.subModule("onInsert()");
-    if(!depItem.isValid(logger: logger)){
-      return;
-    }
-    var depItemMap = getter(item);
-    depItemMap[depItem.id!] = depItem;
-  }
-
-  onDelete(ItemT item, FieldT depItem) {
-    var logger = _logger.subModule("onDelete()");
-    if(!depItem.isValid(logger: logger)){
-      return;
-    }
-    var depItemMap = getter(item);
-    depItemMap.remove(depItem.id);
+  _onDelete(ItemT item, DepFieldT depItem) {
+    var depItemMap = depMapGetter(item);
+    depItemMap.remove(depKeyGetter(depItem));
   }
 
 }

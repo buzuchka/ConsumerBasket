@@ -5,7 +5,7 @@ import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 
 typedef DependentAction<ItemT extends AbstractRepositoryItem<ItemT>, DepItemT extends AbstractRepositoryItem<DepItemT>> =
-    Function(DependentDbField<ItemT,DepItemT>, ItemT, DepItemT);
+    Function(DependentMapField<ItemT,DepItemT>, ItemT, DepItemT);
 
 
 abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
@@ -18,6 +18,19 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   Map<String, DependentRepositoryInfo> get dependentRepositoriesByType => _dependentRepositoriesByType;
   Map<String, DependentRepositoryInfo> _dependentRepositoriesByType = {};
+
+
+  @override
+  List<Hook<ItemT>> get onCacheInsertHooks => _onCacheInsertHooks;
+  final List<Hook<ItemT>> _onCacheInsertHooks = [];
+
+  @override
+  List<Hook<ItemT>> get onCacheDeleteHooks => _onCacheDeleteHooks;
+  final List<Hook<ItemT>> _onCacheDeleteHooks = [];
+
+  @override
+  List<Hook<ItemT>> get onCacheUpdateHooks => _onCacheUpdateHooks;
+  final List<Hook<ItemT>> _onCacheUpdateHooks = [];
 
   @override
   List<Hook<ItemT>> get onInsertHooks => _onInsertHooks;
@@ -70,10 +83,13 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
               this,
               (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
               (AbstractDbRepository rep, ItemT item) async {
-                return await (rep as DbRepository)._handleDependentInsertion(item);
+                return await (rep as DbRepository)._handleDependentInsert(item);
               },
               (AbstractDbRepository rep, ItemT item) async {
-                await (rep as DbRepository)._handleDependentDeletion(item);
+                await (rep as DbRepository)._handleDependentDelet(item);
+              },
+              (AbstractDbRepository rep, ItemT item) async {
+                await (rep as DbRepository)._handleDependentUpdate(item);
               },
           );
         } else {
@@ -112,9 +128,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       }
       _itemsCache![item.id!] = item;
     }
-    // WARNING: cause self calling in dependentRepository.getByRelative()
     for(var item in _itemsCache!.values) {
-      await _fillDependentFields(item);
+      await _callHooks(onCacheInsertHooks, item);
     }
     return _itemsCache!;
   }
@@ -259,10 +274,11 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     if(id != 0){
       item.repository = this;
       item.id = id;
+      await _callHooks(onInsertHooks, item);
       if(_itemsCache != null) {
         _itemsCache![id] = item;
+        await _callHooks(onCacheInsertHooks, item);
       }
-      await _callHooks(onInsertHooks, item);
       logger.info("successfully inserted");
     } else {
       logger.error("failed to insert item in db");
@@ -289,6 +305,9 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       return false;
     }
     await _callHooks(onUpdateHooks, item);
+    if(_itemsCache != null){
+      await _callHooks(onCacheUpdateHooks, item);
+    }
     logger.info("successfully updated");
     return true;
   }
@@ -307,6 +326,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       item.repository = null;
       if (_itemsCache != null ) {
         _itemsCache!.remove(id);
+        await _callHooks(onCacheDeleteHooks, item);
       }
     }
     return deleted;
@@ -337,33 +357,37 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return item;
   }
 
-  _fillDependentFields(ItemT item) async{
-    for(var field in _depFieldByType.values) {
-      await field.set(item, this);
-    }
-  }
-
-  _handleDependentInsertion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+  _handleDependentInsert<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
     var logger = _logger.subModule("handleDependentInsertion<${DepItemT.toString()}>()");
     await _handleDependentAction(
         depItem,
-        (DependentDbField<ItemT,DepItemT> depField, ItemT myItem, DepItemT depItem) {
-          depField.onInsert(myItem, depItem);
+        (DependentMapField<ItemT,DepItemT> depField, ItemT myItem, DepItemT depItem) {
+          depField.onCacheInsert(myItem, depItem);
         },
         logger
     );
   }
 
-  _handleDependentDeletion<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+  _handleDependentDelet<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
     var logger = _logger.subModule("handleDependentDeletion<${DepItemT.toString()}>()");
     await _handleDependentAction(
         depItem,
         (DependentDbField<ItemT,DepItemT> depField, ItemT myItem, DepItemT depItem) {
-          depField.onDelete(myItem, depItem);
+          depField.onCacheDelete(myItem, depItem);
         },
         logger
     );
+  }
 
+  _handleDependentUpdate<DepItemT extends AbstractRepositoryItem<DepItemT>>(DepItemT depItem) async {
+    var logger = _logger.subModule("_handleDependentUpdate<${DepItemT.toString()}>()");
+    await _handleDependentAction(
+        depItem,
+        (DependentMapField<ItemT,DepItemT> depField, ItemT myItem, DepItemT depItem) {
+          depField.onCacheUpdate(myItem, depItem);
+        },
+        logger
+    );
   }
 
   _handleDependentAction<DepItemT extends AbstractRepositoryItem<DepItemT>>(
@@ -378,7 +402,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       logger.debug("depItem is not valid");
       return;
     }
-    var depField = _depFieldByType[depTypeStr] as DependentDbField<ItemT,DepItemT>?;
+    var depField = _depFieldByType[depTypeStr] as DependentMapField<ItemT,DepItemT>?;
     if(depField == null){
       logger.info("dependent field not found for type $depTypeStr");
       return;

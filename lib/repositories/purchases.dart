@@ -32,7 +32,7 @@ class PurchasesRepository extends DbRepository<Purchase> {
           (Purchase item, Shop? shop) => item.shop = shop,
           index: true,
         ),
-        DependentDbField<Purchase, PurchaseItem>(
+        DependentMapDbField<Purchase, PurchaseItem>(
           (Purchase item) => item.items
         )
       ]
