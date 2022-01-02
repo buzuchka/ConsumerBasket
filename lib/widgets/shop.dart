@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/models/shop.dart';
 import 'package:consumer_basket/widgets/image.dart';
 
-Widget getShopWidget(Shop? shop, double height, {double? textFontSize, Color? textColor}) {
-  textFontSize ??= 20.0;
-  textColor ??= Colors.black;
+Widget getShopWidget(Shop? shop, TextStyle textStyle) {
+  double _imageSize = textStyle.fontSize! + 5.0;
   return Row(
     children: [
       Container(
         child: (shop == null)
             ? const SizedBox()
-            : getImageWidget(shop.imagePath, 20.0, 20.0),
+            : getImageWidget(shop.imagePath, _imageSize, _imageSize),
       ),
       Text(
         (shop == null)
@@ -19,10 +18,7 @@ Widget getShopWidget(Shop? shop, double height, {double? textFontSize, Color? te
             : (shop.title != null)
             ? shop.title!
             : 'Untitled',
-        style: TextStyle(
-          fontSize: textFontSize,
-          color: textColor,
-        ),
+        style: textStyle
       ),
     ],
   );

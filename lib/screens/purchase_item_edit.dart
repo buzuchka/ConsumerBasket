@@ -1,7 +1,8 @@
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
+import 'package:decimal/decimal.dart';
+
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
@@ -87,7 +88,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
           ],
         ),
         body: Container(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(Constants.spacing),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -99,7 +100,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                         decoration: BoxDecoration(
                             border: Border.all(color: Theme.of(context).primaryColor)
                         ),
-                        height: 100,
+                        height: Constants.listItemPictureHeight,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -163,9 +164,9 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                     Expanded(
                       child: TextField(
                           controller: _unitPriceTextController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Unit Price',
-                            suffixText: currentCurrencyString,
+                            suffixText: Constants.currentCurrencyString,
                           ),
                           onChanged: (String value) {
                             var logger = Logger("BIG PROBLEM");
@@ -195,9 +196,9 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                   Expanded(
                     child: TextField(
                       controller: _totalPriceTextController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Total Price',
-                        suffixText: currentCurrencyString
+                        suffixText: Constants.currentCurrencyString
                       ),
                       onChanged: (String value) {
                         if(value.isEmpty){

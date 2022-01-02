@@ -11,7 +11,7 @@ import 'package:consumer_basket/widgets/shop.dart';
 class PurchaseListItem extends StatelessWidget {
   final Purchase purchase;
 
-  static final DateFormat viewDateFormat = DateFormat(viewDateFormatString);
+  static final DateFormat viewDateFormat = DateFormat(Constants.viewDateFormatString);
 
   const PurchaseListItem({
     Key? key,
@@ -21,29 +21,27 @@ class PurchaseListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 70,
+      height: Constants.listItemNoPictureHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _getShopWidget(),
+          _getShopWidget(context),
+          const SizedBox(width: Constants.spacing),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        _getDateWidget(),
-                        _getSumWidget(),
-                      ],
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      _getDateWidget(context),
+                      _getSumWidget(context),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -51,36 +49,33 @@ class PurchaseListItem extends StatelessWidget {
     );
   }
 
-  Widget _getShopWidget() {
+  Widget _getShopWidget(BuildContext context) {
+    var textTheme = Theme.of(context).textTheme.headline6!.copyWith(
+        fontWeight: FontWeight.normal
+    );
     if(purchase.shop == null) {
-      return const Text(
+      return Text(
           'Shop is undefined',
-          style: TextStyle(
-            fontSize: 18
-          )
+          style: textTheme
       );
     }
-    return getShopWidget(purchase.shop, 20, textFontSize: 18);
+    return getShopWidget(purchase.shop, textTheme);
   }
 
-  Widget _getDateWidget() {
+  Widget _getDateWidget(BuildContext context) {
     return Text(
       viewDateFormat.format(purchase.date).toString(),
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontSize: 16,
-      ),
+      style: Theme.of(context).textTheme.bodyText2
     );
   }
 
-  Widget _getSumWidget() {
+  Widget _getSumWidget(BuildContext context) {
     return Text(
       createPriceString(purchase.amount.toString()),
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        color: Colors.deepPurple,
-        fontSize: 16,
-      ),
+      style: Theme.of(context).textTheme.bodyText2!
+        .copyWith(color: Theme.of(context).colorScheme.primary)
     );
   }
 
