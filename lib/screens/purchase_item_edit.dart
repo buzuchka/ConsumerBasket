@@ -20,7 +20,7 @@ class PurchaseItemEditScreen extends StatefulWidget {
 
 class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
   final TextEditingController _quantityTextController = TextEditingController();
-  final TextEditingController _totlaPriceTextController = TextEditingController();
+  final TextEditingController _totalPriceTextController = TextEditingController();
   final TextEditingController _unitPriceTextController = TextEditingController();
 
   bool _isItemDataChanged = false;
@@ -43,7 +43,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
         : '';
   }
   _updateTotalPrice() {
-    _totlaPriceTextController.text = (widget.item.totalPrice != null)
+    _totalPriceTextController.text = (widget.item.totalPrice != null)
         ? widget.item.totalPrice.toString()
         : '';
   }
@@ -58,7 +58,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
   void dispose() {
     super.dispose();
     _quantityTextController.dispose();
-    _totlaPriceTextController.dispose();
+    _totalPriceTextController.dispose();
     _unitPriceTextController.dispose();
   }
 
@@ -125,7 +125,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                     var lastPurchase = await RepositoriesHelper.purchaseItemsRepository.findLastPurchases(selectedGoodsItem, 1);
                     if(lastPurchase.isNotEmpty){
                       widget.item.totalPrice = lastPurchase.first.totalPrice;
-                      _totlaPriceTextController.text = widget.item.totalPrice.toString();
+                      _totalPriceTextController.text = widget.item.totalPrice.toString();
                     }
                     widget.item.saveToRepository();
                     _isItemDataChanged = true;
@@ -174,7 +174,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                               widget.item.unitPrice = Decimal.parse(value);
                             }
                             logger.debug("""\n
-                              quantiry = ${widget.item.quantity}
+                              quantity = ${widget.item.quantity}
                               unitPrice = ${widget.item.unitPrice}
                               totalPrice = ${widget.item.totalPrice}                              
                             """);
@@ -193,7 +193,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: _totlaPriceTextController,
+                      controller: _totalPriceTextController,
                       decoration: const InputDecoration(labelText: 'Total Price'),
                       onChanged: (String value) {
                         if(value.isEmpty){
