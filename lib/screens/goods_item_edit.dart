@@ -22,6 +22,7 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
   bool _isItemDataChanged = false;
 
   final TextEditingController _titleTextController = TextEditingController();
+  final TextEditingController _noteTextController = TextEditingController();
 
   @override
   void initState() {
@@ -30,12 +31,17 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
     _titleTextController.text = (widget.goodsItem.title != null)
         ? widget.goodsItem.title!
         : '';
+    _noteTextController.text = (widget.goodsItem.note != null)
+        ? widget.goodsItem.note!
+        : '';
   }
 
   @override
   void dispose() {
     super.dispose();
+
     _titleTextController.dispose();
+    _noteTextController.dispose();
   }
 
   @override
@@ -97,6 +103,20 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
                   )
                 ],
               ),
+              Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                              child: _getNoteWidget()
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+              )
             ]
           ),
         ),
@@ -125,7 +145,21 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
         maxLines: 2,
         decoration: const InputDecoration(labelText: 'Item Name'),
         onChanged: (String value) {
-          widget.goodsItem.title = _titleTextController.text;
+          widget.goodsItem.title = value;
+          _updateGoodsItem2Database();
+        }
+    );
+  }
+
+  Widget _getNoteWidget() {
+    return TextField(
+        controller: _noteTextController,
+        minLines: 4,
+        maxLines: null,
+        keyboardType: TextInputType.multiline,
+        decoration: const InputDecoration(labelText: 'Note'),
+        onChanged: (String value) {
+          widget.goodsItem.note = value;
           _updateGoodsItem2Database();
         }
     );
@@ -143,6 +177,7 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
 
   void _clear() {
     _titleTextController.clear();
+    _noteTextController.clear();
   }
 
 }

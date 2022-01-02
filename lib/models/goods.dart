@@ -4,4 +4,5 @@ import 'package:consumer_basket/base/repositories/abstract_repository_item.dart'
 class GoodsItem extends AbstractRepositoryItem<GoodsItem> {
   String? title;
   String? imagePath;
+  String? note;
 }

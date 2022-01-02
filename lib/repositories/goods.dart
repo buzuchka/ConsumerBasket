@@ -10,13 +10,18 @@ class GoodsRepository extends DbRepository<GoodsItem> {
         () => GoodsItem(),
         [
           DbField<GoodsItem,String?>(
-              "title", "TEXT",
-                  (GoodsItem item) => item.title,
-                  (GoodsItem item, String? title) => item.title = title ),
+            "title", "TEXT",
+            (GoodsItem item) => item.title,
+            (GoodsItem item, String? title) => item.title = title ),
           DbField<GoodsItem,String?>(
-              "image_path", "TEXT",
-                  (GoodsItem item) => item.imagePath,
-                  (GoodsItem item, String? imagePath) => item.imagePath = imagePath),
+            "image_path", "TEXT",
+            (GoodsItem item) => item.imagePath,
+            (GoodsItem item, String? imagePath) => item.imagePath = imagePath),
+          DbField<GoodsItem,String?>(
+            "note", "TEXT",
+            (GoodsItem item) => item.note,
+            (GoodsItem item, String? note) => item.note = note),
+
         ]
     );
   }
