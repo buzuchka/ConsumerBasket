@@ -11,12 +11,12 @@ abstract class RepositoriesHelper {
 
   static const String databaseName = 'CustomerBasket';
 
-  static GoodsRepository goodsRepository = GoodsRepository();
-  static ShopsRepository shopsRepository = ShopsRepository();
-  static PurchasesRepository purchasesRepository = PurchasesRepository(shopsRepository);
-  static PurchaseItemsRepository purchaseItemsRepository = PurchaseItemsRepository(purchasesRepository, goodsRepository);
-  static PurchaseTemplatesRepository purchaseTemplatesRepository = PurchaseTemplatesRepository();
-  static PurchaseTemplateItemsRepository purchaseTemplateItemsRepository = PurchaseTemplateItemsRepository(purchaseTemplatesRepository, goodsRepository);
+  static var goodsRepository = GoodsRepository();
+  static var shopsRepository = ShopsRepository();
+  static var purchasesRepository = PurchasesRepository();
+  static var purchaseItemsRepository = PurchaseItemsRepository();
+  static var purchaseTemplatesRepository = PurchaseTemplatesRepository();
+  static var purchaseTemplateItemsRepository = PurchaseTemplateItemsRepository();
 
   static DbRepositorySupervisor dbRepositorySupervisor = DbRepositorySupervisor([
     goodsRepository,
@@ -29,7 +29,9 @@ abstract class RepositoriesHelper {
 
   static Future<void> init() async {
     try {
+      Logger("RepositoriesHelper").info("start");
       await dbRepositorySupervisor.openDatabase(databaseName);
+      Logger("RepositoriesHelper").info("finish");
     }
     catch(ex) {
       Logger("RepositoriesHelper").error("Initialization failed: $ex");

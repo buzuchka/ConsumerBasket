@@ -3,6 +3,7 @@ import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
+import 'package:consumer_basket/base/repositories/db_repository_supervisor.dart';
 
 typedef Hook<ItemT> = Future<void> Function(ItemT);
 typedef ItemCreator<ItemT> = ItemT Function();
@@ -202,9 +203,17 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return {};
   }
 
+  // supervisor
+  DbRepositorySupervisor get supervisor;
+
   // internal
   set db(Database db) {
     _logger.abstractMethodError("set db");
+  }
+
+  // internal
+  resolveDependencies(DbRepositorySupervisor supervisor) {
+    _logger.abstractMethodError("resolveDependencies()");
   }
 
   final Logger _logger = Logger("AbstractDbRepository<${ItemT.toString()}>");

@@ -1,4 +1,5 @@
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
+import 'package:consumer_basket/base/repositories/db_repository_supervisor.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 import 'package:consumer_basket/helpers/logger.dart';
@@ -12,13 +13,16 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     extends AbstractDbRepository<ItemT> {
 
   @override
+  DbRepositorySupervisor get supervisor => _supervisor;
+  late DbRepositorySupervisor _supervisor;
+
+  @override
   String get tableName => _tableName;
   late String _tableName;
 
   @override
   Map<String, DependentRepositoryInfo> get dependentRepositoriesByType => _dependentRepositoriesByType;
   Map<String, DependentRepositoryInfo> _dependentRepositoriesByType = {};
-
 
   @override
   List<Hook<ItemT>> get onCacheInsertHooks => _onCacheInsertHooks;
@@ -81,19 +85,19 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         field.tableName = tableName;
         if (field is RelativeDbField<ItemT, dynamic>) {
           _relativeFields.add(field);
-          field.setDependentRepository(
-              this,
-              (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
-              (AbstractDbRepository rep, ItemT item) async {
-                await (rep as DbRepository)._handleDependentInsert(item);
-              },
-              (AbstractDbRepository rep, ItemT item) async {
-                await (rep as DbRepository)._handleDependentDelet(item);
-              },
-              (AbstractDbRepository rep, ItemT item) async {
-                await (rep as DbRepository)._handleDependentUpdate(item);
-              },
-          );
+          // field.resolveDependencies(
+          //     this,
+          //     (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
+          //     (AbstractDbRepository rep, ItemT item) async {
+          //       await (rep as DbRepository)._handleDependentInsert(item);
+          //     },
+          //     (AbstractDbRepository rep, ItemT item) async {
+          //       await (rep as DbRepository)._handleDependentDelet(item);
+          //     },
+          //     (AbstractDbRepository rep, ItemT item) async {
+          //       await (rep as DbRepository)._handleDependentUpdate(item);
+          //     },
+          // );
         } else {
           _simpleFields.add(field);
         }
@@ -111,6 +115,38 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     _itemCreator = itemCreator;
     _logger.info("successfully initialized");
   }
+
+  @override
+  resolveDependencies(DbRepositorySupervisor supervisor) {
+    _supervisor = supervisor;
+    for(var subFields in subscribedFieldsByType.values){
+      for(var subField in subFields){
+        var publisher = supervisor.getRepositoryByTypeName(subField.fieldType);
+        if(publisher == null){
+          _logger.error("Publisher not found for type=${subField.fieldType}");
+        } else {
+          subField.subscribe(publisher);
+        }
+      }
+    }
+    for(var field in _relativeFields){
+      field.resolveDependencies(
+          this,
+          supervisor,
+          (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
+          (AbstractDbRepository rep, ItemT item) async {
+            await (rep as DbRepository)._handleDependentInsert(item);
+          },
+          (AbstractDbRepository rep, ItemT item) async {
+            await (rep as DbRepository)._handleDependentDelet(item);
+          },
+          (AbstractDbRepository rep, ItemT item) async {
+            await (rep as DbRepository)._handleDependentUpdate(item);
+          },
+      );
+    }
+  }
+
 
   @override
   set db(Database db) {
@@ -283,11 +319,11 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     if(id != 0){
       item.repository = this;
       item.id = id;
-      await _callHooks(onInsertHooks, item);
       if(_itemsCache != null) {
         _itemsCache![id] = item;
         await _callHooks(onCacheInsertHooks, item);
       }
+      await _callHooks(onInsertHooks, item);
       logger.info("successfully inserted");
     } else {
       logger.error("failed to insert item in db");
@@ -313,10 +349,10 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       logger.error("failed to update item in db");
       return false;
     }
-    await _callHooks(onUpdateHooks, item);
     if(_itemsCache != null){
       await _callHooks(onCacheUpdateHooks, item);
     }
+    await _callHooks(onUpdateHooks, item);
     logger.info("successfully updated");
     return true;
   }
@@ -332,11 +368,11 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     bool deleted = await _deleteById(id);
     if(deleted) {
       await _callHooks(onDeleteHooks, item);
-      item.repository = null;
       if (_itemsCache != null ) {
         _itemsCache!.remove(id);
         await _callHooks(onCacheDeleteHooks, item);
       }
+      item.repository = null;
     }
     return deleted;
   }

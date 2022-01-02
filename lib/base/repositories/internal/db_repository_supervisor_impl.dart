@@ -1,39 +1,30 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/helpers/logger.dart';
-
+import 'package:consumer_basket/base/repositories/db_repository_supervisor.dart';
 
 // Internal
 
 class DbRepositorySupervisorImpl {
 
+  late DbRepositorySupervisor myReference;
   late String databaseName;
   // final List<AbstractDbRepository> repositories;
 
   final Map<String, AbstractDbRepository> _repositories = {};
 
-  DbRepositorySupervisorImpl(List<AbstractDbRepository> repositories){
+  init(
+      DbRepositorySupervisor myReference,
+      List<AbstractDbRepository> repositories){
+    this.myReference = myReference;
     for(var rep in repositories){
       _repositories[rep.itemType] = rep;
     }
-    _resolveRepositoriesDependencies();
-  }
-
-  _resolveRepositoriesDependencies(){
-    var logger = _logger.subModule("_resolveRepositoriesDependencies()");
     for(var rep in _repositories.values){
-      for(var subFields in rep.subscribedFieldsByType.values){
-        for(var subField in subFields){
-          var publisher = _repositories[subField.fieldType];
-          if(publisher == null){
-            _logger.error("Publisher not found for type=${subField.fieldType}");
-          } else {
-            subField.subscribe(publisher);
-          }
-        }
-      }
+      rep.resolveDependencies(myReference);
     }
   }
 
@@ -46,6 +37,14 @@ class DbRepositorySupervisorImpl {
         onCreate: (Database db, int version) async => await onDbCreate(db),
         onOpen: (Database db) async => onDbOpen(db)
     );
+  }
+
+  AbstractDbRepository<ItemT>? getRepositoryByType<ItemT extends AbstractRepositoryItem<ItemT>>(){
+    return _repositories[ItemT.toString()] as AbstractDbRepository<ItemT>?;
+  }
+
+  AbstractDbRepository? getRepositoryByTypeName(String typName){
+    return _repositories[typName];
   }
 
 
@@ -63,7 +62,6 @@ class DbRepositorySupervisorImpl {
 
   // table_name -> column_name -> type
   final Map<String, Map<String, DbColumnInfo>> _columnsByTable = {};
-
 
   onDbCreate(Database db) async {
     _logger.info("onDbCreate");

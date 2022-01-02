@@ -17,43 +17,38 @@ class PurchaseItemsRepository extends DbRepository<PurchaseItem> {
   static const String columnUnitPrice = "unit_price";
   static const String columnQuantity = "quantity";
 
-  PurchasesRepository purchasesRepository;
 
-  PurchaseItemsRepository(
-      this.purchasesRepository,
-      GoodsRepository goodsRepository) {
+  PurchaseItemsRepository() {
     super.init(
         "purchase_items",
             () => PurchaseItem(),
         [
           RelativeDbField<PurchaseItem, Purchase>(
-            columnPurchaseId,
-            purchasesRepository,
-            (PurchaseItem item) => item.parent,
-            (PurchaseItem item, Purchase? purchase) => item.parent = purchase,
+            relativeIdColumnName: columnPurchaseId,
+            getter: (PurchaseItem item) => item.parent,
+            setter: (PurchaseItem item, Purchase? purchase) => item.parent = purchase,
             index: true,
           ),
           RelativeDbField<PurchaseItem, GoodsItem>(
-            columnGoodsItemId,
-            goodsRepository,
-            (PurchaseItem item) => item.goodsItem,
-            (PurchaseItem item, GoodsItem? goodsItem) => item.goodsItem = goodsItem,
+            relativeIdColumnName: columnGoodsItemId,
+            getter: (PurchaseItem item) => item.goodsItem,
+            setter: (PurchaseItem item, GoodsItem? goodsItem) => item.goodsItem = goodsItem,
             index: true,
           ),
           OptPriceDbField<PurchaseItem>(
-            columnTotalPrice,
-            (PurchaseItem item) => item.totalPrice,
-            (PurchaseItem item, Decimal? price)  => item.totalPrice = price
+              columnName: columnTotalPrice,
+              getter: (PurchaseItem item) => item.totalPrice,
+              setter: (PurchaseItem item, Decimal? price)  => item.totalPrice = price
           ),
           OptPriceDbField<PurchaseItem>(
-            columnUnitPrice,
-            (PurchaseItem item) => item.unitPrice,
-            (PurchaseItem item, Decimal? price)  => item.unitPrice = price
+            columnName: columnUnitPrice,
+            getter: (PurchaseItem item) => item.unitPrice,
+            setter: (PurchaseItem item, Decimal? price)  => item.unitPrice = price
           ),
           OptQuantityDbField<PurchaseItem>(
-            columnQuantity,
-            (PurchaseItem item) => item.quantity,
-            (PurchaseItem item, Decimal? quantity) => item.quantity = quantity,
+            columnName: columnQuantity,
+            getter: (PurchaseItem item) => item.quantity,
+            setter: (PurchaseItem item, Decimal? quantity) => item.quantity = quantity,
           ),
         ]
     );
@@ -66,6 +61,7 @@ class PurchaseItemsRepository extends DbRepository<PurchaseItem> {
       _logger.subModule("findLastPurchases()").error("Goods item id is null");
       return [];
     }
+    var purchasesRepository = supervisor.getRepositoryByType<Purchase>()!;
     var purchasesTable =  purchasesRepository.tableName;
     var purchasesColumnDate = PurchasesRepository.columnDate;
 

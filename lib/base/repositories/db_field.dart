@@ -1,6 +1,7 @@
 import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
+import 'package:consumer_basket/base/repositories/db_repository_supervisor.dart';
 
 abstract class AbstractField {
   Object? abstractGet(Object item) {}
@@ -38,11 +39,14 @@ class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
   Getter<ItemT,FieldT> getter;
 
   DbField(
-      columnName,
-      sqlType,
-      this.getter,
-      this.setter,
-      {bool? index, bool? unique}
+      {
+        required columnName,
+        required sqlType,
+        required this.getter,
+        required this.setter,
+        bool? index,
+        bool? unique
+      }
   ){
     super.columnName = columnName;
     super.sqlType = sqlType;
@@ -59,9 +63,12 @@ class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
 
   @override
   Object? abstractGet(Object item) {
-    if(item is ItemT) {
-      return getter(item as ItemT);
+    var logger = _logger.subModule("abstractGet()");
+    if( item is! ItemT){
+      logger.error("item is not ${ItemT.toString()}");
+      return null;
     }
+    return getter(item as ItemT);
   }
 
   @override
@@ -95,49 +102,64 @@ class RelativeDbField<
   @override
   String get fieldType => FieldT.toString();
 
-  AbstractDbRepository<FieldT> relativeRepository;
+  late AbstractDbRepository<FieldT> relativeRepository;
+
+  late Getter<ItemT,FieldT?> relativeGetter;
+  late Setter<ItemT,FieldT?> relativeSetter;
 
   RelativeDbField(
-    String idName, 
-    this.relativeRepository, 
-    Getter<ItemT,FieldT?> getter, 
-    Setter<ItemT,FieldT?> setter,
-    {bool? index, bool? unique}
+      {
+        required String relativeIdColumnName,
+        required Getter<ItemT,FieldT?> getter,
+        required Setter<ItemT,FieldT?> setter,
+        bool? index,
+        bool? unique,
+      }
     )
       : super(
-          idName, "INTEGER",
-          (ItemT item) => (getter(item))?.id,
-          (ItemT item, int? id) {
-            var relCache = relativeRepository.getAllCache();
-            if (id != null && relCache != null) {
-              setter(item, relCache[id]);
-            } else {
-              setter(item, null);
-            }
-          },
+          columnName: relativeIdColumnName,
+          sqlType: "INTEGER",
+          getter: (item) => null,
+          setter: (item, fieldVal) {},
           index: index,
           unique: unique
-          );
+          ){
+    relativeGetter = getter;
+    relativeSetter = setter;
+  }
 
-  void setDependentRepository(
-      AbstractDbRepository<ItemT> repository,
-      Hook<int?> idHook,
+  void resolveDependencies(
+      AbstractDbRepository<ItemT> myRepository,
+      DbRepositorySupervisor repositorySupervisor,
+      Hook<int?> onRelativeDelete,
       DepRepHook<ItemT> depOnCacheInsertHook,
       DepRepHook<ItemT> depOnCacheDeleteHook,
       DepRepHook<ItemT> depOnCacheUpdateHook,
       ){
+    relativeRepository = repositorySupervisor.getRepositoryByType<FieldT>()!;
+
+    super.getter = (ItemT item) => (relativeGetter(item))?.id;
+    super.setter = (ItemT item, int? id) {
+        var relCache = relativeRepository.getAllCache();
+        if (id != null && relCache != null) {
+          relativeSetter(item, relCache[id]);
+        } else {
+          relativeSetter(item, null);
+        }
+    };
+
     relativeRepository.dependentRepositoriesByType[ItemT.toString()] =
-        DependentRepositoryInfo(this, repository);
+        DependentRepositoryInfo(this, myRepository);
     relativeRepository.onDeleteHooks.add(
-            (FieldT item) async => await idHook(item.id)
+            (FieldT item) async => await onRelativeDelete(item.id)
     );
-    repository.onCacheInsertHooks.add(
+    myRepository.onCacheInsertHooks.add(
             (ItemT item) async => await depOnCacheInsertHook(relativeRepository,item)
     );
-    repository.onCacheDeleteHooks.add(
+    myRepository.onCacheDeleteHooks.add(
             (ItemT item) async => await depOnCacheDeleteHook(relativeRepository,item)
     );
-    repository.onCacheUpdateHooks.add(
+    myRepository.onCacheUpdateHooks.add(
             (ItemT item) async => await depOnCacheUpdateHook(relativeRepository,item)
     );
   }
@@ -198,8 +220,6 @@ class DependentField<
     this.onCacheUpdate,
   });
 
-
-  // Logger _logger = Logger("DependnentDbField<${ItemT.toString()},${FieldT.toString()}>");
 }
 
 
@@ -208,26 +228,25 @@ class DependentMapField<
     DepFieldT extends AbstractRepositoryItem<DepFieldT>
 > extends DependentField<ItemT,DepFieldT> {
 
-   // Logger _logger = Logger("DependentMapDbField<${ItemT.toString()},${DepFieldT.toString()}>");
 
-  DependentMapField(
-      Getter<ItemT,Map<dynamic,DepFieldT>> depMapGetter,
-      [Getter<DepFieldT, dynamic>? depKeyGetter]):super(
+  DependentMapField({
+      required Getter<ItemT,Map<dynamic,DepFieldT>> mapGetter,
+      Getter<DepFieldT, dynamic>? keyGetter
+  }):super(
       onCacheInsert: (ItemT item, DepFieldT depItem) {
         var logger = Logger("DependentMapDbField<${ItemT.toString()},${DepFieldT.toString()}>");
         logger.info("cache insert");
-
-        var key = getKeyOrId(depKeyGetter,depItem);
+        var key = getKeyOrId(keyGetter,depItem);
         logger.debug("key = $key (${key.runtimeType})");
-        var depItemMap = depMapGetter(item);
-        depItemMap[getKeyOrId(depKeyGetter,depItem)] = depItem;
+        var depItemMap = mapGetter(item);
+        depItemMap[getKeyOrId(keyGetter,depItem)] = depItem;
         logger.debug("depItemMap.len = ${depItemMap.length}");
       },
       onCacheDelete: (ItemT item, DepFieldT depItem) {
         var logger = Logger("DependentMapDbField<${ItemT.toString()},${DepFieldT.toString()}>");
         logger.info("cache delete");
-        var depItemMap = depMapGetter(item);
-        depItemMap.remove(getKeyOrId(depKeyGetter,depItem));
+        var depItemMap = mapGetter(item);
+        depItemMap.remove(getKeyOrId(keyGetter,depItem));
       },
       onCacheUpdate: (ItemT item, DepFieldT depItem) {});
 

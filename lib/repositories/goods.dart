@@ -12,19 +12,22 @@ class GoodsRepository extends DbRepository<GoodsItem> {
         () => GoodsItem(),
         [
           DbField<GoodsItem,String?>(
-            "title", "TEXT",
-            (GoodsItem item) => item.title,
-            (GoodsItem item, String? title) => item.title = title ),
+              columnName: "title",
+              sqlType: "TEXT",
+              getter: (GoodsItem item) => item.title,
+              setter: (GoodsItem item, String? title) => item.title = title ),
           DbField<GoodsItem,String?>(
-            "image_path", "TEXT",
-            (GoodsItem item) => item.imagePath,
-            (GoodsItem item, String? imagePath) => item.imagePath = imagePath),
+              columnName: "image_path",
+              sqlType: "TEXT",
+              getter: (GoodsItem item) => item.imagePath,
+              setter: (GoodsItem item, String? imagePath) => item.imagePath = imagePath),
           DbField<GoodsItem,String?>(
-            "note", "TEXT",
-            (GoodsItem item) => item.note,
-            (GoodsItem item, String? note) => item.note = note),
+              columnName: "note",
+              sqlType: "TEXT",
+              getter: (GoodsItem item) => item.note,
+              setter: (GoodsItem item, String? note) => item.note = note),
           DependentMapField<GoodsItem,PurchaseItem>(
-              (GoodsItem goodsItem) => goodsItem.purchases,
+              mapGetter: (GoodsItem goodsItem) => goodsItem.purchases,
           ),
           DependentField<GoodsItem, PurchaseItem>(
               onCacheInsert: (GoodsItem goodsItem, PurchaseItem purchaseItem) => _updateLastPriceByOne(goodsItem, purchaseItem),
