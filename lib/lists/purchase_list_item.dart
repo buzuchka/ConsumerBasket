@@ -21,29 +21,27 @@ class PurchaseListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 70,
+      height: Constants.listItemNoPictureHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           _getShopWidget(context),
+          const SizedBox(width: Constants.spacing),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        _getDateWidget(context),
-                        _getSumWidget(context),
-                      ],
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      _getDateWidget(context),
+                      _getSumWidget(context),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -52,20 +50,23 @@ class PurchaseListItem extends StatelessWidget {
   }
 
   Widget _getShopWidget(BuildContext context) {
+    var textTheme = Theme.of(context).textTheme.headline6!.copyWith(
+        fontWeight: FontWeight.normal
+    );
     if(purchase.shop == null) {
       return Text(
           'Shop is undefined',
-          style: Theme.of(context).textTheme.headline5
+          style: textTheme
       );
     }
-    return getShopWidget(purchase.shop, Theme.of(context).textTheme.headline5!);
+    return getShopWidget(purchase.shop, textTheme);
   }
 
   Widget _getDateWidget(BuildContext context) {
     return Text(
       viewDateFormat.format(purchase.date).toString(),
       overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.headline5
+      style: Theme.of(context).textTheme.bodyText2
     );
   }
 
@@ -73,8 +74,8 @@ class PurchaseListItem extends StatelessWidget {
     return Text(
       makePriceString(purchase.amount),
       overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.headline5!
-        .copyWith(color: Theme.of(context).primaryColor)
+      style: Theme.of(context).textTheme.bodyText2!
+        .copyWith(color: Theme.of(context).colorScheme.primary)
     );
   }
 

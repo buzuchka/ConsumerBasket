@@ -9,21 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         theme: ThemeData(
-          colorScheme: ColorScheme(
-            primary: Colors.deepPurple, //!
-            primaryVariant: Colors.purple,
-            secondary: Colors.pink.shade400,
-            secondaryVariant: Colors.pink.shade800,
-            surface: Colors.green,
-            background: Colors.cyan,
-            error: Colors.red,
-            onPrimary: Colors.white,    //!
-            onSecondary: Colors.white,  //!
-            onSurface: Colors.grey,     //!
-            onBackground: Colors.indigo,
-            onError: Colors.indigoAccent,
-            brightness: Brightness.light
-          ),
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepPurple),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
             backgroundColor: Colors.black26,
             selectedItemColor: Colors.white,

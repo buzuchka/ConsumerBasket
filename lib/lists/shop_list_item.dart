@@ -21,21 +21,18 @@ class ShopListItem extends StatelessWidget {
         children: <Widget>[
           ListItemPicture(imageFilePath: shop.imagePath),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _getShopTatileWidget()
-                      ],
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _getShopTitleWidget(context)
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -43,7 +40,7 @@ class ShopListItem extends StatelessWidget {
     );
   }
 
-  Widget _getShopTatileWidget() {
+  Widget _getShopTitleWidget(BuildContext context) {
     String text;
     if(shop.title != null) {
       text = shop.title!;
@@ -55,9 +52,7 @@ class ShopListItem extends StatelessWidget {
       text,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(context).textTheme.bodyText1
     );
   }
 

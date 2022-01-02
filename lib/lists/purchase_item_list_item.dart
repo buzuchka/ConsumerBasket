@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/helpers/price_and_quantity.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/widgets/image.dart';
@@ -21,12 +22,12 @@ class PurchaseItemListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           _getGoodsItemImageWidget(),
-          const SizedBox(width: 20.0),
+          const SizedBox(width: Constants.spacing),
           Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _getGoodsItemTitleWidget(),
+                  _getGoodsItemTitleWidget(context),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -51,14 +52,14 @@ class PurchaseItemListItem extends StatelessWidget {
   }
 
   Widget _getGoodsItemImageWidget() {
-    double _size = 100.0;
+    double _size = Constants.listItemPictureHeight;
     if(item.goodsItem != null) {
       return getImageWidget(item.goodsItem!.imagePath, _size, _size);
     }
     return getNoPhotoImageWidget(_size, _size);
   }
 
-  Widget _getGoodsItemTitleWidget() {
+  Widget _getGoodsItemTitleWidget(BuildContext context) {
     String text;
     if(item.goodsItem == null) {
       text = 'Not selected';
@@ -71,9 +72,7 @@ class PurchaseItemListItem extends StatelessWidget {
       text,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(context).textTheme.bodyText1
     );
   }
 
