@@ -82,7 +82,7 @@ class PurchaseItemListItem extends StatelessWidget {
   Widget _getTotalPriceWidget() {
     String text;
     if(item.totalPrice != null) {
-      text = createPriceString(item.totalPrice!.toString());
+      text = "= ${createPriceString(item.totalPrice!.toString())}";
     } else {
       text = 'No total price';
     }
