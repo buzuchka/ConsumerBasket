@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/helpers/path_helper.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/shop.dart';
@@ -60,7 +61,7 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
           ],
         ),
         body: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(Constants.spacing),
           child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -71,7 +72,7 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                        width: 100,
+                        width: Constants.listItemPictureHeight,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,7 +81,7 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
                           ],
                         )
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: Constants.spacing),
                     Expanded(
                         child: Column(
                           children: [

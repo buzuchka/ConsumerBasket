@@ -56,7 +56,9 @@ class GoodsListItem extends StatelessWidget {
       text,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.headline6
+      style: Theme.of(context).textTheme.headline6!.copyWith(
+          fontWeight: FontWeight.normal
+      )
     );
   }
 

@@ -74,12 +74,16 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                       children:  [
                         Text(
                           'Date:',
-                          style: Theme.of(context).textTheme.headline6
+                          style: Theme.of(context).textTheme.headline6!.copyWith(
+                            fontWeight: FontWeight.normal
+                          )
                         ),
                         const SizedBox(height: Constants.spacing),
                         Text(
                           'Shop:',
-                          style: Theme.of(context).textTheme.headline6
+                          style:  Theme.of(context).textTheme.headline6!.copyWith(
+                              fontWeight: FontWeight.normal
+                          )
                         ),
                       ],
                     ),
@@ -91,8 +95,10 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                           InkWell(
                             child: Text(
                               _viewDateFormat.format(widget.purchase.date),
-                              style: Theme.of(context).textTheme.headline6!
-                                  .copyWith(color: Theme.of(context).colorScheme.primary)
+                              style: Theme.of(context).textTheme.headline6!.copyWith(
+                                fontWeight: FontWeight.normal,
+                                color: Theme.of(context).colorScheme.primary
+                             )
                             ),
                             onTap: () async {
                               await _selectDate(context);
@@ -105,8 +111,10 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                               children: [
                                 getShopWidget(
                                     widget.purchase.shop,
-                                    Theme.of(context).textTheme.headline6!
-                                        .copyWith(color: Theme.of(context).colorScheme.primary)
+                                    Theme.of(context).textTheme.headline6!.copyWith(
+                                        fontWeight: FontWeight.normal,
+                                        color: Theme.of(context).colorScheme.primary
+                                    )
                                 ),
                               ],
                             ),

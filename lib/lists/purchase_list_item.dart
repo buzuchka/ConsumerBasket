@@ -50,14 +50,16 @@ class PurchaseListItem extends StatelessWidget {
   }
 
   Widget _getShopWidget(BuildContext context) {
-    var textTheme = Theme.of(context).textTheme.headline6;
+    var textTheme = Theme.of(context).textTheme.headline6!.copyWith(
+        fontWeight: FontWeight.normal
+    );
     if(purchase.shop == null) {
       return Text(
           'Shop is undefined',
           style: textTheme
       );
     }
-    return getShopWidget(purchase.shop, textTheme!);
+    return getShopWidget(purchase.shop, textTheme);
   }
 
   Widget _getDateWidget(BuildContext context) {
