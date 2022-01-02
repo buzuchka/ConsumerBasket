@@ -44,5 +44,5 @@ Decimal? normalizeQuantity(Decimal? quantity){
 }
 
 String createPriceString(String price) {
-  return ("$price$Constants.currentCurrencyString");
+  return ("$price${Constants.currentCurrencyString}");
 }
