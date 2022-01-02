@@ -20,26 +20,31 @@ class PurchaseItemListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           _getGoodsItemImageWidget(),
+          const SizedBox(width: 20.0),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  _getGoodsItemTitleWidget(),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        _getGoodsItemTitleWidget(),
-                        _getQuantityWidget(),
-                        _getUnitPriceWidget(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            _getUnitPriceWidget(),
+                            const Text(" x "),
+                            _getQuantityWidget(),
+                          ],
+                        ),
                         _getTotalPriceWidget(),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
           ),
         ],
       ),
