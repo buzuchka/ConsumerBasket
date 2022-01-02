@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/purchase_template_item.dart';
@@ -22,8 +23,6 @@ class _PurchaseTemplateItemEditScreenState extends State<PurchaseTemplateItemEdi
   final TextEditingController _quantityTextController = TextEditingController();
 
   bool _isItemDataChanged = false;
-
-  static const double _spacing = 10.0;
 
   @override
   void initState() {
@@ -62,7 +61,7 @@ class _PurchaseTemplateItemEditScreenState extends State<PurchaseTemplateItemEdi
           ],
         ),
         body: Container(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(Constants.spacing),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -72,7 +71,7 @@ class _PurchaseTemplateItemEditScreenState extends State<PurchaseTemplateItemEdi
                     ? GoodsListItem(goodsItem: widget.item.goodsItem!)
                     : Container(
                         decoration: BoxDecoration(
-                            border: Border.all(color: Theme.of(context).primaryColor)
+                            border: Border.all(color: Theme.of(context).colorScheme.primary)
                         ),
                         height: 100,
                         child: Row(

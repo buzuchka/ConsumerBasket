@@ -1,5 +1,7 @@
+import 'package:consumer_basket/helpers/price_and_quantity.dart';
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/models/goods.dart';
 import 'package:consumer_basket/widgets/list_item_picture.dart';
 
@@ -15,28 +17,26 @@ class GoodsListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100,
+      height: Constants.listItemPictureHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ListItemPicture(imageFilePath: goodsItem.imagePath),
+          const SizedBox(width: Constants.spacing),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _getTitleWidget(),
-                        _getLastPriceWidget(),
-                      ],
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _getTitleWidget(context),
+                      _getLastPriceWidget(context),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -44,7 +44,7 @@ class GoodsListItem extends StatelessWidget {
     );
   }
 
-  Widget _getTitleWidget() {
+  Widget _getTitleWidget(BuildContext context) {
     String text;
     if(goodsItem.title != null) {
       text = goodsItem.title!;
@@ -56,17 +56,15 @@ class GoodsListItem extends StatelessWidget {
       text,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(context).textTheme.headline6
     );
   }
 
-  Widget _getLastPriceWidget() {
+  Widget _getLastPriceWidget(BuildContext context) {
     String text;
     var lastPrice = goodsItem.lastPurchaseUnitPrice;
     if(lastPrice != null) {
-      text = lastPrice.toString();
+      text = createPriceString(lastPrice.toString());
     } else {
       text = 'price not found';
     }
@@ -75,9 +73,7 @@ class GoodsListItem extends StatelessWidget {
       text,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(context).textTheme.bodyText2
     );
   }
 

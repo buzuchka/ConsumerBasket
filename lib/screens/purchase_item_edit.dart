@@ -163,9 +163,9 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                     Expanded(
                       child: TextField(
                           controller: _unitPriceTextController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Unit Price',
-                            suffixText: currentCurrencyString,
+                            suffixText: Constants.currentCurrencyString,
                           ),
                           onChanged: (String value) {
                             var logger = Logger("BIG PROBLEM");
@@ -195,9 +195,9 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                   Expanded(
                     child: TextField(
                       controller: _totalPriceTextController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Total Price',
-                        suffixText: currentCurrencyString
+                        suffixText: Constants.currentCurrencyString
                       ),
                       onChanged: (String value) {
                         if(value.isEmpty){

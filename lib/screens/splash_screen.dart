@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/helpers/path_helper.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 
@@ -17,8 +18,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreen extends State<SplashScreen> {
-  final Color _splashTextColor = Colors.white;
-
   late DateTime _startDateTime;
   late DateTime _endDateTime;
 
@@ -67,16 +66,17 @@ class _SplashScreen extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Color _splashTextColor = Theme.of(context).colorScheme.onPrimary;
     return Scaffold(
         body: Container(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).colorScheme.primary,
             alignment: Alignment.center,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   SizedBox(
-                      height: 200,
-                      width: 200,
+                      height: 180,
+                      width: 180,
                       child: FittedBox(
                           child: Icon(
                               Icons.shopping_cart_outlined,
@@ -87,27 +87,25 @@ class _SplashScreen extends State<SplashScreen> {
                   Container(
                     margin: const EdgeInsets.only(top:30),
                     child: Text(
-                      "Consumer Basket",
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: _splashTextColor,
-                      ),
+                      Constants.appTitleString,
+                      style: Theme.of(context).primaryTextTheme.headline4!.copyWith(
+                          color: _splashTextColor,
+                          fontWeight: FontWeight.bold)
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top:10),
                     child: Text(
-                        "Version: 0.0.1",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: _splashTextColor,
+                        "Version: ${Constants.appVersionString}",
+                        style: Theme.of(context).primaryTextTheme.headline6!.copyWith(
+                            color: _splashTextColor,
+                            fontWeight: FontWeight.normal
                         )
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top:50),
-                    child: CircularProgressIndicator(backgroundColor: _splashTextColor,),
+                    child: CircularProgressIndicator(backgroundColor: _splashTextColor),
                   ),
                 ]
             )

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/screens/goods.dart';
 import 'package:consumer_basket/screens/purchases.dart';
 import 'package:consumer_basket/screens/purchase_templates.dart';
@@ -38,16 +39,12 @@ class _BasicScreenState extends State<BasicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Consumer Basket'),
+        title: const Text(Constants.appTitleString),
       ),
       body: Center(
         child: _pages.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        elevation: 0,
-        backgroundColor: Colors.black26,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
