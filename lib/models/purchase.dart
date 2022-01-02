@@ -17,8 +17,8 @@ class Purchase extends AbstractRepositoryItem<Purchase> {
   Decimal get amount {
     Decimal result = Decimal.zero;
     for(var item in items.values){
-      if(item.price != null) {
-        result += item.price!;
+      if(item.totalPrice != null) {
+        result += item.totalPrice!;
       }
     }
     return result;

@@ -1,7 +1,7 @@
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
-import 'package:consumer_basket/base/logger.dart';
+import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 
 typedef DependentAction<ItemT extends AbstractRepositoryItem<ItemT>, DepItemT extends AbstractRepositoryItem<DepItemT>> =

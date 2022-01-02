@@ -1,5 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+
+import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/lists/goods_list_item.dart';
@@ -18,7 +20,8 @@ class PurchaseItemEditScreen extends StatefulWidget {
 
 class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
   final TextEditingController _quantityTextController = TextEditingController();
-  final TextEditingController _priceTextController = TextEditingController();
+  final TextEditingController _totlaPriceTextController = TextEditingController();
+  final TextEditingController _unitPriceTextController = TextEditingController();
 
   bool _isItemDataChanged = false;
 
@@ -29,13 +32,25 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
   @override
   void initState() {
     super.initState();
+    _updateQuantity();
+    _updateTotalPrice();
+    _updateUnitPrice();
+  }
 
+  _updateQuantity() {
     _quantityTextController.text = (widget.item.quantity != null)
         ? widget.item.quantity.toString()
         : '';
+  }
+  _updateTotalPrice() {
+    _totlaPriceTextController.text = (widget.item.totalPrice != null)
+        ? widget.item.totalPrice.toString()
+        : '';
+  }
 
-    _priceTextController.text = (widget.item.price != null)
-        ? widget.item.price.toString()
+  _updateUnitPrice(){
+    _unitPriceTextController.text = (widget.item.unitPrice != null)
+        ? widget.item.unitPrice.toString()
         : '';
   }
 
@@ -43,7 +58,13 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
   void dispose() {
     super.dispose();
     _quantityTextController.dispose();
-    _priceTextController.dispose();
+    _totlaPriceTextController.dispose();
+    _unitPriceTextController.dispose();
+  }
+
+  void _rebuildScreen() {
+    //_setFields();
+    setState(() {});
   }
 
   @override
@@ -103,8 +124,8 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
 
                     var lastPurchase = await RepositoriesHelper.purchaseItemsRepository.findLastPurchases(selectedGoodsItem, 1);
                     if(lastPurchase.isNotEmpty){
-                      widget.item.price = lastPurchase.first.price;
-                      _priceTextController.text = widget.item.price.toString();
+                      widget.item.totalPrice = lastPurchase.first.totalPrice;
+                      _totlaPriceTextController.text = widget.item.totalPrice.toString();
                     }
                     widget.item.saveToRepository();
                     _isItemDataChanged = true;
@@ -123,12 +144,48 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                       ),
                       decoration: const InputDecoration(labelText: 'Quantity'),
                       onChanged: (String value) {
-                        widget.item.quantity = int.parse(value);
+                        if(value.isEmpty){
+                          widget.item.quantity = null;
+                        }else{
+                          widget.item.quantity = Decimal.parse(value);
+                        }
+                        _updateTotalPrice();
+                        _updateUnitPrice();
                         _updatePurchaseItem2Database();
+                        _rebuildScreen();
                       }
                     )
                   ),
                 ]
+              ),
+              Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                          controller: _unitPriceTextController,
+                          decoration: const InputDecoration(labelText: 'Unit Price'),
+                          onChanged: (String value) {
+                            var logger = Logger("BIG PROBLEM");
+                            if(value.isEmpty){
+                              widget.item.unitPrice = null;
+                            }else{
+                              widget.item.unitPrice = Decimal.parse(value);
+                            }
+                            logger.debug("""\n
+                              quantiry = ${widget.item.quantity}
+                              unitPrice = ${widget.item.unitPrice}
+                              totalPrice = ${widget.item.totalPrice}                              
+                            """);
+                            _updateQuantity();
+                            _updateTotalPrice();
+                            _updatePurchaseItem2Database();
+                            _rebuildScreen();
+                          }
+                      ),
+                    ),
+                  ]
               ),
               Row(
                 mainAxisSize: MainAxisSize.max,
@@ -136,15 +193,21 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: _priceTextController,
-                      decoration: const InputDecoration(labelText: 'Price'),
+                      controller: _totlaPriceTextController,
+                      decoration: const InputDecoration(labelText: 'Total Price'),
                       onChanged: (String value) {
-                        widget.item.price = Decimal.parse(value);
+                        if(value.isEmpty){
+                          widget.item.totalPrice = null;
+                        }else{
+                          widget.item.totalPrice = Decimal.parse(value);
+                        }
+                        _updateQuantity();
+                        _updateUnitPrice();
                         _updatePurchaseItem2Database();
+                        _rebuildScreen();
                       }
                     ),
                   ),
-                  const Text('apiece')
                 ]
               ),
           ]),

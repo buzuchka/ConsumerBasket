@@ -1,4 +1,4 @@
-import 'package:consumer_basket/base/logger.dart';
+import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 

@@ -1,4 +1,4 @@
-import 'package:consumer_basket/base/logger.dart';
+import 'package:consumer_basket/helpers/logger.dart';
 
 abstract class AbstractRepository<ItemT> {
   final Logger _logger = Logger("AbstractRepository<${ItemT.toString()}>");

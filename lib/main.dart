@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:consumer_basket/base/logger.dart';
+import 'package:consumer_basket/helpers/logger.dart';
 import 'app.dart';
 
 void main() {
