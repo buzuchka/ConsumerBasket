@@ -32,13 +32,20 @@ class GoodsListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       _getTitleWidget(context),
-                      _getLastPriceWidget(context),
+
                     ],
                   ),
                 ),
               ],
             ),
           ),
+          Column (
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _getLastPriceWidget(context),
+            ],
+          )
         ],
       ),
     );
