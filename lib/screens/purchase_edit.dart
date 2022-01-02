@@ -28,10 +28,6 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
 
   static final DateFormat _viewDateFormat = DateFormat(Constants.viewDateFormatString);
 
-  static const double _fontSize = 20.0;
-  static const double _spacing = 10.0;
-
-
   @override
   void initState() {
     super.initState();
@@ -49,21 +45,22 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
           title: const Text("View Purchase"),
           actions: [
             PopupMenuButton(
-                itemBuilder: (context) => [
-                      PopupMenuItem(
-                        child: const Text('Delete'),
-                        onTap: () async {
-                          await _deletePurchase2Database();
-                          _clear();
-                          Navigator.pop(context, _isItemDataChanged);
-                        },
-                        value: 1,
-                      ),
-                    ])
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  child: const Text('Delete'),
+                  onTap: () async {
+                    await _deletePurchase2Database();
+                    _clear();
+                    Navigator.pop(context, _isItemDataChanged);
+                  },
+                  value: 1,
+                ),
+              ]
+            )
           ],
         ),
         body: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(Constants.spacing),
           child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -79,14 +76,14 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                           'Date:',
                           style: Theme.of(context).textTheme.headline6
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: Constants.spacing),
                         Text(
                           'Shop:',
                           style: Theme.of(context).textTheme.headline6
                         ),
                       ],
                     ),
-                    const SizedBox(width: _spacing),
+                    const SizedBox(width: Constants.spacing),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -95,13 +92,13 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                             child: Text(
                               _viewDateFormat.format(widget.purchase.date),
                               style: Theme.of(context).textTheme.headline6!
-                                  .copyWith(color: Theme.of(context).primaryColor)
+                                  .copyWith(color: Theme.of(context).colorScheme.primary)
                             ),
                             onTap: () async {
                               await _selectDate(context);
                             },
                           ),
-                          const SizedBox(height: _spacing),
+                          const SizedBox(height: Constants.spacing),
                           InkWell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +106,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                                 getShopWidget(
                                     widget.purchase.shop,
                                     Theme.of(context).textTheme.headline6!
-                                        .copyWith(color: Theme.of(context).primaryColor)
+                                        .copyWith(color: Theme.of(context).colorScheme.primary)
                                 ),
                               ],
                             ),
@@ -134,21 +131,26 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: _spacing),
+                const SizedBox(height: Constants.spacing),
                 Row(
                   children: [
-                    const Text('List of Goods:'),
-                    const SizedBox(width: _spacing),
-                    Text((widget.purchase.items.isEmpty)
-                           ? 'Empty'
-                           : widget.purchase.items.length.toString()
+                    Text(
+                      'List of Goods:',
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
+                    const SizedBox(width: Constants.spacing),
+                    Text(
+                      (widget.purchase.items.isEmpty)
+                        ? 'Empty'
+                        : '',
+                      style: Theme.of(context).textTheme.bodyText2,
                     ),
                   ],
                 ),
-                const SizedBox(height: _spacing),
+                const SizedBox(height: Constants.spacing),
                 Expanded(
                   child: ListView.separated(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.all(Constants.spacing),
                     shrinkWrap: true,
                     itemCount: widget.purchase.items.length,
                     itemBuilder: (_, int position) {
@@ -175,15 +177,21 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: _spacing),
+                const SizedBox(height: Constants.spacing),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Goods quantity:'),
-                    const SizedBox(width: _spacing),
-                    Text(widget.purchase.items.length.toString()),
+                    Text(
+                      'Goods quantity:',
+                      style: Theme.of(context).textTheme.bodyText1
+                    ),
+                    const SizedBox(width: Constants.spacing),
+                    Text(
+                      widget.purchase.items.length.toString(),
+                      style: Theme.of(context).textTheme.bodyText2
+                    ),
                   ],
                 ),
                 Row(
@@ -191,9 +199,15 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Sum:'),
-                    const SizedBox(width: _spacing),
-                    Text(createPriceString(widget.purchase.amount.toString()))
+                    Text(
+                      'Sum:',
+                      style: Theme.of(context).textTheme.bodyText1
+                    ),
+                    const SizedBox(width: Constants.spacing),
+                    Text(
+                        createPriceString(widget.purchase.amount.toString()),
+                        style: Theme.of(context).textTheme.bodyText2
+                    )
                   ],
                 )
               ]),
