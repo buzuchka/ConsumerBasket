@@ -2,6 +2,8 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
+import 'package:consumer_basket/helpers/price_and_quantity.dart';
 import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/widgets/shop.dart';
 
@@ -9,9 +11,7 @@ import 'package:consumer_basket/widgets/shop.dart';
 class PurchaseListItem extends StatelessWidget {
   final Purchase purchase;
 
-  static final DateFormat viewDateFormat = DateFormat("dd.MM.yyyy");
-
-  static const String _currencyStr = 'р.';
+  static final DateFormat viewDateFormat = DateFormat(viewDateFormatString);
 
   const PurchaseListItem({
     Key? key,
@@ -75,8 +75,7 @@ class PurchaseListItem extends StatelessWidget {
 
   Widget _getSumWidget() {
     return Text(
-      "${purchase.amount.toString()} $_currencyStr",
-
+      createPriceString(purchase.amount.toString()),
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(
         color: Colors.deepPurple,

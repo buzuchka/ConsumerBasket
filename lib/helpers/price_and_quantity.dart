@@ -1,5 +1,7 @@
 import 'package:decimal/decimal.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
+
 const int priceScale = 2;
 const int quantityScale = 3;
 
@@ -39,4 +41,8 @@ Decimal? quantityFromScaledInt(int? quantity){
 
 Decimal? normalizeQuantity(Decimal? quantity){
   return quantityFromScaledInt(quantityToScaledInt(quantity));
+}
+
+String createPriceString(String price) {
+  return ("$price$currentCurrencyString");
 }

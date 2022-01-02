@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/price_and_quantity.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/widgets/image.dart';
 
@@ -81,7 +82,7 @@ class PurchaseItemListItem extends StatelessWidget {
   Widget _getTotalPriceWidget() {
     String text;
     if(item.totalPrice != null) {
-      text = item.totalPrice!.toString();
+      text = createPriceString(item.totalPrice!.toString());
     } else {
       text = 'No total price';
     }
@@ -91,7 +92,7 @@ class PurchaseItemListItem extends StatelessWidget {
   Widget _getUnitPriceWidget() {
     String text;
     if(item.unitPrice != null) {
-      text = item.unitPrice!.toString();
+      text = createPriceString(item.unitPrice!.toString());
     } else {
       text = 'No unit price';
     }

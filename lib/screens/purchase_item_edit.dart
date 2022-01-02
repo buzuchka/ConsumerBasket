@@ -1,3 +1,4 @@
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
@@ -19,19 +20,16 @@ class PurchaseItemEditScreen extends StatefulWidget {
 }
 
 class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
+  bool _isItemDataChanged = false;
+
   final TextEditingController _quantityTextController = TextEditingController();
   final TextEditingController _totalPriceTextController = TextEditingController();
   final TextEditingController _unitPriceTextController = TextEditingController();
 
-  bool _isItemDataChanged = false;
-
-  static const double _spacing = 10.0;
-
-  static const String _currencyStr = 'р.';
-
   @override
   void initState() {
     super.initState();
+
     _updateQuantity();
     _updateTotalPrice();
     _updateUnitPrice();
@@ -57,13 +55,13 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
   @override
   void dispose() {
     super.dispose();
+
     _quantityTextController.dispose();
     _totalPriceTextController.dispose();
     _unitPriceTextController.dispose();
   }
 
   void _rebuildScreen() {
-    //_setFields();
     setState(() {});
   }
 
@@ -165,7 +163,10 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                     Expanded(
                       child: TextField(
                           controller: _unitPriceTextController,
-                          decoration: const InputDecoration(labelText: 'Unit Price'),
+                          decoration: const InputDecoration(
+                            labelText: 'Unit Price',
+                            suffixText: currentCurrencyString,
+                          ),
                           onChanged: (String value) {
                             var logger = Logger("BIG PROBLEM");
                             if(value.isEmpty){
@@ -194,7 +195,10 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                   Expanded(
                     child: TextField(
                       controller: _totalPriceTextController,
-                      decoration: const InputDecoration(labelText: 'Total Price'),
+                      decoration: const InputDecoration(
+                        labelText: 'Total Price',
+                        suffixText: currentCurrencyString
+                      ),
                       onChanged: (String value) {
                         if(value.isEmpty){
                           widget.item.totalPrice = null;
@@ -230,5 +234,9 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
     _isItemDataChanged = true;
   }
 
-  void _clear() {}
+  void _clear() {
+    _quantityTextController.clear();
+    _totalPriceTextController.clear();
+    _unitPriceTextController.clear();
+  }
 }

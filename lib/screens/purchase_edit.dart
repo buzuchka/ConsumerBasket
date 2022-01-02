@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
+import 'package:consumer_basket/helpers/price_and_quantity.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/lists/purchase_item_list_item.dart';
 import 'package:consumer_basket/models/purchase.dart';
@@ -24,11 +26,11 @@ class PurchaseEditScreen extends StatefulWidget {
 class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
   bool _isItemDataChanged = false;
 
-  static final DateFormat _viewDateFormat = DateFormat("dd.MM.yyyy");
+  static final DateFormat _viewDateFormat = DateFormat(viewDateFormatString);
+
   static const double _fontSize = 20.0;
   static const double _spacing = 10.0;
 
-  static const String _currencyStr = 'р.';
 
   @override
   void initState() {
@@ -193,7 +195,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   children: [
                     const Text('Sum:'),
                     const SizedBox(width: _spacing),
-                    Text("${widget.purchase.amount.toString()} $_currencyStr")
+                    Text(createPriceString(widget.purchase.amount.toString()))
                   ],
                 )
               ]),
