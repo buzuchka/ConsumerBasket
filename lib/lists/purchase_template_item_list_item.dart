@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/models/purchase_template_item.dart';
 import 'package:consumer_basket/widgets/image.dart';
 
@@ -15,14 +16,13 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100,
+      height: Constants.listItemPictureHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           _getGoodsItemImageWidget(),
+          const SizedBox(width: Constants.spacing),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 0.0, 2.0, 0.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -30,13 +30,12 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        _getGoodsItemTitleWidget(),
-                        _getQuantityWidget(),
+                        _getGoodsItemTitleWidget(context),
+                        _getQuantityWidget(context),
                       ],
                     ),
                   ),
                 ],
-              ),
             ),
           ),
         ],
@@ -45,14 +44,14 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
   }
 
   Widget _getGoodsItemImageWidget() {
-    double _size = 100.0;
+    double _size = Constants.listItemPictureHeight;
     if(item.goodsItem != null) {
       return getImageWidget(item.goodsItem!.imagePath, _size, _size);
     }
     return getNoPhotoImageWidget(_size, _size);
   }
 
-  Widget _getGoodsItemTitleWidget() {
+  Widget _getGoodsItemTitleWidget(BuildContext context) {
     String text;
     if(item.goodsItem == null) {
       text = 'Not selected';
@@ -65,13 +64,11 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
       text,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(context).textTheme.bodyText1
     );
   }
 
-  Widget _getQuantityWidget() {
+  Widget _getQuantityWidget(BuildContext context) {
     String text;
     if(item.quantity != null) {
       text = item.quantity!.toString();
@@ -79,7 +76,10 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
       text = 'No quantity';
     }
 
-    return Text(text);
+    return Text(
+        text,
+        style: Theme.of(context).textTheme.bodyText2
+    );
   }
 
 }

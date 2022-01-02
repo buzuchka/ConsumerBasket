@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
 import 'package:consumer_basket/lists/purchase_template_item_list_item.dart';
 import 'package:consumer_basket/models/purchase_template.dart';
@@ -21,9 +22,6 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
   bool _isItemDataChanged = false;
 
   final TextEditingController _titleTextController = TextEditingController();
-
-  static const double _fontSize = 20.0;
-  static const double _spacing = 10.0;
 
   @override
   void initState() {
@@ -66,7 +64,7 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
           ],
         ),
         body: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(Constants.spacing),
           child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -78,6 +76,7 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
                       child: TextField(
                           controller: _titleTextController,
                           decoration: const InputDecoration(labelText: 'Title'),
+                          style: Theme.of(context).textTheme.headline6,
                           onChanged: (String value) {
                             widget.purchaseTemplate.title = value;
                             _updatePurchaseTemplate2Database();
@@ -86,21 +85,26 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: _spacing),
+                const SizedBox(height: Constants.spacing),
                 Row(
                   children: [
-                    const Text('List of Goods:'),
-                    const SizedBox(width: _spacing),
-                    Text((widget.purchaseTemplate.items.isEmpty)
-                           ? 'Empty'
-                           : widget.purchaseTemplate.items.length.toString()
+                    Text(
+                      'List of Goods:',
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
+                    const SizedBox(width: Constants.spacing),
+                    Text(
+                      (widget.purchaseTemplate.items.isEmpty)
+                          ? 'Empty'
+                          : '',
+                      style: Theme.of(context).textTheme.bodyText2,
                     ),
                   ],
                 ),
-                const SizedBox(height: _spacing),
+                const SizedBox(height: Constants.spacing),
                 Expanded(
                   child: ListView.separated(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.all(Constants.spacing),
                     shrinkWrap: true,
                     itemCount: widget.purchaseTemplate.items.length,
                     itemBuilder: (_, int position) {
@@ -127,15 +131,21 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
                     },
                   ),
                 ),
-                const SizedBox(height: _spacing),
+                const SizedBox(height: Constants.spacing),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Goods quantity:'),
-                    const SizedBox(width: _spacing),
-                    Text(widget.purchaseTemplate.items.length.toString()),
+                    Text(
+                      'Goods quantity:',
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
+                    const SizedBox(width: Constants.spacing),
+                    Text(
+                        widget.purchaseTemplate.items.length.toString(),
+                        style: Theme.of(context).textTheme.bodyText2
+                    ),
                   ],
                 ),
               ]),

@@ -30,7 +30,7 @@ class GoodsListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        _getGoodsItemTitleWidget(),
+                        _getGoodsItemTitleWidget(context),
                       ],
                     ),
                   ),
@@ -43,7 +43,7 @@ class GoodsListItem extends StatelessWidget {
     );
   }
 
-  Widget _getGoodsItemTitleWidget() {
+  Widget _getGoodsItemTitleWidget(BuildContext context) {
     String text;
     if(goodsItem.title != null) {
       text = goodsItem.title!;
@@ -55,9 +55,7 @@ class GoodsListItem extends StatelessWidget {
       text,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-      ),
+      style: Theme.of(context).textTheme.headline6
     );
   }
 

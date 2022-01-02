@@ -74,19 +74,15 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children:  [
                         Text(
                           'Date:',
-                          style: TextStyle(
-                            fontSize: _fontSize,
-                          ),
+                          style: Theme.of(context).textTheme.headline6
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text(
                           'Shop:',
-                          style: TextStyle(
-                            fontSize: _fontSize,
-                          ),
+                          style: Theme.of(context).textTheme.headline6
                         ),
                       ],
                     ),
@@ -98,10 +94,8 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                           InkWell(
                             child: Text(
                               _viewDateFormat.format(widget.purchase.date),
-                              style: TextStyle(
-                                fontSize: _fontSize,
-                                color: Theme.of(context).primaryColor,
-                              ),
+                              style: Theme.of(context).textTheme.headline6!
+                                  .copyWith(color: Theme.of(context).primaryColor)
                             ),
                             onTap: () async {
                               await _selectDate(context);
@@ -112,7 +106,11 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                getShopWidget(widget.purchase.shop, 20.0, textColor: Theme.of(context).primaryColor),
+                                getShopWidget(
+                                    widget.purchase.shop,
+                                    Theme.of(context).textTheme.headline6!
+                                        .copyWith(color: Theme.of(context).primaryColor)
+                                ),
                               ],
                             ),
                             onTap: () async {
