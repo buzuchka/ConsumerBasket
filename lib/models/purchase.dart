@@ -23,13 +23,4 @@ class Purchase extends AbstractRepositoryItem<Purchase> {
     }
     return result;
   }
-
-  Future<List<PurchaseItem>> getPurchaseItems() async {
-    if(repository != null) {
-      var rep = repository as DbRepository<Purchase>;
-      var map = await rep.getDependents<PurchaseItem>(this);
-      return map.values.toList();
-    }
-    return [];
-  }
 }
