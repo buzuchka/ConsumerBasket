@@ -11,6 +11,11 @@ class PurchaseItem extends AbstractRepositoryItem<PurchaseItem> {
   Decimal? get quantity => _quantity;
   Decimal? get totalPrice => _totalPrice;
   Decimal? get unitPrice => _unitPrice;
+  DateTime? get date {
+    if(parent!=null){
+      return parent!.date;
+    }
+  }
 
   set quantity (Decimal? q) {
     _quantity = normalizeQuantity(q);

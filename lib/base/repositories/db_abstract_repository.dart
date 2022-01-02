@@ -3,6 +3,7 @@ import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
+import 'package:consumer_basket/base/repositories/db_repository_supervisor.dart';
 
 typedef Hook<ItemT> = Future<void> Function(ItemT);
 typedef ItemCreator<ItemT> = ItemT Function();
@@ -166,9 +167,33 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return [];
   }
 
+  // hooks on insert cache item (is also called when onInsertHooks is called)
+  List<Hook<ItemT>> get onCacheInsertHooks{
+    _logger.abstractMethodError("get onCacheInsertHooks");
+    return [];
+  }
+
+  // hooks on update cache item (is also called when onUpdateHooks is called)
+  List<Hook<ItemT>> get onCacheUpdateHooks {
+    _logger.abstractMethodError("get onCacheUpdateHooks");
+    return [];
+  }
+
+  // hooks on delete cache item (is also called when onDeleteHooks is called)
+  List<Hook<ItemT>> get onCacheDeleteHooks {
+    _logger.abstractMethodError("get onCacheDeleteHooks");
+    return [];
+  }
+
   // dependent repository by its item type
   Map<String, DependentRepositoryInfo> get dependentRepositoriesByType {
     _logger.abstractMethodError("get onDeleteHooks");
+    return {};
+  }
+
+  // subscribed fields by field type
+  Map<String, List<SubscribedField<dynamic>>> get subscribedFieldsByType {
+    _logger.abstractMethodError("get subscribedFieldsByType");
     return {};
   }
 
@@ -178,9 +203,17 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return {};
   }
 
+  // supervisor
+  DbRepositorySupervisor get supervisor;
+
   // internal
   set db(Database db) {
     _logger.abstractMethodError("set db");
+  }
+
+  // internal
+  resolveDependencies(DbRepositorySupervisor supervisor) {
+    _logger.abstractMethodError("resolveDependencies()");
   }
 
   final Logger _logger = Logger("AbstractDbRepository<${ItemT.toString()}>");

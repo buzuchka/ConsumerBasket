@@ -16,6 +16,13 @@ abstract class AbstractRepository<ItemT> {
     _logger.abstractMethodError("getAllCach()");
   }
 
+  // returns items as List ordered by id
+  // (get form cache or get from db and create cache)
+  Future<List<ItemT>> getAllOrdered() async {
+    _logger.abstractMethodError("getAllOrdered()");
+    return [];
+  }
+
   // returns true if success
   Future<bool> update(ItemT item) async {
     _logger.abstractMethodError("update()");

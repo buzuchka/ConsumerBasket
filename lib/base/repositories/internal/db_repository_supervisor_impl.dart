@@ -1,18 +1,32 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';
 import 'package:consumer_basket/base/repositories/db_abstract_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/helpers/logger.dart';
-
+import 'package:consumer_basket/base/repositories/db_repository_supervisor.dart';
 
 // Internal
 
 class DbRepositorySupervisorImpl {
 
+  late DbRepositorySupervisor myReference;
   late String databaseName;
-  final List<AbstractDbRepository> repositories;
+  // final List<AbstractDbRepository> repositories;
 
-  DbRepositorySupervisorImpl(this.repositories);
+  final Map<String, AbstractDbRepository> _repositories = {};
+
+  init(
+      DbRepositorySupervisor myReference,
+      List<AbstractDbRepository> repositories){
+    this.myReference = myReference;
+    for(var rep in repositories){
+      _repositories[rep.itemType] = rep;
+    }
+    for(var rep in _repositories.values){
+      rep.resolveDependencies(myReference);
+    }
+  }
 
   openDb(String databaseName) async {
     this.databaseName = databaseName;
@@ -23,6 +37,14 @@ class DbRepositorySupervisorImpl {
         onCreate: (Database db, int version) async => await onDbCreate(db),
         onOpen: (Database db) async => onDbOpen(db)
     );
+  }
+
+  AbstractDbRepository<ItemT>? getRepositoryByType<ItemT extends AbstractRepositoryItem<ItemT>>(){
+    return _repositories[ItemT.toString()] as AbstractDbRepository<ItemT>?;
+  }
+
+  AbstractDbRepository? getRepositoryByTypeName(String typName){
+    return _repositories[typName];
   }
 
 
@@ -41,7 +63,6 @@ class DbRepositorySupervisorImpl {
   // table_name -> column_name -> type
   final Map<String, Map<String, DbColumnInfo>> _columnsByTable = {};
 
-
   onDbCreate(Database db) async {
     _logger.info("onDbCreate");
     _db = db;
@@ -58,7 +79,7 @@ class DbRepositorySupervisorImpl {
   }
 
   _setRepDb(Database db) {
-    for (var rep in repositories) {
+    for (var rep in _repositories.values) {
       rep.db = db;
     }
   }
@@ -99,7 +120,7 @@ class DbRepositorySupervisorImpl {
   _updateDbSchema_3_35_0() async {
     //var logger = _logger.subModule("_updateDbSchema()");
 
-    for (var repository in repositories) {
+    for (var repository in _repositories.values) {
       var tableName = repository.tableName;
       var repFields = repository.fieldsByName;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});
@@ -116,7 +137,7 @@ class DbRepositorySupervisorImpl {
   _updateDbSchema() async {
     //var logger = _logger.subModule("_updateDbSchema()");
 
-    for (var repository in repositories) {
+    for (var repository in _repositories.values) {
       var tableName = repository.tableName;
       var repFields = repository.fieldsByName;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});

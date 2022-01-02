@@ -10,14 +10,16 @@ class ShopsRepository extends DbRepository<Shop> {
         () => Shop(),
         [
           DbField<Shop,String?>(
-              "title", "TEXT",
-              (Shop item) => item.title,
-              (Shop item, String? title) => item.title = title
+              columnName: "title",
+              sqlType: "TEXT",
+              getter: (Shop item) => item.title,
+              setter: (Shop item, String? title) => item.title = title
           ),
           DbField<Shop,String?>(
-              "image_path", "TEXT",
-                  (Shop item) => item.imagePath,
-                  (Shop item, String? imagePath) => item.imagePath = imagePath),
+              columnName: "image_path",
+              sqlType: "TEXT",
+              getter: (Shop item) => item.imagePath,
+              setter: (Shop item, String? imagePath) => item.imagePath = imagePath),
         ]
     );
   }

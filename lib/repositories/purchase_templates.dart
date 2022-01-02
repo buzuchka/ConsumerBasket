@@ -14,25 +14,28 @@ class PurchaseTemplatesRepository extends DbRepository<PurchaseTemplate> {
       () => PurchaseTemplate(),
       [
         DbField<PurchaseTemplate,String?>(
-          "title", "TEXT",
-          (PurchaseTemplate item) => item.title,
-          (PurchaseTemplate item, String? title) => item.title = title ),
+            columnName: "title",
+            sqlType: "TEXT",
+            getter: (PurchaseTemplate item) => item.title,
+            setter: (PurchaseTemplate item, String? title) => item.title = title ),
         DbField<PurchaseTemplate,String?>(
-          columnDate, "DATE",
-          (PurchaseTemplate item) => item.creationDate.toString(),
-          (PurchaseTemplate item, String? date) {
-            if(date != null) {
-              item.creationDate = DateTime.parse(date);
-            }
-          },
-          index: true
+            columnName: columnDate,
+            sqlType: "DATE",
+            getter: (PurchaseTemplate item) => item.creationDate.toString(),
+            setter: (PurchaseTemplate item, String? date) {
+              if(date != null) {
+                item.creationDate = DateTime.parse(date);
+              }
+            },
+            index: true
         ),
         DbField<PurchaseTemplate,String?>(
-          "image_path", "TEXT",
-          (PurchaseTemplate item) => item.imagePath,
-          (PurchaseTemplate item, String? imagePath) => item.imagePath = imagePath),
-        DependentDbField<PurchaseTemplate, PurchaseTemplateItem>(
-          (PurchaseTemplate item) => item.items
+            columnName: "image_path",
+            sqlType: "TEXT",
+            getter: (PurchaseTemplate item) => item.imagePath,
+            setter: (PurchaseTemplate item, String? imagePath) => item.imagePath = imagePath),
+        DependentMapField<PurchaseTemplate, PurchaseTemplateItem>(
+          mapGetter: (PurchaseTemplate item) => item.items
         )
       ]
     );

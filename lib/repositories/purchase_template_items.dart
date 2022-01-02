@@ -13,38 +13,34 @@ class PurchaseTemplateItemsRepository extends DbRepository<PurchaseTemplateItem>
   static const String columnQuantity = "quantity";
   static const String columnIsBought = "is_bought";
 
-  PurchaseTemplatesRepository purchaseTemplatesRepository;
-
-  PurchaseTemplateItemsRepository(
-      this.purchaseTemplatesRepository,
-      GoodsRepository goodsRepository) {
+  PurchaseTemplateItemsRepository() {
     super.init(
         "purchase_template_items",
             () => PurchaseTemplateItem(),
         [
           RelativeDbField<PurchaseTemplateItem, PurchaseTemplate>(
-            columnPurchaseId,
-            purchaseTemplatesRepository,
-            (PurchaseTemplateItem item) => item.parent,
-            (PurchaseTemplateItem item, PurchaseTemplate? purchase) => item.parent = purchase,
+            relativeIdColumnName: columnPurchaseId,
+            getter: (PurchaseTemplateItem item) => item.parent,
+            setter: (PurchaseTemplateItem item, PurchaseTemplate? purchase) => item.parent = purchase,
             index: true,
           ),
           RelativeDbField<PurchaseTemplateItem, GoodsItem>(
-            columnGoodsItemId,
-            goodsRepository,
-            (PurchaseTemplateItem item) => item.goodsItem,
-            (PurchaseTemplateItem item, GoodsItem? goodsItem) => item.goodsItem = goodsItem,
+            relativeIdColumnName: columnGoodsItemId,
+            getter: (PurchaseTemplateItem item) => item.goodsItem,
+            setter: (PurchaseTemplateItem item, GoodsItem? goodsItem) => item.goodsItem = goodsItem,
             index: true,
           ),
           DbField<PurchaseTemplateItem,int?>(
-            columnQuantity, "INTEGER",
-            (PurchaseTemplateItem item) => item.quantity,
-            (PurchaseTemplateItem item, int? quantity) => item.quantity = quantity,
+            columnName: columnQuantity,
+            sqlType: "INTEGER",
+            getter: (PurchaseTemplateItem item) => item.quantity,
+            setter: (PurchaseTemplateItem item, int? quantity) => item.quantity = quantity,
           ),
           DbField<PurchaseTemplateItem,bool?>(
-            columnIsBought, "BOOLEAN",
-            (PurchaseTemplateItem item) => item.isBought,
-            (PurchaseTemplateItem item, bool? isBought) => item.isBought = isBought,
+            columnName: columnIsBought,
+            sqlType: "BOOLEAN",
+            getter: (PurchaseTemplateItem item) => item.isBought,
+            setter: (PurchaseTemplateItem item, bool? isBought) => item.isBought = isBought,
           ),
         ]
     );
