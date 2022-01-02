@@ -22,10 +22,10 @@ class _BasicScreenState extends State<BasicScreen> {
       Icons.data_usage,
       size: 150,
     ),
-    Icon(
-      Icons.perm_identity,
-      size: 150,
-    ),
+    //Icon(
+    //  Icons.perm_identity,
+    //  size: 150,
+    //),
   ];
 
   void _onItemTapped(int index) {
@@ -66,10 +66,10 @@ class _BasicScreenState extends State<BasicScreen> {
               icon: Icon(Icons.data_usage),
               label: 'Analytics'
           ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.perm_identity),
-              label: 'Profile'
-          )
+          //BottomNavigationBarItem(
+          //    icon: Icon(Icons.perm_identity),
+          //    label: 'Profile'
+          //)
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
