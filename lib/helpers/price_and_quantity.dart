@@ -43,6 +43,26 @@ Decimal? normalizeQuantity(Decimal? quantity){
   return quantityFromScaledInt(quantityToScaledInt(quantity));
 }
 
-String createPriceString(String price) {
+String makePriceString(Decimal? price) {
+  if(price == null){
+    return "?";
+  }
   return ("$price${Constants.currentCurrencyString}");
+}
+
+String makeQuantityString(Decimal? quantity) {
+  if(quantity == null){
+    return "?";
+  }
+  return quantity.toString();
+}
+
+String makePriceQuantityString(Decimal? price, Decimal? quantity){
+  return "${makePriceString(price)} x ${makeQuantityString(quantity)}";
+}
+
+String makeTotalPriceString(Decimal? totalPrice, {bool isApproximated = false}){
+  String signStr= isApproximated ? "≈" : "=";
+  String totalPriceStr = (totalPrice == null) ? "?" : makePriceString(totalPrice);
+  return "$signStr$totalPriceStr";
 }

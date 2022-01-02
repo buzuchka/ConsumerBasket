@@ -71,7 +71,7 @@ class PurchaseListItem extends StatelessWidget {
 
   Widget _getSumWidget(BuildContext context) {
     return Text(
-      createPriceString(purchase.amount.toString()),
+      makePriceString(purchase.amount),
       overflow: TextOverflow.ellipsis,
       style: Theme.of(context).textTheme.headline5!
         .copyWith(color: Theme.of(context).primaryColor)

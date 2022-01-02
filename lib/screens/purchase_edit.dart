@@ -193,7 +193,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   children: [
                     const Text('Sum:'),
                     const SizedBox(width: _spacing),
-                    Text(createPriceString(widget.purchase.amount.toString()))
+                    Text(makePriceString(widget.purchase.amount))
                   ],
                 )
               ]),

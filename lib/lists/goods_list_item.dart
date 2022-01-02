@@ -64,7 +64,7 @@ class GoodsListItem extends StatelessWidget {
     String text;
     var lastPrice = goodsItem.lastPurchaseUnitPrice;
     if(lastPrice != null) {
-      text = createPriceString(lastPrice.toString());
+      text = makePriceString(lastPrice);
     } else {
       text = 'price not found';
     }
