@@ -26,7 +26,7 @@ class PurchaseEditScreen extends StatefulWidget {
 class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
   bool _isItemDataChanged = false;
 
-  static final DateFormat _viewDateFormat = DateFormat(viewDateFormatString);
+  static final DateFormat _viewDateFormat = DateFormat(Constants.viewDateFormatString);
 
   static const double _fontSize = 20.0;
   static const double _spacing = 10.0;
