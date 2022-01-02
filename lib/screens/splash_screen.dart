@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'helpers/path_helper.dart';
-import 'helpers/repositories_helper.dart';
+import 'package:consumer_basket/helpers/path_helper.dart';
+import 'package:consumer_basket/helpers/repositories_helper.dart';
 
 import 'basic_screen.dart';
 
