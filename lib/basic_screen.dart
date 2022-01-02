@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/screens/goods.dart';
 import 'package:consumer_basket/screens/purchases.dart';
+import 'package:consumer_basket/screens/purchase_templates.dart';
 
 class BasicScreen extends StatefulWidget {
   const BasicScreen({Key? key}) : super(key: key);
@@ -14,10 +15,7 @@ class _BasicScreenState extends State<BasicScreen> {
   int _selectedIndex = 0;
 
   static const List<Widget> _pages = <Widget>[
-    Icon(
-      Icons.list,
-      size: 150,
-    ),
+    PurchaseTemplatesScreen(),
     PurchasesScreen(),
     GoodsScreen(),
     Icon(
