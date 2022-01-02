@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         theme: ThemeData(
           colorScheme: ColorScheme(
-            primary: Colors.deepPurple,
+            primary: Colors.deepPurple, //!
             primaryVariant: Colors.purple,
             secondary: Colors.pink.shade400,
             secondaryVariant: Colors.pink.shade800,
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
             error: Colors.red,
             onPrimary: Colors.white,    //!
             onSecondary: Colors.white,  //!
-            onSurface: Colors.amberAccent,
+            onSurface: Colors.grey,     //!
             onBackground: Colors.indigo,
             onError: Colors.indigoAccent,
             brightness: Brightness.light
