@@ -44,10 +44,6 @@ class _BasicScreenState extends State<BasicScreen> {
         child: _pages.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        elevation: 0,
-        backgroundColor: Colors.black26,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
