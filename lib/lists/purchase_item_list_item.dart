@@ -31,8 +31,9 @@ class PurchaseItemListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         _getGoodsItemTitleWidget(),
-                        _getPriceWidget(),
                         _getQuantityWidget(),
+                        _getUnitPriceWidget(),
+                        _getTotalPriceWidget(),
                       ],
                     ),
                   ),
@@ -72,14 +73,23 @@ class PurchaseItemListItem extends StatelessWidget {
     );
   }
 
-  Widget _getPriceWidget() {
+  Widget _getTotalPriceWidget() {
     String text;
     if(item.totalPrice != null) {
       text = item.totalPrice!.toString();
     } else {
-      text = 'No price';
+      text = 'No total price';
     }
+    return Text(text);
+  }
 
+  Widget _getUnitPriceWidget() {
+    String text;
+    if(item.unitPrice != null) {
+      text = item.unitPrice!.toString();
+    } else {
+      text = 'No unit price';
+    }
     return Text(text);
   }
 
