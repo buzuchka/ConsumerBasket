@@ -18,10 +18,10 @@ class _BasicScreenState extends State<BasicScreen> {
     PurchaseTemplatesScreen(),
     PurchasesScreen(),
     GoodsScreen(),
-    Icon(
-      Icons.data_usage,
-      size: 150,
-    ),
+    //Icon(
+    //  Icons.data_usage,
+    //  size: 150,
+    //),
     //Icon(
     //  Icons.perm_identity,
     //  size: 150,
@@ -62,10 +62,10 @@ class _BasicScreenState extends State<BasicScreen> {
               icon: Icon(Icons.devices_other),
               label: 'Goods'
           ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.data_usage),
-              label: 'Analytics'
-          ),
+          //BottomNavigationBarItem(
+          //    icon: Icon(Icons.data_usage),
+          //    label: 'Analytics'
+          //),
           //BottomNavigationBarItem(
           //    icon: Icon(Icons.perm_identity),
           //    label: 'Profile'
