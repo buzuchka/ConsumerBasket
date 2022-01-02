@@ -1,5 +1,5 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:consumer_basket/base/logger.dart';
+import 'package:consumer_basket/helpers/logger.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/base/repositories/abstract_repository_item.dart';

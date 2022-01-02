@@ -6,14 +6,15 @@ import 'package:consumer_basket/models/purchase.dart';
 import 'package:consumer_basket/models/purchase_item.dart';
 import 'package:consumer_basket/repositories/goods.dart';
 import 'package:consumer_basket/repositories/purchases.dart';
-import 'package:consumer_basket/repositories/fields/price.dart';
-import 'package:consumer_basket/base/logger.dart';
+import 'package:consumer_basket/repositories/fields/price_and_quantity.dart';
+import 'package:consumer_basket/helpers/logger.dart';
 
 class PurchaseItemsRepository extends DbRepository<PurchaseItem> {
 
   static const String columnPurchaseId = "purchase_id";
   static const String columnGoodsItemId = "goods_item_id";
-  static const String columnPrice = "price";
+  static const String columnTotalPrice = "total_price";
+  static const String columnUnitPrice = "unit_price";
   static const String columnQuantity = "quantity";
 
   PurchasesRepository purchasesRepository;
@@ -39,15 +40,20 @@ class PurchaseItemsRepository extends DbRepository<PurchaseItem> {
             (PurchaseItem item, GoodsItem? goodsItem) => item.goodsItem = goodsItem,
             index: true,
           ),
-          PriceDbFieldOpt<PurchaseItem>(
-            columnPrice,
-            (PurchaseItem item) => item.price,
-            (PurchaseItem item, Decimal? price)  => item.price = price
+          OptPriceDbField<PurchaseItem>(
+            columnTotalPrice,
+            (PurchaseItem item) => item.totalPrice,
+            (PurchaseItem item, Decimal? price)  => item.totalPrice = price
           ),
-          DbField<PurchaseItem,int?>(
-            columnQuantity, "INTEGER",
+          OptPriceDbField<PurchaseItem>(
+            columnUnitPrice,
+            (PurchaseItem item) => item.unitPrice,
+            (PurchaseItem item, Decimal? price)  => item.unitPrice = price
+          ),
+          OptQuantityDbField<PurchaseItem>(
+            columnQuantity,
             (PurchaseItem item) => item.quantity,
-            (PurchaseItem item, int? quantity) => item.quantity = quantity,
+            (PurchaseItem item, Decimal? quantity) => item.quantity = quantity,
           ),
         ]
     );

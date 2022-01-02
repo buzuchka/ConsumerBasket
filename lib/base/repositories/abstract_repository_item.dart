@@ -1,5 +1,5 @@
 import 'package:consumer_basket/base/repositories/abstract_repository.dart';
-import 'package:consumer_basket/base/logger.dart';
+import 'package:consumer_basket/helpers/logger.dart';
 
 
 abstract class AbstractRepositoryItem<ItemT extends AbstractRepositoryItem<ItemT>> {
