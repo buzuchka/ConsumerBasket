@@ -190,6 +190,12 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return {};
   }
 
+  // subscribed fields by field type
+  Map<String, List<SubscribedField<dynamic>>> get subscribedFieldsByType {
+    _logger.abstractMethodError("get subscribedFieldsByType");
+    return {};
+  }
+
   // db field by its name
   Map<String, DbField> get fieldsByName {
     _logger.abstractMethodError("get fieldsByName");

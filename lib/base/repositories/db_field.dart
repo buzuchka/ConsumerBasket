@@ -147,56 +147,96 @@ class RelativeDbField<
 typedef DependentHook<ItemT extends AbstractRepositoryItem<ItemT>, DepItemT extends AbstractRepositoryItem<DepItemT>> =
     Function(ItemT, DepItemT);
 
-class DependnentDbField<
+
+class SubscribedField<
+     FieldT extends AbstractRepositoryItem<FieldT>
+> extends AbstractField {
+
+  String get fieldType => FieldT.toString();
+
+  Hook<FieldT>? onCacheInsert;
+  Hook<FieldT>? onCacheDelete;
+  Hook<FieldT>? onCacheUpdate;
+
+  SubscribedField({
+    this.onCacheInsert,
+    this.onCacheDelete,
+    this.onCacheUpdate,
+  });
+
+  subscribe(AbstractDbRepository<FieldT> repository){
+    if(onCacheInsert != null) {
+      repository.onCacheInsertHooks.add(
+              (FieldT item) => onCacheInsert!(item));
+    }
+    if(onCacheDelete != null) {
+      repository.onCacheDeleteHooks.add(
+              (FieldT item) => onCacheDelete!(item));
+    }
+    if(onCacheUpdate != null) {
+      repository.onCacheUpdateHooks.add(
+              (FieldT item) => onCacheUpdate!(item));
+    }
+  }
+}
+
+
+class DependentField<
     ItemT extends AbstractRepositoryItem<ItemT>,
-    DepFieldT extends AbstractRepositoryItem<FieldT>
+    DepFieldT extends AbstractRepositoryItem<DepFieldT>
 > extends AbstractField {
 
   String get fieldType => DepFieldT.toString();
 
   DependentHook<ItemT, DepFieldT>? onCacheInsert;
-  DependentHook<ItemT, DepFieldT>? onCaheDelete;
+  DependentHook<ItemT, DepFieldT>? onCacheDelete;
   DependentHook<ItemT, DepFieldT>? onCacheUpdate;
 
-  DependnentDbField({
+  DependentField({
     this.onCacheInsert,
-    this.onCaheDelete,
+    this.onCacheDelete,
     this.onCacheUpdate,
   });
+
 
   // Logger _logger = Logger("DependnentDbField<${ItemT.toString()},${FieldT.toString()}>");
 }
 
 
-class DependentMapDbField<
+class DependentMapField<
     ItemT extends AbstractRepositoryItem<ItemT>,
     DepFieldT extends AbstractRepositoryItem<DepFieldT>
-> extends DependnentDbField<ItemT,DepFieldT> {
-  Getter<ItemT,Map<int,DepFieldT>> depMapGetter;
-  late Getter<DepFieldT, dynamic> depKeyGetter;
+> extends DependentField<ItemT,DepFieldT> {
 
-  DependentMapDbField({
-    @required this.depMapGetter, 
-    Getter<DepFieldT, dynamic>? depKeyGetter}):super(
-    onInsert: (ItemT item, DepFieldT depItem) => _onInsert(depItem),
-    onDelete: (ItemT item, DepFieldT depItem) => _onDelete(depItem),
-    onUpdate: (ItemT item, DepFieldT depItem) {
-      if(depKeyGetter != null){
-        this.depKeyGetter = depKeyGetter;
-      } else {
-        this.depKeyGetter = (DepFieldT depField) => depField.id!;
-      }
+   // Logger _logger = Logger("DependentMapDbField<${ItemT.toString()},${DepFieldT.toString()}>");
+
+  DependentMapField(
+      Getter<ItemT,Map<dynamic,DepFieldT>> depMapGetter,
+      [Getter<DepFieldT, dynamic>? depKeyGetter]):super(
+      onCacheInsert: (ItemT item, DepFieldT depItem) {
+        var logger = Logger("DependentMapDbField<${ItemT.toString()},${DepFieldT.toString()}>");
+        logger.info("cache insert");
+
+        var key = getKeyOrId(depKeyGetter,depItem);
+        logger.debug("key = $key (${key.runtimeType})");
+        var depItemMap = depMapGetter(item);
+        depItemMap[getKeyOrId(depKeyGetter,depItem)] = depItem;
+        logger.debug("depItemMap.len = ${depItemMap.length}");
+      },
+      onCacheDelete: (ItemT item, DepFieldT depItem) {
+        var logger = Logger("DependentMapDbField<${ItemT.toString()},${DepFieldT.toString()}>");
+        logger.info("cache delete");
+        var depItemMap = depMapGetter(item);
+        depItemMap.remove(getKeyOrId(depKeyGetter,depItem));
+      },
+      onCacheUpdate: (ItemT item, DepFieldT depItem) {});
+
+  static getKeyOrId<DepFieldT extends AbstractRepositoryItem<DepFieldT>>(
+      Getter<DepFieldT, dynamic>? depKeyGetter, DepFieldT depFieldValue
+      ){
+    if(depKeyGetter != null){
+      return depKeyGetter(depFieldValue);
     }
-    );
-
-  _onInsert(ItemT item, DepFieldT depItem){
-    var depItemMap = depMapGetter(item);
-    depItemMap[depKeyGetter(depItem)] = depItem;
+    return depFieldValue.id;
   }
-
-  _onDelete(ItemT item, DepFieldT depItem) {
-    var depItemMap = depMapGetter(item);
-    depItemMap.remove(depKeyGetter(depItem));
-  }
-
 }

@@ -31,7 +31,7 @@ class PurchaseTemplatesRepository extends DbRepository<PurchaseTemplate> {
           "image_path", "TEXT",
           (PurchaseTemplate item) => item.imagePath,
           (PurchaseTemplate item, String? imagePath) => item.imagePath = imagePath),
-        DependentMapDbField<PurchaseTemplate, PurchaseTemplateItem>(
+        DependentMapField<PurchaseTemplate, PurchaseTemplateItem>(
           (PurchaseTemplate item) => item.items
         )
       ]

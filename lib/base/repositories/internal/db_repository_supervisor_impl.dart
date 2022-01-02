@@ -10,9 +10,32 @@ import 'package:consumer_basket/helpers/logger.dart';
 class DbRepositorySupervisorImpl {
 
   late String databaseName;
-  final List<AbstractDbRepository> repositories;
+  // final List<AbstractDbRepository> repositories;
 
-  DbRepositorySupervisorImpl(this.repositories);
+  final Map<String, AbstractDbRepository> _repositories = {};
+
+  DbRepositorySupervisorImpl(List<AbstractDbRepository> repositories){
+    for(var rep in repositories){
+      _repositories[rep.itemType] = rep;
+    }
+    _resolveRepositoriesDependencies();
+  }
+
+  _resolveRepositoriesDependencies(){
+    var logger = _logger.subModule("_resolveRepositoriesDependencies()");
+    for(var rep in _repositories.values){
+      for(var subFields in rep.subscribedFieldsByType.values){
+        for(var subField in subFields){
+          var publisher = _repositories[subField.fieldType];
+          if(publisher == null){
+            _logger.error("Publisher not found for type=${subField.fieldType}");
+          } else {
+            subField.subscribe(publisher);
+          }
+        }
+      }
+    }
+  }
 
   openDb(String databaseName) async {
     this.databaseName = databaseName;
@@ -58,7 +81,7 @@ class DbRepositorySupervisorImpl {
   }
 
   _setRepDb(Database db) {
-    for (var rep in repositories) {
+    for (var rep in _repositories.values) {
       rep.db = db;
     }
   }
@@ -99,7 +122,7 @@ class DbRepositorySupervisorImpl {
   _updateDbSchema_3_35_0() async {
     //var logger = _logger.subModule("_updateDbSchema()");
 
-    for (var repository in repositories) {
+    for (var repository in _repositories.values) {
       var tableName = repository.tableName;
       var repFields = repository.fieldsByName;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});
@@ -116,7 +139,7 @@ class DbRepositorySupervisorImpl {
   _updateDbSchema() async {
     //var logger = _logger.subModule("_updateDbSchema()");
 
-    for (var repository in repositories) {
+    for (var repository in _repositories.values) {
       var tableName = repository.tableName;
       var repFields = repository.fieldsByName;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});

@@ -30,7 +30,8 @@ class GoodsListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        _getGoodsItemTitleWidget(),
+                        _getTitleWidget(),
+                        _getLastPriceWidget(),
                       ],
                     ),
                   ),
@@ -43,12 +44,31 @@ class GoodsListItem extends StatelessWidget {
     );
   }
 
-  Widget _getGoodsItemTitleWidget() {
+  Widget _getTitleWidget() {
     String text;
     if(goodsItem.title != null) {
       text = goodsItem.title!;
     } else {
       text = 'Untitled';
+    }
+
+    return Text(
+      text,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _getLastPriceWidget() {
+    String text;
+    var lastPrice = goodsItem.lastPurchaseUnitPrice;
+    if(lastPrice != null) {
+      text = lastPrice.toString();
+    } else {
+      text = 'price not found';
     }
 
     return Text(
