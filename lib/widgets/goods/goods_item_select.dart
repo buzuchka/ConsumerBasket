@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/helpers/repositories_helper.dart';
-import 'package:consumer_basket/lists/goods_list_item.dart';
 import 'package:consumer_basket/models/goods.dart';
-import 'package:consumer_basket/screens/goods_item_edit.dart';
-import 'package:consumer_basket/widgets/list_future_builder.dart';
+import 'package:consumer_basket/widgets/base/list_future_builder.dart';
+import 'package:consumer_basket/widgets/goods/goods_item_edit.dart';
+import 'package:consumer_basket/widgets/goods/goods_list_item.dart';
 
 // Окно для добавления товара в покупку
 class SelectGoodsItemScreen extends StatefulWidget {

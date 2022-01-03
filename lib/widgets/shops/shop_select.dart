@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/helpers/repositories_helper.dart';
-import 'package:consumer_basket/lists/shop_list_item.dart';
 import 'package:consumer_basket/models/shop.dart';
-import 'package:consumer_basket/screens/shop_edit_screen.dart';
-import 'package:consumer_basket/widgets/list_future_builder.dart';
+import 'package:consumer_basket/widgets/base/list_future_builder.dart';
+import 'package:consumer_basket/widgets/shops/shop_edit.dart';
+import 'package:consumer_basket/widgets/shops/shop_list_item.dart';
 
 // Окно для выбора магазина
 class SelectShopScreen extends StatefulWidget {
