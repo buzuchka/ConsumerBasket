@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/models/shop.dart';
-import 'package:consumer_basket/widgets/list_item_picture.dart';
+import 'package:consumer_basket/widgets/image.dart';
 
 // Элемент списка Магазины - Магазин
 class ShopListItem extends StatelessWidget {
@@ -19,7 +20,11 @@ class ShopListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          ListItemPicture(imageFilePath: shop.imagePath),
+          getImageWidget(
+              shop.imagePath,
+              Constants.listItemPictureSize,
+              Constants.listItemPictureSize
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

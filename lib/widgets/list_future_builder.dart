@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/helpers/constants.dart';
 
 typedef ItemWidgetCreator<ItemWidgetT extends Widget, ItemT> = ItemWidgetT? Function(ItemT);
 
@@ -86,14 +87,14 @@ Widget _getListWidget<ItemWidgetT extends Widget, ItemT>(
 }
 
 Widget _getProgressWidget(BuildContext context) {
-  double size = 100.0;
+  double size = Constants.progressIndicatorSize;
   return Center(
       child: SizedBox(
           width: size,
           height: size,
           child: CircularProgressIndicator(
             backgroundColor: Theme.of(context).colorScheme.primary,
-            color: Colors.grey,
+            color: Constants.progressIndicatorSecondColor,
           )
       )
   );
