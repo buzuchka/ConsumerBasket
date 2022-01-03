@@ -24,20 +24,26 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
           _getGoodsItemImageWidget(),
           const SizedBox(width: Constants.spacing),
           Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _getGoodsItemTitleWidget(context),
-                        _getPriceQuantityWidget(context),
-                        _getTotlaPriceWidget(context),
-                      ],
-                    ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _getGoodsItemTitleWidget(context),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          _getPriceQuantityWidget()
+                        ],
+                      ),
+                      _getTotalPriceWidget(),
+                    ],
                   ),
-                ],
+                ),
+              ],
             ),
           ),
         ],
@@ -70,38 +76,15 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
     );
   }
 
-  // Widget _getQuantityWidget(BuildContext context) {
-  //   String text;
-  //   if(item.quantity != null) {
-  //     text = item.quantity!.toString();
-  //   } else {
-  //     text = 'No quantity';
-  //   }
-  //
-  //   return Text(
-  //       text,
-  //       style: Theme.of(context).textTheme.bodyText2
-  //   );
-  // }
-
-  Widget _getPriceQuantityWidget(BuildContext context) {
-    // String text;
-    // if(item.lastUnitPrice != null) {
-    //   text = item.lastUnitPrice!.toString();
-    // } else {
-    //   text = 'Last price unknown';
-    // }
-    return Text(
-        makePriceQuantityString(item.lastUnitPrice, item.quantity),
-        style: Theme.of(context).textTheme.bodyText2
+  Widget _getTotalPriceWidget() {
+    return Text(makeTotalPriceString(
+        item.approximatedTotalPrice,
+        isApproximated: true)
     );
   }
 
-  Widget _getTotlaPriceWidget(BuildContext context) {
-    return Text(
-        makeTotalPriceString(item.approximatedTotalPrice, isApproximated:true),
-        style: Theme.of(context).textTheme.bodyText2
-    );
+  Widget _getPriceQuantityWidget() {
+    return Text(makePriceQuantityString(item.lastUnitPrice, item.quantity));
   }
 
 }
