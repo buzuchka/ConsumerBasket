@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/helpers/path_helper.dart';
-import 'package:consumer_basket/helpers/repositories_helper.dart';
-import 'package:consumer_basket/models/goods.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/path_helper.dart';
+import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/models/goods.dart';
 import 'package:consumer_basket/widgets/base/item_picture.dart';
 
 // Окно для просмотра и редактирования Товара

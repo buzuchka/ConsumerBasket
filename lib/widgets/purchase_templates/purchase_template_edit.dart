@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/helpers/repositories_helper.dart';
-import 'package:consumer_basket/helpers/price_and_quantity.dart';
-import 'package:consumer_basket/widgets/purchase_templates/purchase_template_item_list_item.dart';
-import 'package:consumer_basket/models/purchase_template.dart';
-import 'package:consumer_basket/models/purchase_template_item.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/core/models/purchase_template.dart';
+import 'package:consumer_basket/core/models/purchase_template_item.dart';
 import 'package:consumer_basket/widgets/purchase_templates/purchase_template_item_edit.dart';
+import 'package:consumer_basket/widgets/purchase_templates/purchase_template_item_list_item.dart';
 
 // Окно для просмотра и редактирования Списка
 class PurchaseTemplateEditScreen extends StatefulWidget {

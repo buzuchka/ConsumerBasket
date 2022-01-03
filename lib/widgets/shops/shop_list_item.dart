@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/models/shop.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/models/shop.dart';
 import 'package:consumer_basket/widgets/base/image.dart';
 
 // Элемент списка Магазины - Магазин
@@ -57,7 +57,9 @@ class ShopListItem extends StatelessWidget {
       text,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.bodyText1
+      style: Theme.of(context).textTheme.headline6!.copyWith(
+          fontWeight: FontWeight.normal
+      )
     );
   }
 

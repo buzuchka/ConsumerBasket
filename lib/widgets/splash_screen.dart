@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/helpers/path_helper.dart';
-import 'package:consumer_basket/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/path_helper.dart';
+import 'package:consumer_basket/core/helpers/repositories_helper.dart';
 
 import 'basic_screen.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
 
 typedef ItemWidgetCreator<ItemWidgetT extends Widget, ItemT> = ItemWidgetT? Function(ItemT);
 

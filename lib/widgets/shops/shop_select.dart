@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/repositories_helper.dart';
-import 'package:consumer_basket/models/shop.dart';
+import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/models/shop.dart';
 import 'package:consumer_basket/widgets/base/list_future_builder.dart';
 import 'package:consumer_basket/widgets/shops/shop_edit.dart';
 import 'package:consumer_basket/widgets/shops/shop_list_item.dart';

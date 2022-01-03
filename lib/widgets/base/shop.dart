@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/models/shop.dart';
+import 'package:consumer_basket/core/models/shop.dart';
 import 'package:consumer_basket/widgets/base/image.dart';
 
 Widget getShopWidget(Shop? shop, TextStyle textStyle) {

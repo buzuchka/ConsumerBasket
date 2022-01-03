@@ -1,9 +1,9 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/helpers/price_and_quantity.dart';
-import 'package:consumer_basket/models/goods.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/core/models/goods.dart';
 import 'package:consumer_basket/widgets/base/image.dart';
 
 // Элемент списка Товары - Товар

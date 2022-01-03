@@ -2,9 +2,9 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/helpers/price_and_quantity.dart';
-import 'package:consumer_basket/models/purchase.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/core/models/purchase.dart';
 import 'package:consumer_basket/widgets/base/shop.dart';
 
 // Элемент списка Покупки - Покупка

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/models/purchase_template.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/models/purchase_template.dart';
 
 // Элемент списка Списки - Список
 class PurchaseTemplateListItem extends StatelessWidget {
