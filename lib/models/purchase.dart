@@ -10,12 +10,13 @@ class Purchase extends AbstractRepositoryItem<Purchase> {
   DateTime date = DateTime.now();
   Map<int, PurchaseItem> items = {};
 
-  Decimal get amount {
+  Decimal? get amount {
     Decimal result = Decimal.zero;
     for(var item in items.values){
-      if(item.totalPrice != null) {
-        result += item.totalPrice!;
+      if(item.totalPrice == null) {
+        return null;
       }
+        result += item.totalPrice!;
     }
     return result;
   }
