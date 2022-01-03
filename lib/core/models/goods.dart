@@ -10,21 +10,18 @@ class GoodsItem extends AbstractRepositoryItem<GoodsItem> {
   Map<int,PurchaseItem> purchases = {};
 
   DateTime? get lastPurchaseDate => _lastPurchaseDate;
-  Decimal? get lastPurchaseUnitPrice => _lastPurchaseUnitPrice;
+  Decimal? get lastPurchaseUnitPrice => _lastPurchase?.unitPrice;
   PurchaseItem? get lastPurchase => _lastPurchase;
 
   set lastPurchase (PurchaseItem? purch) {
     _lastPurchase = purch;
     if(purch!=null){
       _lastPurchaseDate = purch.date;
-      _lastPurchaseUnitPrice = purch.unitPrice;
     } else {
       _lastPurchaseDate = null;
-      _lastPurchaseUnitPrice = null;
     }
   }
 
   PurchaseItem? _lastPurchase;
   DateTime? _lastPurchaseDate;
-  Decimal? _lastPurchaseUnitPrice;
 }
