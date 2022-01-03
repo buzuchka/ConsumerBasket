@@ -1,9 +1,9 @@
 import 'package:consumer_basket/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/widgets/image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/models/goods.dart';
-import 'package:consumer_basket/widgets/list_item_picture.dart';
 
 // Элемент списка Товары - Товар
 class GoodsListItem extends StatelessWidget {
@@ -21,7 +21,11 @@ class GoodsListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          ListItemPicture(imageFilePath: goodsItem.imagePath),
+          getImageWidget(
+              goodsItem.imagePath,
+              Constants.listItemPictureSize,
+              Constants.listItemPictureSize
+          ),
           const SizedBox(width: Constants.spacing),
           Expanded(
             child: Column(
