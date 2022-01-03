@@ -2,11 +2,11 @@ import 'package:decimal/decimal.dart';
 
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/helpers/repositories_helper.dart';
-import 'package:consumer_basket/widgets/goods/goods_list_item.dart';
-import 'package:consumer_basket/models/purchase_template_item.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/models/purchase_template_item.dart';
 import 'package:consumer_basket/widgets/goods/goods_item_select.dart';
+import 'package:consumer_basket/widgets/goods/goods_list_item.dart';
 
 // Окно для просмотра и редактирования элемента в Списке (товар+количество=purchase_template_item)
 class PurchaseTemplateItemEditScreen extends StatefulWidget {

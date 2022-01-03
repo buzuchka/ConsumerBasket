@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/path_helper.dart';
+import 'package:consumer_basket/core/helpers/path_helper.dart';
 
 Widget getImageWidget(String? imageFilePath, double width, double height) {
   if (imageFilePath != null) {

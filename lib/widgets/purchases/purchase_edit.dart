@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/helpers/price_and_quantity.dart';
-import 'package:consumer_basket/helpers/repositories_helper.dart';
-import 'package:consumer_basket/widgets/purchases/purchase_item_list_item.dart';
-import 'package:consumer_basket/models/purchase.dart';
-import 'package:consumer_basket/models/purchase_item.dart';
-import 'package:consumer_basket/widgets/purchases/purchase_item_edit.dart';
-import 'package:consumer_basket/widgets/shops/shop_select.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/models/purchase.dart';
+import 'package:consumer_basket/core/models/purchase_item.dart';
 import 'package:consumer_basket/widgets/base/shop.dart';
+import 'package:consumer_basket/widgets/purchases/purchase_item_edit.dart';
+import 'package:consumer_basket/widgets/purchases/purchase_item_list_item.dart';
+import 'package:consumer_basket/widgets/shops/shop_select.dart';
 
 // Окно для просмотра и редактирования Покупки
 class PurchaseEditScreen extends StatefulWidget {

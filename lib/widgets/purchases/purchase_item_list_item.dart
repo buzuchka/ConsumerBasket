@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/helpers/constants.dart';
-import 'package:consumer_basket/helpers/price_and_quantity.dart';
-import 'package:consumer_basket/models/purchase_item.dart';
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/core/models/purchase_item.dart';
 import 'package:consumer_basket/widgets/base/image.dart';
 
 // Элемент списка товаров в Покупке - единица покупки (товар+цена+количество)
