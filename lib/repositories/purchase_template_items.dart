@@ -1,10 +1,11 @@
+import 'package:decimal/decimal.dart';
+
 import 'package:consumer_basket/base/repositories/db_repository.dart';
 import 'package:consumer_basket/base/repositories/db_field.dart';
 import 'package:consumer_basket/models/goods.dart';
 import 'package:consumer_basket/models/purchase_template.dart';
 import 'package:consumer_basket/models/purchase_template_item.dart';
-import 'package:consumer_basket/repositories/goods.dart';
-import 'package:consumer_basket/repositories/purchase_templates.dart';
+import 'package:consumer_basket/repositories/fields/price_and_quantity.dart';
 
 class PurchaseTemplateItemsRepository extends DbRepository<PurchaseTemplateItem> {
 
@@ -30,12 +31,11 @@ class PurchaseTemplateItemsRepository extends DbRepository<PurchaseTemplateItem>
             setter: (PurchaseTemplateItem item, GoodsItem? goodsItem) => item.goodsItem = goodsItem,
             index: true,
           ),
-          DbField<PurchaseTemplateItem,int?>(
-            columnName: columnQuantity,
-            sqlType: "INTEGER",
-            getter: (PurchaseTemplateItem item) => item.quantity,
-            setter: (PurchaseTemplateItem item, int? quantity) => item.quantity = quantity,
-          ),
+         OptQuantityDbField(
+             columnName: columnQuantity,
+             getter: (PurchaseTemplateItem item) => item.quantity,
+             setter: (PurchaseTemplateItem item, Decimal? quantity) => item.quantity = quantity
+         ),
           DbField<PurchaseTemplateItem,bool?>(
             columnName: columnIsBought,
             sqlType: "BOOLEAN",

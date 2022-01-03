@@ -19,7 +19,8 @@ class PurchaseTemplateListItem extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(child: _getTitleWidget(context))
+          Expanded(child: _getTitleWidget(context)),
+
         ],
       ),
     );
@@ -39,5 +40,20 @@ class PurchaseTemplateListItem extends StatelessWidget {
         )
     );
   }
+
+  // Widget _getPriceWidget(BuildContext context) {
+  //   String text;
+  //   if(purchaseTemplate == null) {
+  //     text = 'Untitled';
+  //   } else {
+  //     text = purchaseTemplate.title!;
+  //   }
+  //   return Text(
+  //       text,
+  //       style: Theme.of(context).textTheme.headline6!.copyWith(
+  //           fontWeight: FontWeight.normal
+  //       )
+  //   );
+  // }
 
 }

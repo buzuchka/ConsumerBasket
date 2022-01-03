@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/helpers/constants.dart';
 import 'package:consumer_basket/helpers/repositories_helper.dart';
+import 'package:consumer_basket/helpers/price_and_quantity.dart';
 import 'package:consumer_basket/lists/purchase_template_item_list_item.dart';
 import 'package:consumer_basket/models/purchase_template.dart';
 import 'package:consumer_basket/models/purchase_template_item.dart';
@@ -148,6 +149,22 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
                     ),
                   ],
                 ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                        'Approximated sum:',
+                        style: Theme.of(context).textTheme.bodyText1
+                    ),
+                    const SizedBox(width: Constants.spacing),
+                    Text(
+                        makePriceString(widget.purchaseTemplate.approximatedAmount),
+                        style: Theme.of(context).textTheme.bodyText2
+                    )
+                  ],
+                )
               ]),
         ),
         floatingActionButton: FloatingActionButton(

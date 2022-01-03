@@ -36,9 +36,7 @@ class PurchaseItemListItem extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            _getUnitPriceWidget(),
-                            const Text(" x "),
-                            _getQuantityWidget(),
+                            _getPriceQuantityWidget()
                           ],
                         ),
                         _getTotalPriceWidget(),
@@ -79,34 +77,11 @@ class PurchaseItemListItem extends StatelessWidget {
   }
 
   Widget _getTotalPriceWidget() {
-    String text;
-    if(item.totalPrice != null) {
-      text = "= ${createPriceString(item.totalPrice!.toString())}";
-    } else {
-      text = 'No total price';
-    }
-    return Text(text);
+    return Text(makeTotalPriceString(item.totalPrice));
   }
 
-  Widget _getUnitPriceWidget() {
-    String text;
-    if(item.unitPrice != null) {
-      text = createPriceString(item.unitPrice!.toString());
-    } else {
-      text = 'No unit price';
-    }
-    return Text(text);
-  }
-
-  Widget _getQuantityWidget() {
-    String text;
-    if(item.quantity != null) {
-      text = item.quantity!.toString();
-    } else {
-      text = 'No quantity';
-    }
-
-    return Text(text);
+  Widget _getPriceQuantityWidget() {
+    return Text(makePriceQuantityString(item.unitPrice, item.quantity));
   }
 
 }

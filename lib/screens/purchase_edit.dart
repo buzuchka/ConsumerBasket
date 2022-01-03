@@ -213,7 +213,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                     ),
                     const SizedBox(width: Constants.spacing),
                     Text(
-                        createPriceString(widget.purchase.amount.toString()),
+                        makePriceString(widget.purchase.amount),
                         style: Theme.of(context).textTheme.bodyText2
                     )
                   ],

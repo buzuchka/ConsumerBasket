@@ -1,3 +1,4 @@
+import 'package:consumer_basket/helpers/price_and_quantity.dart';
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/helpers/constants.dart';
@@ -31,7 +32,8 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         _getGoodsItemTitleWidget(context),
-                        _getQuantityWidget(context),
+                        _getPriceQuantityWidget(context),
+                        _getTotlaPriceWidget(context),
                       ],
                     ),
                   ),
@@ -68,16 +70,36 @@ class PurchaseTemplateItemListItem extends StatelessWidget {
     );
   }
 
-  Widget _getQuantityWidget(BuildContext context) {
-    String text;
-    if(item.quantity != null) {
-      text = item.quantity!.toString();
-    } else {
-      text = 'No quantity';
-    }
+  // Widget _getQuantityWidget(BuildContext context) {
+  //   String text;
+  //   if(item.quantity != null) {
+  //     text = item.quantity!.toString();
+  //   } else {
+  //     text = 'No quantity';
+  //   }
+  //
+  //   return Text(
+  //       text,
+  //       style: Theme.of(context).textTheme.bodyText2
+  //   );
+  // }
 
+  Widget _getPriceQuantityWidget(BuildContext context) {
+    // String text;
+    // if(item.lastUnitPrice != null) {
+    //   text = item.lastUnitPrice!.toString();
+    // } else {
+    //   text = 'Last price unknown';
+    // }
     return Text(
-        text,
+        makePriceQuantityString(item.lastUnitPrice, item.quantity),
+        style: Theme.of(context).textTheme.bodyText2
+    );
+  }
+
+  Widget _getTotlaPriceWidget(BuildContext context) {
+    return Text(
+        makeTotalPriceString(item.approximatedTotalPrice, isApproximated:true),
         style: Theme.of(context).textTheme.bodyText2
     );
   }

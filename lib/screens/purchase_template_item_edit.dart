@@ -110,7 +110,7 @@ class _PurchaseTemplateItemEditScreenState extends State<PurchaseTemplateItemEdi
                       ),
                       decoration: const InputDecoration(labelText: 'Quantity'),
                       onChanged: (String value) {
-                        widget.item.quantity = int.parse(value);
+                        widget.item.quantity = Decimal.parse(value);
                         _updatePurchaseTemplateItem2Database();
                       }
                     )
