@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Constants {
   static const String appTitleString = "Consumer Basket";
   static const String appVersionString = "0.0.1";
@@ -12,4 +14,7 @@ class Constants {
   static const double listItemNoPictureHeight = 70.0;
 
   static const double spacing = 10.0;
+
+  static const Color progressIndicatorSecondColor = Colors.grey;
+  static const double progressIndicatorSize = 100.0;
 }

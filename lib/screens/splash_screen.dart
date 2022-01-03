@@ -104,10 +104,12 @@ class _SplashScreen extends State<SplashScreen> {
                     ),
                   ),
                   Container(
-                    margin: const EdgeInsets.only(top:50),
+                    margin: const EdgeInsets.only(
+                        top:50
+                    ),
                     child: CircularProgressIndicator(
                       backgroundColor: _splashTextColor,
-                      color: Colors.grey,
+                      color: Constants.progressIndicatorSecondColor,
                     ),
                   ),
                 ]
