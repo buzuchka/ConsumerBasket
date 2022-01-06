@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/path_helper.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/language.dart';
 
 import 'basic_screen.dart';
 
@@ -87,7 +88,7 @@ class _SplashScreen extends State<SplashScreen> {
                   Container(
                     margin: const EdgeInsets.only(top:30),
                     child: Text(
-                      Constants.appTitleString,
+                      Language.of(context).appName,
                       style: Theme.of(context).primaryTextTheme.headline4!.copyWith(
                           color: _splashTextColor,
                           fontWeight: FontWeight.bold)

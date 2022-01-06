@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/internationalization/language.dart';
 import 'package:consumer_basket/widgets/goods/goods.dart';
 import 'package:consumer_basket/widgets/purchases/purchases.dart';
 import 'package:consumer_basket/widgets/purchase_templates/purchase_templates.dart';
@@ -39,7 +40,7 @@ class _BasicScreenState extends State<BasicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Constants.appTitleString),
+        title: Text(Language.of(context).appName),
       ),
       body: Center(
         child: _pages.elementAt(_selectedIndex),
