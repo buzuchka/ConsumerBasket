@@ -38,9 +38,16 @@ class _BasicScreenState extends State<BasicScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
+    final List<String> _pageNames = <String>[
+      Language.of(context).purchaseTemplatesButtonName,
+      Language.of(context).purchasesButtonName,
+      Language.of(context).goodsButtonName
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(Language.of(context).appName),
+        title: Text(_pageNames.elementAt(_selectedIndex)),
       ),
       body: Center(
         child: _pages.elementAt(_selectedIndex),
