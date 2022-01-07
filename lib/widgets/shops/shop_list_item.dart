@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/shop.dart';
 import 'package:consumer_basket/widgets/base/image.dart';
 
@@ -16,7 +17,7 @@ class ShopListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100,
+      height: Constants.listItemPictureHeight,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -50,7 +51,7 @@ class ShopListItem extends StatelessWidget {
     if(shop.title != null) {
       text = shop.title!;
     } else {
-      text = 'Untitled';
+      text = Language.of(context).untitledString;
     }
 
     return Text(

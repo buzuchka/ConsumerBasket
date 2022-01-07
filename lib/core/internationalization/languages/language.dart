@@ -90,4 +90,7 @@ abstract class Language {
   // Магазин неизвестен
   String get shopIsUndefinedString;
 
+  // Магазины
+  String get shopsString;
+
 }

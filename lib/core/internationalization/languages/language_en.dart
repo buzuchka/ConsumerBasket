@@ -85,4 +85,8 @@ class LanguageEn extends Language {
 
   @override
   String get shopIsUndefinedString => "Shop is undefined";
+
+  @override
+  String get shopsString => "Shops";
+
 }

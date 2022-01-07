@@ -85,4 +85,7 @@ class LanguageRu extends Language {
 
   @override
   String get shopIsUndefinedString => "Магазин неизвестен";
+
+  @override
+  String get shopsString => "Магазины";
 }
