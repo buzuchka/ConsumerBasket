@@ -5,7 +5,9 @@ import 'package:decimal/decimal.dart';
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/logger.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/purchase_item.dart';
+
 import 'package:consumer_basket/widgets/goods/goods_list_item.dart';
 import 'package:consumer_basket/widgets/goods/goods_item_select.dart';
 
@@ -71,12 +73,12 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("View Purchase Item"),
+          title: Text(Language.of(context).goodsItemString),
           actions: [
             PopupMenuButton(
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                    child: const Text('Delete'),
+                    child: Text(Language.of(context).deleteButtonName),
                     onTap: () async {
                       await _deletePurchaseItem2Database();
                       _clear();
@@ -101,12 +103,8 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                             border: Border.all(color: Theme.of(context).primaryColor)
                         ),
                         height: Constants.listItemPictureHeight,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
-                            Text('Goods Item is not selected')
-                          ],
+                        child: Center(
+                          child: Text(Language.of(context).goodsItemIsNotSelectedString)
                         )
                       ),
                 ),
@@ -141,7 +139,9 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                         decimal: true,
                         signed: false,
                       ),
-                      decoration: const InputDecoration(labelText: 'Quantity'),
+                      decoration: InputDecoration(
+                          labelText: Language.of(context).quantityString
+                      ),
                       onChanged: (String value) {
                         if(value.isEmpty){
                           widget.item.quantity = null;
@@ -165,7 +165,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                       child: TextField(
                           controller: _unitPriceTextController,
                           decoration: InputDecoration(
-                            labelText: 'Unit Price',
+                            labelText: Language.of(context).unitPriceString,
                             suffixText: Constants.currentCurrencyString,
                           ),
                           onChanged: (String value) {
@@ -197,7 +197,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                     child: TextField(
                       controller: _totalPriceTextController,
                       decoration: InputDecoration(
-                        labelText: 'Total Price',
+                        labelText: Language.of(context).totalPriceString,
                         suffixText: Constants.currentCurrencyString
                       ),
                       onChanged: (String value) {

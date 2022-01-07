@@ -65,4 +65,24 @@ class LanguageEn extends Language {
   @override
   String get quantityString => "Quantity";
 
+  @override
+  String get purchaseString => "Purchase";
+
+  @override
+  String get dateString => "Date";
+
+  @override
+  String get shopString => "Shop";
+
+  @override
+  String get sumString => "Sum";
+
+  @override
+  String get unitPriceString => "Unit Price";
+
+  @override
+  String get totalPriceString => "Total Price";
+
+  @override
+  String get shopIsUndefinedString => "Shop is undefined";
 }

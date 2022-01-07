@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/purchase.dart';
+
 import 'package:consumer_basket/widgets/base/shop.dart';
 
 // Элемент списка Покупки - Покупка
@@ -55,7 +57,7 @@ class PurchaseListItem extends StatelessWidget {
     );
     if(purchase.shop == null) {
       return Text(
-          'Shop is undefined',
+          Language.of(context).shopIsUndefinedString,
           style: textTheme
       );
     }

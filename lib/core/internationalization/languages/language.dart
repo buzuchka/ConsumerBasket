@@ -69,4 +69,25 @@ abstract class Language {
   // Количество
   String get quantityString;
 
+  // Покупка
+  String get purchaseString;
+
+  // Дата
+  String get dateString;
+
+  // Магазин
+  String get shopString;
+
+  // Сумма
+  String get sumString;
+
+  // Цена за единицу
+  String get unitPriceString;
+
+  // Цена за всё
+  String get totalPriceString;
+
+  // Магазин неизвестен
+  String get shopIsUndefinedString;
+
 }

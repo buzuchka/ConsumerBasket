@@ -69,7 +69,7 @@ class _PurchaseTemplateItemEditScreenState extends State<PurchaseTemplateItemEdi
             children: [
               InkWell(
                 child: Container(
-                  child: (widget.item.goodsItem == null)
+                  child: (widget.item.goodsItem != null)
                     ? GoodsListItem(goodsItem: widget.item.goodsItem!)
                     : Container(
                         decoration: BoxDecoration(

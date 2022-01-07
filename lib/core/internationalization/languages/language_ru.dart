@@ -65,4 +65,24 @@ class LanguageRu extends Language {
   @override
   String get quantityString => "Количество";
 
+  @override
+  String get purchaseString => "Покупка";
+
+  @override
+  String get dateString => "Дата";
+
+  @override
+  String get shopString => "Магазин";
+
+  @override
+  String get sumString => "Сумма";
+
+  @override
+  String get unitPriceString => "Цена за единицу";
+
+  @override
+  String get totalPriceString => "Цена за всё";
+
+  @override
+  String get shopIsUndefinedString => "Магазин неизвестен";
 }
