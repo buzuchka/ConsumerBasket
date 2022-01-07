@@ -100,7 +100,7 @@ class _PurchaseItemEditScreenState extends State<PurchaseItemEditScreen> {
                     ? GoodsListItem(goodsItem: widget.item.goodsItem!)
                     : Container(
                         decoration: BoxDecoration(
-                            border: Border.all(color: Theme.of(context).primaryColor)
+                            border: Border.all(color: Theme.of(context).colorScheme.primary)
                         ),
                         height: Constants.listItemPictureHeight,
                         child: Center(
