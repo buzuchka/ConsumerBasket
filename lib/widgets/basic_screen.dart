@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/internationalization/languages/language.dart';
+
 import 'package:consumer_basket/widgets/goods/goods.dart';
 import 'package:consumer_basket/widgets/purchases/purchases.dart';
 import 'package:consumer_basket/widgets/purchase_templates/purchase_templates.dart';
@@ -46,18 +47,18 @@ class _BasicScreenState extends State<BasicScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-              icon: Icon(Icons.list),
-              label: 'Lists'
+              icon: const Icon(Icons.list),
+              label: Language.of(context).purchaseTemplatesButtonName
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.credit_card),
-              label: 'Purchases'
+              icon: const Icon(Icons.credit_card),
+              label: Language.of(context).purchasesButtonName
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.devices_other),
-              label: 'Goods'
+              icon: const Icon(Icons.devices_other),
+              label: Language.of(context).goodsButtonName
           ),
           //BottomNavigationBarItem(
           //    icon: Icon(Icons.data_usage),
