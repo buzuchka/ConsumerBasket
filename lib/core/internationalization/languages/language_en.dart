@@ -6,7 +6,7 @@ class LanguageEn extends Language {
   String get appName => "Consumer Basket";
 
   @override
-  String get versionText => "Version";
+  String get versionString => "Version";
 
   @override
   String get purchaseTemplatesButtonName => "Lists";
@@ -16,4 +16,14 @@ class LanguageEn extends Language {
 
   @override
   String get goodsButtonName => "Goods";
+
+  @override
+  String get errorString => "Error";
+
+  @override
+  String get notSelectedString => "Not selected";
+
+  @override
+  String get untitledString => "Untitled";
+
 }

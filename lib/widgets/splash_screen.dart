@@ -100,7 +100,7 @@ class _SplashScreen extends State<SplashScreen> {
                   Container(
                     margin: const EdgeInsets.only(top:10),
                     child: Text(
-                        "${Language.of(context).versionText}: ${Constants.appVersionString}",
+                        "${Language.of(context).versionString}: ${Constants.appVersionString}",
                         style: Theme.of(context).primaryTextTheme.headline6!.copyWith(
                             color: _splashTextColor,
                             fontWeight: FontWeight.normal

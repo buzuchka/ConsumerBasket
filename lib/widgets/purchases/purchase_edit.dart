@@ -7,6 +7,7 @@ import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
 import 'package:consumer_basket/core/models/purchase.dart';
 import 'package:consumer_basket/core/models/purchase_item.dart';
+
 import 'package:consumer_basket/widgets/base/shop.dart';
 import 'package:consumer_basket/widgets/purchases/purchase_item_edit.dart';
 import 'package:consumer_basket/widgets/purchases/purchase_item_list_item.dart';
@@ -110,6 +111,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 getShopWidget(
+                                    context,
                                     widget.purchase.shop,
                                     Theme.of(context).textTheme.headline6!.copyWith(
                                         fontWeight: FontWeight.normal,

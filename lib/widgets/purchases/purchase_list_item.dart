@@ -59,7 +59,7 @@ class PurchaseListItem extends StatelessWidget {
           style: textTheme
       );
     }
-    return getShopWidget(purchase.shop, textTheme);
+    return getShopWidget(context, purchase.shop, textTheme);
   }
 
   Widget _getDateWidget(BuildContext context) {

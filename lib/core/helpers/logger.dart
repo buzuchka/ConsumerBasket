@@ -1,10 +1,9 @@
-
-
+import 'package:flutter/foundation.dart';
 
 class Logger {
   String? module;
 
-  Logger([this.module = null]);
+  Logger([this.module]);
 
   Logger subModule(String submodule){
     if(module != null){
@@ -46,6 +45,8 @@ class Logger {
   }
 
   void _printLine(String line){
-    print(line);
+    if (kDebugMode) {
+      print(line);
+    }
   }
 }

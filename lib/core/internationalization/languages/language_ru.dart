@@ -6,7 +6,7 @@ class LanguageRu extends Language {
   String get appName => "Потребительская корзина";
 
   @override
-  String get versionText => "Версия";
+  String get versionString => "Версия";
 
   @override
   String get purchaseTemplatesButtonName => "Списки";
@@ -16,4 +16,14 @@ class LanguageRu extends Language {
 
   @override
   String get goodsButtonName => "Товары";
+
+  @override
+  String get errorString => "Ошибка";
+
+  @override
+  String get notSelectedString => "Не выбран";
+
+  @override
+  String get untitledString => "Без имени";
+
 }

@@ -10,7 +10,7 @@ abstract class Language {
   String get appName;
 
   // Версия
-  String get versionText;
+  String get versionString;
 
   // Название кнопки Списки в навигационной панели
   String get purchaseTemplatesButtonName;
@@ -20,5 +20,14 @@ abstract class Language {
 
   // Название кнопки Товары в навигационной панели
   String get goodsButtonName;
+
+  // Ошибка
+  String get errorString;
+
+  // Не выбран
+  String get notSelectedString;
+
+  // Без имени
+  String get untitledString;
 
 }
