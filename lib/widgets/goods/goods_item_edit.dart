@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/path_helper.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/goods.dart';
+
 import 'package:consumer_basket/widgets/base/item_picture.dart';
 
 // Окно для просмотра и редактирования Товара
@@ -50,12 +52,12 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("View Goods Item"),
+          title: Text(Language.of(context).goodsItemString),
           actions: [
             PopupMenuButton(
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                    child: const Text('Delete'),
+                    child: Text(Language.of(context).deleteButtonName),
                     onTap: () async {
                       await _deleteGoodsItem2Database();
                       _clear();
@@ -144,7 +146,9 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
     return TextField(
         controller: _titleTextController,
         maxLines: 2,
-        decoration: const InputDecoration(labelText: 'Item Name'),
+        decoration: InputDecoration(
+            labelText: Language.of(context).titleString
+        ),
         onChanged: (String value) {
           widget.goodsItem.title = value;
           _updateGoodsItem2Database();
@@ -158,7 +162,9 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
         minLines: 4,
         maxLines: null,
         keyboardType: TextInputType.multiline,
-        decoration: const InputDecoration(labelText: 'Note'),
+        decoration: InputDecoration(
+            labelText: Language.of(context).goodsItemNoteName
+        ),
         onChanged: (String value) {
           widget.goodsItem.note = value;
           _updateGoodsItem2Database();

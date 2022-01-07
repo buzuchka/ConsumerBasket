@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/purchase.dart';
 import 'package:consumer_basket/core/models/purchase_item.dart';
+
 import 'package:consumer_basket/widgets/base/shop.dart';
 import 'package:consumer_basket/widgets/purchases/purchase_item_edit.dart';
 import 'package:consumer_basket/widgets/purchases/purchase_item_list_item.dart';
@@ -42,12 +44,12 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("View Purchase"),
+          title: Text(Language.of(context).purchaseString),
           actions: [
             PopupMenuButton(
               itemBuilder: (context) => [
                 PopupMenuItem(
-                  child: const Text('Delete'),
+                  child: Text(Language.of(context).deleteButtonName),
                   onTap: () async {
                     await _deletePurchase2Database();
                     _clear();
@@ -73,14 +75,14 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children:  [
                         Text(
-                          'Date:',
+                          '${Language.of(context).dateString}:',
                           style: Theme.of(context).textTheme.headline6!.copyWith(
                             fontWeight: FontWeight.normal
                           )
                         ),
                         const SizedBox(height: Constants.spacing),
                         Text(
-                          'Shop:',
+                          '${Language.of(context).shopString}:',
                           style:  Theme.of(context).textTheme.headline6!.copyWith(
                               fontWeight: FontWeight.normal
                           )
@@ -110,6 +112,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 getShopWidget(
+                                    context,
                                     widget.purchase.shop,
                                     Theme.of(context).textTheme.headline6!.copyWith(
                                         fontWeight: FontWeight.normal,
@@ -143,13 +146,13 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                 Row(
                   children: [
                     Text(
-                      'List of Goods:',
+                      '${Language.of(context).listOfGoodsString}:',
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     const SizedBox(width: Constants.spacing),
                     Text(
                       (widget.purchase.items.isEmpty)
-                        ? 'Empty'
+                        ? Language.of(context).emptyString
                         : '',
                       style: Theme.of(context).textTheme.bodyText2,
                     ),
@@ -192,7 +195,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Goods quantity:',
+                      '${Language.of(context).goodsQuantityString}:',
                       style: Theme.of(context).textTheme.bodyText1
                     ),
                     const SizedBox(width: Constants.spacing),
@@ -208,7 +211,7 @@ class _PurchaseEditScreenState extends State<PurchaseEditScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Sum:',
+                      '${Language.of(context).sumString}:',
                       style: Theme.of(context).textTheme.bodyText1
                     ),
                     const SizedBox(width: Constants.spacing),

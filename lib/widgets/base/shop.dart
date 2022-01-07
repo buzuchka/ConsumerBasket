@@ -1,23 +1,35 @@
 import 'package:flutter/material.dart';
 
+import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/shop.dart';
+
 import 'package:consumer_basket/widgets/base/image.dart';
 
-Widget getShopWidget(Shop? shop, TextStyle textStyle) {
+Widget getShopWidget(
+    BuildContext context,
+    Shop? shop,
+    TextStyle textStyle
+    ) {
   double _imageSize = textStyle.fontSize! + 5.0;
   return Row(
     children: [
       Container(
         child: (shop == null)
             ? const SizedBox()
-            : getImageWidget(shop.imagePath, _imageSize, _imageSize),
+            : Row(
+                children: [
+                  getImageWidget(shop.imagePath, _imageSize, _imageSize),
+                  const SizedBox(width: Constants.spacing/2),
+                ]
+              )
       ),
       Text(
         (shop == null)
-            ? 'Not selected'
+            ? Language.of(context).notSelectedString
             : (shop.title != null)
             ? shop.title!
-            : 'Untitled',
+            : Language.of(context).untitledString,
         style: textStyle
       ),
     ],

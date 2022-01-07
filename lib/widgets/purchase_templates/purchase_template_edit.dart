@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
 import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/purchase_template.dart';
 import 'package:consumer_basket/core/models/purchase_template_item.dart';
+
 import 'package:consumer_basket/widgets/purchase_templates/purchase_template_item_edit.dart';
 import 'package:consumer_basket/widgets/purchase_templates/purchase_template_item_list_item.dart';
 
@@ -48,12 +50,12 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("View Purchase Template"),
+          title: Text(Language.of(context).purchaseTemplateString),
           actions: [
             PopupMenuButton(
                 itemBuilder: (context) => [
                       PopupMenuItem(
-                        child: const Text('Delete'),
+                        child: Text(Language.of(context).deleteButtonName),
                         onTap: () async {
                           await _deletePurchaseTemplate2Database();
                           _clear();
@@ -76,7 +78,9 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
                     Expanded(
                       child: TextField(
                           controller: _titleTextController,
-                          decoration: const InputDecoration(labelText: 'Title'),
+                          decoration: InputDecoration(
+                              labelText: Language.of(context).titleString
+                          ),
                           style: Theme.of(context).textTheme.headline6,
                           onChanged: (String value) {
                             widget.purchaseTemplate.title = value;
@@ -90,13 +94,13 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
                 Row(
                   children: [
                     Text(
-                      'List of Goods:',
+                      '${Language.of(context).listOfGoodsString}:',
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     const SizedBox(width: Constants.spacing),
                     Text(
                       (widget.purchaseTemplate.items.isEmpty)
-                          ? 'Empty'
+                          ? Language.of(context).emptyString
                           : '',
                       style: Theme.of(context).textTheme.bodyText2,
                     ),
@@ -139,7 +143,7 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Goods quantity:',
+                      "${Language.of(context).goodsQuantityString}:",
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     const SizedBox(width: Constants.spacing),
@@ -155,7 +159,7 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                        'Approximated sum:',
+                        "${Language.of(context).approximatedSumString}:",
                         style: Theme.of(context).textTheme.bodyText1
                     ),
                     const SizedBox(width: Constants.spacing),
@@ -177,7 +181,8 @@ class _PurchaseTemplateEditScreenState extends State<PurchaseTemplateEditScreen>
               context,
               MaterialPageRoute(
                   builder: (context) => PurchaseTemplateItemEditScreen(
-                      item: newPurchaseTemplateItem)
+                      item: newPurchaseTemplateItem
+                  )
               ),
             );
             _refreshPurchaseItemList();

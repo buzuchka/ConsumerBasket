@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/path_helper.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/shop.dart';
+
 import 'package:consumer_basket/widgets/base/item_picture.dart';
 
 // Окно для просмотра и редактирования Магазина
@@ -44,12 +46,12 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("View Shop"),
+          title: Text(Language.of(context).shopString),
           actions: [
             PopupMenuButton(
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                    child: const Text('Delete'),
+                    child: Text(Language.of(context).deleteButtonName),
                     onTap: () async {
                       await _deleteShop2Database();
                       _clear();
@@ -124,7 +126,9 @@ class _ShopEditScreenState extends State<ShopEditScreen> {
     return TextField(
         controller: _titleTextController,
         maxLines: 2,
-        decoration: const InputDecoration(labelText: 'Item Name'),
+        decoration: InputDecoration(
+            labelText: Language.of(context).titleString
+        ),
         onChanged: (String value) {
           widget.shop.title = _titleTextController.text;
           _updateShop2Database();

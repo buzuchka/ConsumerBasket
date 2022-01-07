@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 
 typedef ItemWidgetCreator<ItemWidgetT extends Widget, ItemT> = ItemWidgetT? Function(ItemT);
 
@@ -16,12 +17,12 @@ FutureBuilder<List<ItemT>> getListFutureBuilder<ItemWidgetT extends Widget, Item
     ) {
   return FutureBuilder<List<ItemT>>(
       future: future,
-      initialData: [],
+      initialData: const [],
       builder: (context, snapshot) {
         if(snapshot.connectionState == ConnectionState.waiting) {
           return _getProgressWidget(context);
         } else if(snapshot.hasError) {
-          return _getErrorWidget(snapshot.error.toString());
+          return _getErrorWidget(context, snapshot.error.toString());
         } else {
           return _getListWidget(context, snapshot.data!, itemWidgetCreator, onTap, onLongPress);
         }
@@ -58,7 +59,7 @@ Widget _getListWidget<ItemWidgetT extends Widget, ItemT>(
     Action<ItemT>? onLongPressAction,
     ) {
   return ListView.separated(
-    padding: const EdgeInsets.all(10.0),
+    padding: const EdgeInsets.all(Constants.spacing),
     itemCount: items.length,
     itemBuilder: (_, int position) {
       final currentItem = items.elementAt(position);
@@ -100,6 +101,14 @@ Widget _getProgressWidget(BuildContext context) {
   );
 }
 
-Widget _getErrorWidget(String errorText) {
-  return Text('Error: $errorText');
+Widget _getErrorWidget(BuildContext context, String errorText) {
+  return Container(
+      padding: const EdgeInsets.all(Constants.spacing),
+      child: Text(
+        '${Language.of(context).errorString}: $errorText',
+        style: Theme.of(context).textTheme.bodyText2!.copyWith(
+            color: Theme.of(context).colorScheme.error
+        )
+      )
+  );
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static const String appTitleString = "Consumer Basket";
+  static const Locale defaultLocale = Locale('ru', '');
+
   static const String appVersionString = "0.1.0";
 
   static const String viewDateFormatString = "dd.MM.yyyy";

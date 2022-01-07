@@ -5,7 +5,7 @@ import 'package:consumer_basket/core/base/repositories/abstract_repository_item.
 import 'package:consumer_basket/core/models/goods.dart';
 import 'package:consumer_basket/core/models/purchase.dart';
 
-// Элемент в покупке (товар+цена+количество)
+// Элемент в Покупке (товар+цена+количество)
 class PurchaseItem extends AbstractRepositoryItem<PurchaseItem> {
   Purchase? parent;
   GoodsItem? goodsItem;
