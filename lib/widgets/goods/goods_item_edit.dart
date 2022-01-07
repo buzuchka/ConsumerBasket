@@ -71,55 +71,27 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
         body: Container(
           padding: const EdgeInsets.all(Constants.spacing),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                      width: Constants.listItemPictureHeight,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _getImageWidget()
-                        ],
-                      )
-                  ),
-                  const SizedBox(width: Constants.spacing),
-                  Expanded(
-                    child: Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: _getTitleWidget()
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                  )
-                ],
-              ),
-              Expanded(
+              SizedBox(
+                  width: Constants.listItemPictureHeight,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                              child: _getNoteWidget()
-                          ),
-                        ],
-                      ),
+                      _getImageWidget()
                     ],
                   )
-              )
+              ),
+              const SizedBox(height: Constants.spacing),
+              Container(
+                  child: _getTitleWidget()
+              ),
+              const SizedBox(height: Constants.spacing),
+              Expanded(
+                  child: _getNoteWidget()
+              ),
             ]
           ),
         ),
