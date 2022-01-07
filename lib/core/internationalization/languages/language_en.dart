@@ -26,4 +26,22 @@ class LanguageEn extends Language {
   @override
   String get untitledString => "Untitled";
 
+  @override
+  String get goodsItemString => "Goods Item";
+
+  @override
+  String get goodsString => "Goods";
+
+  @override
+  String get deleteButtonName => "Delete";
+
+  @override
+  String get goodsItemTitleName => "Title";
+
+  @override
+  String get goodsItemNoteName => "Note";
+
+  @override
+  String get priceNotFoundString => "price not found";
+
 }

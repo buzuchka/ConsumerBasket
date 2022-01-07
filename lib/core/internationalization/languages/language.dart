@@ -30,4 +30,22 @@ abstract class Language {
   // Без имени
   String get untitledString;
 
+  // Товар
+  String get goodsItemString;
+
+  // Товары
+  String get goodsString;
+
+  // Название кнопки Удалить
+  String get deleteButtonName;
+
+  // Название товара
+  String get goodsItemTitleName;
+
+  // Примечание к товару
+  String get goodsItemNoteName;
+
+  // Цена не найдена
+  String get priceNotFoundString;
+
 }

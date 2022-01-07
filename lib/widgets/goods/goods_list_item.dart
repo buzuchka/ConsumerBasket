@@ -1,9 +1,10 @@
-
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/price_and_quantity.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/goods.dart';
+
 import 'package:consumer_basket/widgets/base/image.dart';
 
 // Элемент списка Товары - Товар
@@ -61,7 +62,7 @@ class GoodsListItem extends StatelessWidget {
     if(goodsItem.title != null) {
       text = goodsItem.title!;
     } else {
-      text = 'Untitled';
+      text = Language.of(context).untitledString;
     }
 
     return Text(
@@ -80,7 +81,7 @@ class GoodsListItem extends StatelessWidget {
     if(lastPrice != null) {
       text = makePriceString(lastPrice);
     } else {
-      text = 'price not found';
+      text = Language.of(context).priceNotFoundString;
     }
 
     return Text(

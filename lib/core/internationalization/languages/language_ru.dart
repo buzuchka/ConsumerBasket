@@ -26,4 +26,22 @@ class LanguageRu extends Language {
   @override
   String get untitledString => "Без имени";
 
+  @override
+  String get goodsItemString => "Товар";
+
+  @override
+  String get goodsString => "Товары";
+
+  @override
+  String get deleteButtonName => "Удалить";
+
+  @override
+  String get goodsItemTitleName => "Название";
+
+  @override
+  String get goodsItemNoteName => "Примечание";
+
+  @override
+  String get priceNotFoundString => "цена не найдена";
+
 }

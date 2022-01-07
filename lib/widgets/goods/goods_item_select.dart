@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/goods.dart';
+
 import 'package:consumer_basket/widgets/base/list_future_builder.dart';
 import 'package:consumer_basket/widgets/goods/goods_item_edit.dart';
 import 'package:consumer_basket/widgets/goods/goods_list_item.dart';
 
-// Окно для добавления товара в покупку
+// Окно выбора товара
 class SelectGoodsItemScreen extends StatefulWidget {
   const SelectGoodsItemScreen({Key? key}) : super(key: key);
 
@@ -39,7 +41,7 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Select Goods Item"),
+          title: Text(Language.of(context).goodsString),
         ),
         body: Column(
             mainAxisSize: MainAxisSize.max,
