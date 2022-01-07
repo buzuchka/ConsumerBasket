@@ -147,7 +147,7 @@ class _GoodsItemEditScreenState extends State<GoodsItemEditScreen> {
         controller: _titleTextController,
         maxLines: 2,
         decoration: InputDecoration(
-            labelText: Language.of(context).goodsItemTitleName
+            labelText: Language.of(context).titleString
         ),
         onChanged: (String value) {
           widget.goodsItem.title = value;

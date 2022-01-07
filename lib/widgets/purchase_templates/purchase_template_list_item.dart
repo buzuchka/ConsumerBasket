@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/constants.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/purchase_template.dart';
 
 // Элемент списка Списки - Список
@@ -29,7 +30,7 @@ class PurchaseTemplateListItem extends StatelessWidget {
   Widget _getTitleWidget(BuildContext context) {
     String text;
     if(purchaseTemplate.title == null) {
-      text = 'Untitled';
+      text = Language.of(context).untitledString;
     } else {
       text = purchaseTemplate.title!;
     }

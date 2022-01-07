@@ -39,13 +39,34 @@ abstract class Language {
   // Название кнопки Удалить
   String get deleteButtonName;
 
-  // Название товара
-  String get goodsItemTitleName;
+  // Название
+  String get titleString;
 
   // Примечание к товару
   String get goodsItemNoteName;
 
   // Цена не найдена
   String get priceNotFoundString;
+
+  // Список
+  String get purchaseTemplateString;
+
+  // Ориентировочная сумма
+  String get approximatedSumString;
+
+  // Количество товаров
+  String get goodsQuantityString;
+
+  // Пусто
+  String get emptyString;
+
+  // Список товаров
+  String get listOfGoodsString;
+
+  // Товар не выбран
+  String get goodsItemIsNotSelectedString;
+
+  // Количество
+  String get quantityString;
 
 }

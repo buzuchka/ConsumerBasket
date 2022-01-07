@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/purchase_template_item.dart';
+
 import 'package:consumer_basket/widgets/goods/goods_item_select.dart';
 import 'package:consumer_basket/widgets/goods/goods_list_item.dart';
 
@@ -44,12 +46,12 @@ class _PurchaseTemplateItemEditScreenState extends State<PurchaseTemplateItemEdi
     return WillPopScope(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("View Purchase Template Item"),
+          title: Text(Language.of(context).goodsItemString),
           actions: [
             PopupMenuButton(
                 itemBuilder: (context) => [
                   PopupMenuItem(
-                    child: const Text('Delete'),
+                    child: Text(Language.of(context).deleteButtonName),
                     onTap: () async {
                       await _deletePurchaseTemplateItem2Database();
                       _clear();
@@ -67,19 +69,15 @@ class _PurchaseTemplateItemEditScreenState extends State<PurchaseTemplateItemEdi
             children: [
               InkWell(
                 child: Container(
-                  child: (widget.item.goodsItem != null)
+                  child: (widget.item.goodsItem == null)
                     ? GoodsListItem(goodsItem: widget.item.goodsItem!)
                     : Container(
                         decoration: BoxDecoration(
                             border: Border.all(color: Theme.of(context).colorScheme.primary)
                         ),
-                        height: 100,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
-                            Text('Goods Item is not selected')
-                          ],
+                        height: Constants.listItemPictureHeight,
+                        child: Center(
+                            child: Text(Language.of(context).goodsItemIsNotSelectedString)
                         )
                       ),
                 ),
@@ -108,7 +106,9 @@ class _PurchaseTemplateItemEditScreenState extends State<PurchaseTemplateItemEdi
                         decimal: true,
                         signed: false,
                       ),
-                      decoration: const InputDecoration(labelText: 'Quantity'),
+                      decoration: InputDecoration(
+                          labelText: Language.of(context).quantityString
+                      ),
                       onChanged: (String value) {
                         widget.item.quantity = Decimal.parse(value);
                         _updatePurchaseTemplateItem2Database();

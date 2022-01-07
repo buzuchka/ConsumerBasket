@@ -36,12 +36,33 @@ class LanguageEn extends Language {
   String get deleteButtonName => "Delete";
 
   @override
-  String get goodsItemTitleName => "Title";
+  String get titleString => "Title";
 
   @override
   String get goodsItemNoteName => "Note";
 
   @override
   String get priceNotFoundString => "price not found";
+
+  @override
+  String get purchaseTemplateString => "List";
+
+  @override
+  String get approximatedSumString => "Approximated sum";
+
+  @override
+  String get goodsQuantityString => "Goods quantity";
+
+  @override
+  String get emptyString => "Empty";
+
+  @override
+  String get listOfGoodsString => "List of Goods";
+
+  @override
+  String get goodsItemIsNotSelectedString => "Goods Item is not selected";
+
+  @override
+  String get quantityString => "Quantity";
 
 }

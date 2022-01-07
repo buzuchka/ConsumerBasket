@@ -36,12 +36,33 @@ class LanguageRu extends Language {
   String get deleteButtonName => "Удалить";
 
   @override
-  String get goodsItemTitleName => "Название";
+  String get titleString => "Название";
 
   @override
   String get goodsItemNoteName => "Примечание";
 
   @override
   String get priceNotFoundString => "цена не найдена";
+
+  @override
+  String get purchaseTemplateString => "Список";
+
+  @override
+  String get approximatedSumString => "Ориентировочная сумма";
+
+  @override
+  String get goodsQuantityString => "Количество товаров";
+
+  @override
+  String get emptyString => "Пусто";
+
+  @override
+  String get listOfGoodsString => "Список товаров";
+
+  @override
+  String get goodsItemIsNotSelectedString => "Товар не выбран";
+
+  @override
+  String get quantityString => "Количество";
 
 }
