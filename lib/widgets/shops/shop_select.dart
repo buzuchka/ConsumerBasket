@@ -85,7 +85,7 @@ class _SelectShopScreenState extends State<SelectShopScreen> {
                       shop: newShop)
               ),
             );
-            _refreshShopList();
+            Navigator.pop(context, newShop);
           },
         ),
       ),

@@ -71,7 +71,7 @@ class _SelectGoodsItemScreenState extends State<SelectGoodsItemScreen> {
                     goodsItem: newGoodsItem)
               ),
             );
-            _refreshItemsList();
+            Navigator.pop(context, newGoodsItem);
           },
         ),
       ),
