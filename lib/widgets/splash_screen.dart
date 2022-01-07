@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:consumer_basket/core/helpers/constants.dart';
 import 'package:consumer_basket/core/helpers/path_helper.dart';
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
-import 'package:consumer_basket/core/internationalization/language.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 
 import 'basic_screen.dart';
 
@@ -91,23 +91,24 @@ class _SplashScreen extends State<SplashScreen> {
                       Language.of(context).appName,
                       style: Theme.of(context).primaryTextTheme.headline4!.copyWith(
                           color: _splashTextColor,
-                          fontWeight: FontWeight.bold)
+                          fontWeight: FontWeight.bold
+                      ),
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top:10),
                     child: Text(
-                        "Version: ${Constants.appVersionString}",
+                        "${Language.of(context).versionText}: ${Constants.appVersionString}",
                         style: Theme.of(context).primaryTextTheme.headline6!.copyWith(
                             color: _splashTextColor,
                             fontWeight: FontWeight.normal
-                        )
+                        ),
                     ),
                   ),
                   Container(
-                    margin: const EdgeInsets.only(
-                        top:50
-                    ),
+                    margin: const EdgeInsets.only(top:50),
                     child: CircularProgressIndicator(
                       backgroundColor: _splashTextColor,
                       color: Constants.progressIndicatorSecondColor,

@@ -7,5 +7,6 @@ abstract class Language {
   }
 
   String get appName;
+  String get versionText;
 
 }

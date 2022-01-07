@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/core/helpers/constants.dart';
-import 'package:consumer_basket/core/internationalization/language.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/widgets/goods/goods.dart';
 import 'package:consumer_basket/widgets/purchases/purchases.dart';
 import 'package:consumer_basket/widgets/purchase_templates/purchase_templates.dart';

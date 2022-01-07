@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:consumer_basket/core/internationalization/language.dart';
-import 'package:consumer_basket/core/internationalization/language_en.dart';
-import 'package:consumer_basket/core/internationalization/language_ru.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
+import 'package:consumer_basket/core/internationalization/languages/language_en.dart';
+import 'package:consumer_basket/core/internationalization/languages/language_ru.dart';
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<Language> {
 
