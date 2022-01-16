@@ -54,11 +54,14 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Map<String,DbField> get fieldsByName => _dbFieldsByName;
   final Map<String,DbField> _dbFieldsByName = {};
 
+  final List<Fts4Field<ItemT>> _fts4Fields = [];
+
   static const String columnIdName = 'id';
 
   late Database _db;
   final List<DbField<ItemT,dynamic>> _simpleFields = [];
   final List<RelativeDbField<ItemT,dynamic>> _relativeFields = [];
+
 
   // depType -> depFields
   final Map<String,List<DependentField<ItemT, dynamic>>> _depFieldsByType = {};
@@ -86,19 +89,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         field.tableName = tableName;
         if (field is RelativeDbField<ItemT, dynamic>) {
           _relativeFields.add(field);
-          // field.resolveDependencies(
-          //     this,
-          //     (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
-          //     (AbstractDbRepository rep, ItemT item) async {
-          //       await (rep as DbRepository)._handleDependentInsert(item);
-          //     },
-          //     (AbstractDbRepository rep, ItemT item) async {
-          //       await (rep as DbRepository)._handleDependentDelet(item);
-          //     },
-          //     (AbstractDbRepository rep, ItemT item) async {
-          //       await (rep as DbRepository)._handleDependentUpdate(item);
-          //     },
-          // );
+        } if (field is Fts4Field<ItemT>){
+          _fts4Fields.add(field);
         } else {
           _simpleFields.add(field);
         }
@@ -392,14 +384,12 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     var item = _itemCreator();
     item.id = map[columnIdName] as int;
     item.repository = this;
-    for(var field in _relativeFields){
-      await field.relativeRepository.getAll(); // create cache
+    for(var field in _dbFieldsByName.values){
+      if(field is RelativeDbField){
+        await field.relativeRepository.getAll(); // create cache
+      }
       field.abstractSet(item, map[field.columnName]);
     }
-    for(var field in _simpleFields) {
-      field.abstractSet(item, map[field.columnName]);
-    }
-
     return item;
   }
 
