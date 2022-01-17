@@ -143,21 +143,26 @@ class DbRepositorySupervisorImpl {
 
     for (var repository in _repositories.values) {
       var tableName = repository.tableName;
+      var fts4TableName = repository.fts4TableName;
       var repFields = repository.fieldsByName;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});
 
+      bool mainTableIsDropped = false;
       if (dbColumns.isEmpty) {
+        mainTableIsDropped = true;
         await _createTable(tableName, repFields);
         dbColumns.addAll(repFields);
       } else {
         if (_isNeedDropTable(dbColumns, repFields)) {
+          mainTableIsDropped = true;
           await _dropTable(tableName);
           await _createTable(tableName, repFields);
         } else {
           await _updateFields(dbColumns, repFields);
         }
       }
-      await _recreateFts4TableIfNeeded(tableName, dbColumns, repFields);
+      await _recreateFts4TableIfNeeded(
+          tableName, fts4TableName, mainTableIsDropped, dbColumns, repFields);
 
       dbColumns.clear();
       dbColumns.addAll(repFields);
@@ -252,14 +257,14 @@ class DbRepositorySupervisorImpl {
 
   _recreateFts4TableIfNeeded(
       String tableName,
+      String fts4TableName,
+      bool mainTableIsDropped,
       Map<String, DbColumnInfo> repFields,
       Map<String, DbColumnInfo> dbColumns) async{
 
-    String fts4TableName =  "${tableName}_fts4";
-
     List<String> fts4FieldNames = [];
     List<String> fts4FieldNewDotNames = [];
-    bool needRecreate = false;
+    bool needRecreate = mainTableIsDropped;
     for(var repField in repFields.values) {
       var dbColumnInfo = dbColumns[repField.columnName];
       if (dbColumnInfo == null){
@@ -270,7 +275,6 @@ class DbRepositorySupervisorImpl {
       if(repField.isFts4Field){
         fts4FieldNames.add(repField.columnName);
         fts4FieldNewDotNames.add("new.${repField.columnName}");
-
       }
     }
 
@@ -296,30 +300,29 @@ class DbRepositorySupervisorImpl {
      );
     """);
 
-  await _execute("""
-    CREATE TRIGGER ${tableName}_before_update BEFORE UPDATE ON $tableName BEGIN
-      DELETE FROM $fts4TableName WHERE docid=old.$_columnId;
-    END;
-  """);
+    await _execute("""
+      CREATE TRIGGER ${tableName}_before_update BEFORE UPDATE ON $tableName BEGIN
+        DELETE FROM $fts4TableName WHERE docid=old.$_columnId;
+      END;
+    """);
 
-  await _execute("""
-    CREATE TRIGGER ${tableName}_before_delete BEFORE DELETE ON $tableName BEGIN
-      DELETE FROM $fts4TableName WHERE docid=old.$_columnId;
-    END;
-  """);
+    await _execute("""
+      CREATE TRIGGER ${tableName}_before_delete BEFORE DELETE ON $tableName BEGIN
+        DELETE FROM $fts4TableName WHERE docid=old.$_columnId;
+      END;
+    """);
 
-  await _execute("""
-    CREATE TRIGGER ${tableName}_after_update AFTER UPDATE ON $tableName BEGIN
-      INSERT INTO $fts4TableName(docid, $joinedFields) VALUES(new.$_columnId, $joinedNewDotFields);
-    END;
-  """);
+    await _execute("""
+      CREATE TRIGGER ${tableName}_after_update AFTER UPDATE ON $tableName BEGIN
+        INSERT INTO $fts4TableName(docid, $joinedFields) VALUES(new.$_columnId, $joinedNewDotFields);
+      END;
+    """);
 
-  await _execute("""
-    CREATE TRIGGER ${tableName}_after_insert AFTER INSERT ON $tableName BEGIN
-      INSERT INTO $fts4TableName(docid, $joinedFields) VALUES(new.$_columnId, $joinedNewDotFields);
-    END;
-  """);
-
+    await _execute("""
+      CREATE TRIGGER ${tableName}_after_insert AFTER INSERT ON $tableName BEGIN
+        INSERT INTO $fts4TableName(docid, $joinedFields) VALUES(new.$_columnId, $joinedNewDotFields);
+      END;
+    """);
   }
 
   _dropColumn(DbColumnInfo dbColumnInfo) async {

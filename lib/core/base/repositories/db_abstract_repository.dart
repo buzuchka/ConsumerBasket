@@ -114,15 +114,32 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     return [];
   }
 
+  // Returns ordered item list by FTS4 query.
+  Future<List<ItemT>> getByFts4QueryOrdered(String match, [Logger? logger]) async {
+    _logger.abstractMethodError("getByFts4QueryOrdered()");
+    return [];
+  }
+
   // Returns mapped id->items by query. Query should return item ids.
   Future<Map<int,ItemT>> getByQueryMapped(String query) async{
     _logger.abstractMethodError("getByQueryMapped()");
     return {};
   }
 
-  // Inserts items by query. Query should return item ids.
+  // Returns mapped items by FTS4 query.
+  Future<Map<int,ItemT>> getByFts4QueryMapped(String query, [Logger? logger]) async {
+    _logger.abstractMethodError("getByFts4QueryMapped()");
+    return {};
+  }
+
+  // Get items by query. Query should return item ids.
   getByQuery(String query, ItemInserter<ItemT> itemInserter) async {
     _logger.abstractMethodError("getByQuery()");
+  }
+
+  // Get items by FTS4 query.
+  getByFts4Query(String match, ItemInserter<ItemT> itemInserter, [Logger? logger]) async {
+    _logger.abstractMethodError("getByFts4Query()");
   }
 
   // returns dependent items (from dependent repository)
@@ -146,8 +163,14 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
   // db table name
   String get tableName {
-    _logger.abstractMethodError("get table");
+    _logger.abstractMethodError("get tableName");
     return "_UNDEFINED_";
+  }
+
+  // fts4 table name
+  String get fts4TableName {
+    _logger.abstractMethodError("get fts4TableName");
+    return "_UNDEFINED_FTS4_";
   }
 
   // hooks on insert operations
