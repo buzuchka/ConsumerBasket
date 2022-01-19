@@ -18,7 +18,7 @@ class DbColumnInfo{
   late String sqlType;
   bool isIndexed = false;
   bool isUnique = false;
-  bool isFts4Field = false;
+  bool isFts4 = false;
 
   String get indexName => "index_${tableName}_${columnName}";
   String get sqlColumnDef => "$columnName $sqlType";
@@ -92,14 +92,14 @@ class DbField<ItemT, FieldT> extends AbstractField with DbColumnInfo {
 }
 
 
-class Fts4Field<
+class Fts4DbField<
   ItemT extends AbstractRepositoryItem<ItemT>
-> extends DbField<ItemT, String> {
+> extends DbField<ItemT, String?> {
 
-  Fts4Field({
+  Fts4DbField({
     required columnName,
-    required Getter<ItemT, String> getter,
-    required Setter<ItemT, String> setter,
+    required Getter<ItemT, String?> getter,
+    required Setter<ItemT, String?> setter,
     bool? index,
     bool? unique
   }):super(
@@ -110,7 +110,7 @@ class Fts4Field<
     index: index,
     unique: unique
   ){
-    super.isFts4Field = true;
+    super.isFts4 = true;
   }
 
 }

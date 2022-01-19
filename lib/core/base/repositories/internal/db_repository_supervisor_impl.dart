@@ -182,6 +182,9 @@ class DbRepositorySupervisorImpl {
         if(!dbColumnInfo.isUnique && repField.isUnique){
           return true;
         }
+        if(dbColumnInfo.isFts4 != repField.isFts4){
+          return true;
+        }
       }
     }
     return false;
@@ -239,28 +242,12 @@ class DbRepositorySupervisorImpl {
     """);
   }
 
-  _createTable(String tableName, Map<String, DbColumnInfo> repFields) async{
-    await _execute( """
-     CREATE TABLE IF NOT EXISTS $tableName (
-             $_columnId INTEGER PRIMARY KEY NOT NULL
-     );
-    """);
-
-    for(var repField in repFields.values){
-      await _addColumn(repField);
-      if(repField.isIndexed){
-        await _addIndex(repField);
-      }
-      await _updateColumnInfo(repField);
-    }
-  }
-
   _recreateFts4TableIfNeeded(
       String tableName,
       String fts4TableName,
       bool mainTableIsDropped,
-      Map<String, DbColumnInfo> repFields,
-      Map<String, DbColumnInfo> dbColumns) async{
+      Map<String, DbColumnInfo> dbColumns,
+      Map<String, DbColumnInfo> repFields) async{
 
     List<String> fts4FieldNames = [];
     List<String> fts4FieldNewDotNames = [];
@@ -268,17 +255,19 @@ class DbRepositorySupervisorImpl {
     for(var repField in repFields.values) {
       var dbColumnInfo = dbColumns[repField.columnName];
       if (dbColumnInfo == null){
-        needRecreate = true;
-      } else if (dbColumnInfo.isFts4Field != repField.isFts4Field) {
+        needRecreate = repField.isFts4;
+      } else if (dbColumnInfo.isFts4 != repField.isFts4) {
         needRecreate = true;
       }
-      if(repField.isFts4Field){
+      if(repField.isFts4){
+        _logger.subModule("_recreateFts4TableIfNeeded()").debug("BINGO isFts4: ${repField.columnName}");
         fts4FieldNames.add(repField.columnName);
         fts4FieldNewDotNames.add("new.${repField.columnName}");
       }
     }
 
     if(!needRecreate) {
+      _logger.info("fts4 recreation not needed for $tableName");
       return;
     }
 
@@ -287,6 +276,7 @@ class DbRepositorySupervisorImpl {
     """);
 
     if(fts4FieldNames.isEmpty) {
+      _logger.info("fts4 fields not found in $tableName");
       return;
     }
 
@@ -325,6 +315,22 @@ class DbRepositorySupervisorImpl {
     """);
   }
 
+  _createTable(String tableName, Map<String, DbColumnInfo> repFields) async{
+    await _execute( """
+     CREATE TABLE IF NOT EXISTS $tableName (
+             $_columnId INTEGER PRIMARY KEY NOT NULL
+     );
+    """);
+
+    for(var repField in repFields.values){
+      await _addColumn(repField);
+      if(repField.isIndexed){
+        await _addIndex(repField);
+      }
+      await _updateColumnInfo(repField);
+    }
+  }
+
   _dropColumn(DbColumnInfo dbColumnInfo) async {
     await _execute("""
       ALTER TABLE ${dbColumnInfo.tableName} 
@@ -356,13 +362,14 @@ class DbRepositorySupervisorImpl {
   _updateColumnInfo(DbColumnInfo info) async {
     await _execute("""
       INSERT INTO $_tableName 
-        ($_columnTableName, $_columnColumnName, $_columnColumnType, $_columnIsIndexed, $_columnIsUnique)
-        VALUES('${info.tableName}', '${info.columnName}', '${info.sqlType}', ${info.isIndexed}, ${info.isUnique})
+        ($_columnTableName, $_columnColumnName, $_columnColumnType, $_columnIsIndexed, $_columnIsUnique, $_columnIsFts4)
+        VALUES('${info.tableName}', '${info.columnName}', '${info.sqlType}', ${info.isIndexed}, ${info.isUnique}, ${info.isFts4})
         ON CONFLICT($_columnTableName, $_columnColumnName)
         DO UPDATE SET 
         $_columnColumnType = '${info.sqlType}',
         $_columnIsIndexed =  ${info.isIndexed},
-        $_columnIsUnique = ${info.isUnique}
+        $_columnIsUnique = ${info.isUnique},
+        $_columnIsFts4 = ${info.isFts4}
       ;
     """);
   }
@@ -379,6 +386,7 @@ class DbRepositorySupervisorImpl {
     result.sqlType = dbRawObj[_columnColumnType] as String;
     result.isIndexed = (dbRawObj[_columnIsIndexed] as int) != 0;
     result.isUnique = (dbRawObj[_columnIsUnique] as int) != 0;
+    result.isFts4 = (dbRawObj[_columnIsFts4] as int) != 0;
     return result;
   }
 

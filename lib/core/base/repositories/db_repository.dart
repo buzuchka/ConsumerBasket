@@ -58,7 +58,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Map<String,DbField> get fieldsByName => _dbFieldsByName;
   final Map<String,DbField> _dbFieldsByName = {};
 
-  final List<Fts4Field<ItemT>> _fts4Fields = [];
+  final List<Fts4DbField<ItemT>> _fts4Fields = [];
 
   static const String columnIdName = 'id';
 
@@ -93,7 +93,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         field.tableName = tableName;
         if (field is RelativeDbField<ItemT, dynamic>) {
           _relativeFields.add(field);
-        } if (field is Fts4Field<ItemT>){
+        } if (field is Fts4DbField<ItemT>){
           _fts4Fields.add(field);
         } else {
           _simpleFields.add(field);
