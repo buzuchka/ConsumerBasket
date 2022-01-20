@@ -15,11 +15,6 @@ class GoodsRepository extends DbRepository<GoodsItem> {
               columnName: "title",
               getter: (GoodsItem item) => item.title,
               setter: (GoodsItem item, String? title) => item.title = title ),
-          // DbField<GoodsItem, String?>(
-          //      columnName: "title",
-          //      sqlType:"TEXT",
-          //      getter: (GoodsItem item) => item.title,
-          //      setter: (GoodsItem item, String? title) => item.title = title ),
           DbField<GoodsItem,String?>(
               columnName: "image_path",
               sqlType: "TEXT",
@@ -57,14 +52,8 @@ class GoodsRepository extends DbRepository<GoodsItem> {
     );
   }
 
-  @override
-  Future<Map<int,GoodsItem>> getAll() async {
-    var result = await super.getAll();
-    var fts4result = await getByFts4QueryOrdered("chips");
-    for(var item in fts4result){
-      print("BINGO!!!  item = ${item.title}");
-    }
-    return result;
+  Future<List<GoodsItem>> findByTitle(String title_pice) async {
+    return await super.getByFts4QueryOrdered("title:$title_pice*");
   }
 
   static _onPurchaseUpdate(Purchase purchase){

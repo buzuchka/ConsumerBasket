@@ -127,7 +127,7 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   }
 
   // Returns mapped items by FTS4 query.
-  Future<Map<int,ItemT>> getByFts4QueryMapped(String query, [Logger? logger]) async {
+  Future<Map<int,ItemT>> getByFts4QueryMapped(String match, [Logger? logger]) async {
     _logger.abstractMethodError("getByFts4QueryMapped()");
     return {};
   }

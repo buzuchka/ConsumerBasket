@@ -302,7 +302,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       """
         SELECT docid as $columnIdName 
         FROM $fts4TableName
-        WHERE $fts4TableName MATCH $match
+        WHERE $fts4TableName MATCH '$match'
       """
       ,itemInserter, logger
     );
