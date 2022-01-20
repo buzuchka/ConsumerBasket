@@ -22,8 +22,12 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   late String _tableName;
 
   @override
+  String get fts4TableName => "${tableName}_fts4";
+
+
+  @override
   Map<String, DependentRepositoryInfo> get dependentRepositoriesByType => _dependentRepositoriesByType;
-  Map<String, DependentRepositoryInfo> _dependentRepositoriesByType = {};
+  final Map<String, DependentRepositoryInfo> _dependentRepositoriesByType = {};
 
   @override
   List<Hook<ItemT>> get onCacheInsertHooks => _onCacheInsertHooks;
@@ -54,11 +58,14 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Map<String,DbField> get fieldsByName => _dbFieldsByName;
   final Map<String,DbField> _dbFieldsByName = {};
 
+  final List<Fts4DbField<ItemT>> _fts4Fields = [];
+
   static const String columnIdName = 'id';
 
   late Database _db;
   final List<DbField<ItemT,dynamic>> _simpleFields = [];
   final List<RelativeDbField<ItemT,dynamic>> _relativeFields = [];
+
 
   // depType -> depFields
   final Map<String,List<DependentField<ItemT, dynamic>>> _depFieldsByType = {};
@@ -86,19 +93,8 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         field.tableName = tableName;
         if (field is RelativeDbField<ItemT, dynamic>) {
           _relativeFields.add(field);
-          // field.resolveDependencies(
-          //     this,
-          //     (int? id) async => await _handleRelativeDeletion(field as RelativeDbField, id),
-          //     (AbstractDbRepository rep, ItemT item) async {
-          //       await (rep as DbRepository)._handleDependentInsert(item);
-          //     },
-          //     (AbstractDbRepository rep, ItemT item) async {
-          //       await (rep as DbRepository)._handleDependentDelet(item);
-          //     },
-          //     (AbstractDbRepository rep, ItemT item) async {
-          //       await (rep as DbRepository)._handleDependentUpdate(item);
-          //     },
-          // );
+        } if (field is Fts4DbField<ItemT>){
+          _fts4Fields.add(field);
         } else {
           _simpleFields.add(field);
         }
@@ -247,8 +243,17 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   Future<List<ItemT>> getByQueryOrdered(String query, [Logger? logger]) async{
     List<ItemT> result = [];
-    logger ??= _logger.subModule("getByQueryOrdered()");
+    //logger ??= _logger.subModule("getByQueryOrdered()");
     await getByQuery(query,(ItemT item) => result.add(item), logger);
+    return result;
+  }
+
+  // Returns ordered item list by FTS4 query.
+  @override
+  Future<List<ItemT>> getByFts4QueryOrdered(String match, [Logger? logger]) async{
+    List<ItemT> result = [];
+    //logger ??= _logger.subModule("getByQueryOrdered()");
+    await getByFts4Query(match,(ItemT item) => result.add(item), logger);
     return result;
   }
 
@@ -256,12 +261,21 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   Future<Map<int,ItemT>> getByQueryMapped(String query, [Logger? logger]) async{
     Map<int,ItemT> result = {};
-    logger ??= _logger.subModule("getByQueryMapped()");
+    //logger ??= _logger.subModule("getByQueryMapped()");
     await getByQuery(query,(ItemT item) => result[item.id!] = item, logger);
     return result;
   }
 
-  // Inserts items by query. Query should return ids.
+  // Returns mapped items by FTS4 query.
+  @override
+  Future<Map<int,ItemT>> getByFts4QueryMapped(String match, [Logger? logger]) async{
+    Map<int,ItemT> result = {};
+    //logger ??= _logger.subModule("getByQueryMapped()");
+    await getByFts4Query(match,(ItemT item) => result[item.id!] = item, logger);
+    return result;
+  }
+
+  // Get items by query. Query should return ids.
   @override
   getByQuery(String query, ItemInserter<ItemT> itemInserter, [Logger? logger]) async {
     logger ??= _logger.subModule("getByQuery()");
@@ -270,7 +284,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     List<Map> rawResult = await _db.rawQuery(query);
     logger.info("got ${rawResult.length} items");
     for(var row in rawResult){
-      var id = row["id"];
+      var id = row[columnIdName];
       var item = allItems[id];
       if(item != null){
         itemInserter(item);
@@ -278,6 +292,20 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
         logger.error("item not found in cache for id=$id");
       }
     }
+  }
+
+  // Get items by FTS4 query.
+  @override
+  getByFts4Query(String match, ItemInserter<ItemT> itemInserter, [Logger? logger]) async {
+    logger ??= _logger.subModule("getByFts4Query()");
+    await getByQuery(
+      """
+        SELECT docid as $columnIdName 
+        FROM $fts4TableName
+        WHERE $fts4TableName MATCH '$match'
+      """
+      ,itemInserter, logger
+    );
   }
 
   // returns dependent items (from dependent repository)
@@ -392,14 +420,12 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
     var item = _itemCreator();
     item.id = map[columnIdName] as int;
     item.repository = this;
-    for(var field in _relativeFields){
-      await field.relativeRepository.getAll(); // create cache
+    for(var field in _dbFieldsByName.values){
+      if(field is RelativeDbField){
+        await field.relativeRepository.getAll(); // create cache
+      }
       field.abstractSet(item, map[field.columnName]);
     }
-    for(var field in _simpleFields) {
-      field.abstractSet(item, map[field.columnName]);
-    }
-
     return item;
   }
 
@@ -483,7 +509,7 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
   Future<bool> _deleteById(int id) async {
     var logger = _logger.subModule("_deleteById()");
-    int deleteCount = await _db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
+    int deleteCount = await _db.delete(_tableName, where: '$columnIdName = ?', whereArgs: [id]);
     if(deleteCount == 0) {
       logger.error("failed to delete in db");
       return false;

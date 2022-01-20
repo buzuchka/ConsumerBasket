@@ -58,6 +58,7 @@ class DbRepositorySupervisorImpl {
   static const String _columnColumnType = "column_type";
   static const String _columnIsIndexed = "is_indexed";
   static const String _columnIsUnique = "is_unique";
+  static const String _columnIsFts4 = "is_fts4";
   static const String _columnId = 'id';
 
   late Database _db;
@@ -94,7 +95,8 @@ class DbRepositorySupervisorImpl {
            $_columnColumnName TEXT NOT NULL,
            $_columnColumnType TEXT NOT NULL,
            $_columnIsIndexed BOOLEAN NOT NULL,
-           $_columnIsUnique BOOLEAN NOT NULL
+           $_columnIsUnique BOOLEAN NOT NULL,
+           $_columnIsFts4 BOOLEAN NOT NULL
         );            
     """);
     await _execute("""
@@ -141,20 +143,27 @@ class DbRepositorySupervisorImpl {
 
     for (var repository in _repositories.values) {
       var tableName = repository.tableName;
+      var fts4TableName = repository.fts4TableName;
       var repFields = repository.fieldsByName;
       var dbColumns = _columnsByTable.putIfAbsent(tableName, () => {});
 
+      bool mainTableIsDropped = false;
       if (dbColumns.isEmpty) {
+        mainTableIsDropped = true;
         await _createTable(tableName, repFields);
         dbColumns.addAll(repFields);
       } else {
         if (_isNeedDropTable(dbColumns, repFields)) {
+          mainTableIsDropped = true;
           await _dropTable(tableName);
           await _createTable(tableName, repFields);
         } else {
           await _updateFields(dbColumns, repFields);
         }
       }
+      await _recreateFts4TableIfNeeded(
+          tableName, fts4TableName, mainTableIsDropped, dbColumns, repFields);
+
       dbColumns.clear();
       dbColumns.addAll(repFields);
 
@@ -171,6 +180,9 @@ class DbRepositorySupervisorImpl {
           return true;
         }
         if(!dbColumnInfo.isUnique && repField.isUnique){
+          return true;
+        }
+        if(dbColumnInfo.isFts4 != repField.isFts4){
           return true;
         }
       }
@@ -230,9 +242,77 @@ class DbRepositorySupervisorImpl {
     """);
   }
 
-  _execute(String toExecute) async {
-    _logger.info("Db update: $toExecute");
-    await _db.execute(toExecute);
+  _recreateFts4TableIfNeeded(
+      String tableName,
+      String fts4TableName,
+      bool mainTableIsDropped,
+      Map<String, DbColumnInfo> dbColumns,
+      Map<String, DbColumnInfo> repFields) async{
+
+    List<String> fts4FieldNames = [];
+    List<String> fts4FieldNewDotNames = [];
+    bool needRecreate = mainTableIsDropped;
+    for(var repField in repFields.values) {
+      var dbColumnInfo = dbColumns[repField.columnName];
+      if (dbColumnInfo == null){
+        needRecreate = repField.isFts4;
+      } else if (dbColumnInfo.isFts4 != repField.isFts4) {
+        needRecreate = true;
+      }
+      if(repField.isFts4){
+        _logger.subModule("_recreateFts4TableIfNeeded()").debug("BINGO isFts4: ${repField.columnName}");
+        fts4FieldNames.add(repField.columnName);
+        fts4FieldNewDotNames.add("new.${repField.columnName}");
+      }
+    }
+
+    if(!needRecreate) {
+      _logger.info("fts4 recreation not needed for $tableName");
+      return;
+    }
+
+    await _execute("""
+      DROP TABLE IF EXISTS $fts4TableName;
+    """);
+
+    if(fts4FieldNames.isEmpty) {
+      _logger.info("fts4 fields not found in $tableName");
+      return;
+    }
+
+    var joinedFields =  fts4FieldNames.join(", ");
+    var joinedNewDotFields = fts4FieldNewDotNames.join(", ");
+
+    await _execute("""
+     CREATE VIRTUAL TABLE $fts4TableName USING fts4 (
+      content="$tableName", 
+      $joinedFields
+     );
+    """);
+
+    await _execute("""
+      CREATE TRIGGER ${tableName}_before_update BEFORE UPDATE ON $tableName BEGIN
+        DELETE FROM $fts4TableName WHERE docid=old.$_columnId;
+      END;
+    """);
+
+    await _execute("""
+      CREATE TRIGGER ${tableName}_before_delete BEFORE DELETE ON $tableName BEGIN
+        DELETE FROM $fts4TableName WHERE docid=old.$_columnId;
+      END;
+    """);
+
+    await _execute("""
+      CREATE TRIGGER ${tableName}_after_update AFTER UPDATE ON $tableName BEGIN
+        INSERT INTO $fts4TableName(docid, $joinedFields) VALUES(new.$_columnId, $joinedNewDotFields);
+      END;
+    """);
+
+    await _execute("""
+      CREATE TRIGGER ${tableName}_after_insert AFTER INSERT ON $tableName BEGIN
+        INSERT INTO $fts4TableName(docid, $joinedFields) VALUES(new.$_columnId, $joinedNewDotFields);
+      END;
+    """);
   }
 
   _createTable(String tableName, Map<String, DbColumnInfo> repFields) async{
@@ -282,15 +362,21 @@ class DbRepositorySupervisorImpl {
   _updateColumnInfo(DbColumnInfo info) async {
     await _execute("""
       INSERT INTO $_tableName 
-        ($_columnTableName, $_columnColumnName, $_columnColumnType, $_columnIsIndexed, $_columnIsUnique)
-        VALUES('${info.tableName}', '${info.columnName}', '${info.sqlType}', ${info.isIndexed}, ${info.isUnique})
+        ($_columnTableName, $_columnColumnName, $_columnColumnType, $_columnIsIndexed, $_columnIsUnique, $_columnIsFts4)
+        VALUES('${info.tableName}', '${info.columnName}', '${info.sqlType}', ${info.isIndexed}, ${info.isUnique}, ${info.isFts4})
         ON CONFLICT($_columnTableName, $_columnColumnName)
         DO UPDATE SET 
         $_columnColumnType = '${info.sqlType}',
         $_columnIsIndexed =  ${info.isIndexed},
-        $_columnIsUnique = ${info.isUnique}
+        $_columnIsUnique = ${info.isUnique},
+        $_columnIsFts4 = ${info.isFts4}
       ;
     """);
+  }
+
+  _execute(String toExecute) async {
+    _logger.info("Db update: $toExecute");
+    await _db.execute(toExecute);
   }
 
   DbColumnInfo _columnInfoFromDbMap(Map<String, Object?> dbRawObj){
@@ -300,6 +386,7 @@ class DbRepositorySupervisorImpl {
     result.sqlType = dbRawObj[_columnColumnType] as String;
     result.isIndexed = (dbRawObj[_columnIsIndexed] as int) != 0;
     result.isUnique = (dbRawObj[_columnIsUnique] as int) != 0;
+    result.isFts4 = (dbRawObj[_columnIsFts4] as int) != 0;
     return result;
   }
 

@@ -28,13 +28,14 @@ abstract class RepositoriesHelper {
   ]);
 
   static Future<void> init() async {
+   var logger = Logger("RepositoriesHelper").subModule("init()");
     try {
-      Logger("RepositoriesHelper").info("start");
+      logger.info("start");
       await dbRepositorySupervisor.openDatabase(databaseName);
-      Logger("RepositoriesHelper").info("finish");
+      logger.info("finish");
     }
     catch(ex) {
-      Logger("RepositoriesHelper").error("Initialization failed: $ex");
+      logger.error("Initialization failed: $ex");
     }
   }
 }

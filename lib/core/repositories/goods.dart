@@ -11,9 +11,8 @@ class GoodsRepository extends DbRepository<GoodsItem> {
         "goods",
         () => GoodsItem(),
         [
-          DbField<GoodsItem,String?>(
+          Fts4DbField<GoodsItem>(
               columnName: "title",
-              sqlType: "TEXT",
               getter: (GoodsItem item) => item.title,
               setter: (GoodsItem item, String? title) => item.title = title ),
           DbField<GoodsItem,String?>(
@@ -51,6 +50,10 @@ class GoodsRepository extends DbRepository<GoodsItem> {
           )
         ]
     );
+  }
+
+  Future<List<GoodsItem>> findByTitle(String title_pice) async {
+    return await super.getByFts4QueryOrdered("title:$title_pice*");
   }
 
   static _onPurchaseUpdate(Purchase purchase){
