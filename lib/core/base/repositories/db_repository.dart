@@ -24,7 +24,6 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   @override
   String get fts4TableName => "${tableName}_fts4";
 
-
   @override
   Map<String, DependentRepositoryInfo> get dependentRepositoriesByType => _dependentRepositoriesByType;
   final Map<String, DependentRepositoryInfo> _dependentRepositoriesByType = {};
@@ -404,6 +403,14 @@ abstract class DbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
       item.repository = null;
     }
     return deleted;
+  }
+
+  // delete all items in db
+  @override
+  deleteAll() async {
+    await _db.execute("""
+      DELETE FROM $_tableName;
+    """);
   }
 
   @override

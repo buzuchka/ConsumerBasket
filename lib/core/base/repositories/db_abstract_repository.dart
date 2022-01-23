@@ -57,7 +57,7 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   // returns items cache if it exists
   @override
   Map<int,ItemT>? getAllCache() {
-    _logger.abstractMethodError("getAllCach()");
+    _logger.abstractMethodError("getAllCache()");
   }
 
   // returns true if success
@@ -79,6 +79,12 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
   Future<bool> delete(ItemT item) async {
     _logger.abstractMethodError("delete()");
     return false;
+  }
+
+  // delete all items in db
+  @override
+  deleteAll() async {
+    _logger.abstractMethodError("deleteAll()");
   }
 
   // returns items ordered by certain column
@@ -211,7 +217,7 @@ abstract class AbstractDbRepository<ItemT extends AbstractRepositoryItem<ItemT>>
 
   // dependent repository by its item type
   Map<String, DependentRepositoryInfo> get dependentRepositoriesByType {
-    _logger.abstractMethodError("get onDeleteHooks");
+    _logger.abstractMethodError("get dependentRepositoriesByType");
     return {};
   }
 
