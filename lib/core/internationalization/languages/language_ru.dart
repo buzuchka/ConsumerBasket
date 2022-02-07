@@ -88,4 +88,7 @@ class LanguageRu extends Language {
 
   @override
   String get shopsString => "Магазины";
+
+  @override
+  String get searchString => "Поиск";
 }

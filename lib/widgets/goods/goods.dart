@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/goods.dart';
 
 import 'package:consumer_basket/widgets/base/list_future_builder.dart';
@@ -19,23 +20,32 @@ class GoodsScreen extends StatefulWidget {
 
 class _GoodsScreenState extends State<GoodsScreen> {
   final TextEditingController _filter = TextEditingController();
+  String _previousFilterText = '';
 
   Icon _searchIcon = const Icon(Icons.search);
-  Widget _appBarTitle = const Text('');
+  bool _isSearchActive = false;
 
   late Future<List<GoodsItem>> _goodsListFuture;
-
-  _GoodsScreenState() {
-    _filter.addListener(() {
-      _rebuildScreen();
-    });
-  }
 
   @override
   void initState() {
     super.initState();
 
+    _filter.addListener(() {
+       if(_previousFilterText != _filter.text) {
+        _previousFilterText = _filter.text;
+        _rebuildScreen();
+      }
+    });
+
     _goodsListFuture = _getAllGoods();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _filter.dispose();
   }
 
   void _rebuildScreen() {
@@ -59,17 +69,11 @@ class _GoodsScreenState extends State<GoodsScreen> {
   void _searchPressed() {
     setState(() {
       if (_searchIcon.icon == Icons.search) {
+        _isSearchActive = true;
         _searchIcon = const Icon(Icons.close);
-        _appBarTitle = TextField(
-          controller: _filter,
-          decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: 'Search...'
-          ),
-        );
       } else {
+        _isSearchActive = false;
         _searchIcon = const Icon(Icons.search);
-        _appBarTitle = const Text('');
         _filter.clear();
       }
     });
@@ -79,7 +83,12 @@ class _GoodsScreenState extends State<GoodsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _appBarTitle,
+        title: _isSearchActive
+                 ? TextField(
+                     controller: _filter,
+                     decoration: InputDecoration(hintText: '${Language.of(context).searchString}...'),
+                   )
+                 : Text(Language.of(context).goodsButtonName),
         actions: [
           IconButton(
             icon: _searchIcon,
