@@ -93,4 +93,7 @@ abstract class Language {
   // Магазины
   String get shopsString;
 
+  // Поиск
+  String get searchString;
+
 }

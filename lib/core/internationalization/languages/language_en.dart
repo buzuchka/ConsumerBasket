@@ -89,4 +89,7 @@ class LanguageEn extends Language {
   @override
   String get shopsString => "Shops";
 
+  @override
+  String get searchString => "Search";
+
 }

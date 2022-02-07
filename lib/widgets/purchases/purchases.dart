@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:consumer_basket/core/helpers/repositories_helper.dart';
+import 'package:consumer_basket/core/internationalization/languages/language.dart';
 import 'package:consumer_basket/core/models/purchase.dart';
 
 import 'package:consumer_basket/widgets/base/list_future_builder.dart';
@@ -31,6 +32,9 @@ class _PurchasesScreenState extends State<PurchasesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text(Language.of(context).purchasesButtonName),
+        ),
         body: getListFutureBuilder(
             RepositoriesHelper.purchasesRepository.getOrderedByDate(),
             (Purchase purchase) => PurchaseListItem(purchase: purchase),
