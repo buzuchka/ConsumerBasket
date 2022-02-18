@@ -6,9 +6,6 @@ abstract class Language {
     return Localizations.of<Language>(context, Language)!;
   }
 
-  // Название приложения
-  String get appName;
-
   // Версия
   String get versionString;
 

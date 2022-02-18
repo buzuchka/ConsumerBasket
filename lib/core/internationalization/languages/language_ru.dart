@@ -3,9 +3,6 @@ import 'package:consumer_basket/core/internationalization/languages/language.dar
 class LanguageRu extends Language {
 
   @override
-  String get appName => "Потребительская корзина";
-
-  @override
   String get versionString => "Версия";
 
   @override

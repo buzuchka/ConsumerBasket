@@ -7,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 class PathHelper {
   static const noPhotoImageFilePath = 'assets/images/no_photo.jpg';
 
+  static const launchIconFilePath = 'assets/icons/launch_icon.png';
+
   static late String goodsImagesDir;
   static late String shopsImagesDir;
 
