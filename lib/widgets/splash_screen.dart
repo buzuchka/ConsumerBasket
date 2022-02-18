@@ -75,44 +75,61 @@ class _SplashScreen extends State<SplashScreen> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(
-                      height: 180,
-                      width: 180,
-                      child: FittedBox(
-                          child: Icon(
-                              Icons.shopping_cart_outlined,
-                              color: _splashTextColor
-                          )
-                      )
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top:30),
-                    child: Text(
-                      Language.of(context).appName,
-                      style: Theme.of(context).primaryTextTheme.headline4!.copyWith(
-                          color: _splashTextColor,
-                          fontWeight: FontWeight.bold
-                      ),
-                      maxLines: 2,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top:10),
-                    child: Text(
-                        "${Language.of(context).versionString}: ${Constants.appVersionString}",
-                        style: Theme.of(context).primaryTextTheme.headline6!.copyWith(
+                  SizedBox(height: 120),
+                  Column(
+                    children: [
+                      Row (
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image(
+                            image: const AssetImage(PathHelper.launchIconFilePath),
+                            width: 180,
+                            height: 180,
+                            fit: BoxFit.cover,
                             color: _splashTextColor,
-                            fontWeight: FontWeight.normal
+                          ),
+                          Column(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(left:30),
+                                child: Text(
+                                  'Costs',
+                                  style: Theme.of(context).primaryTextTheme.headline4!.copyWith(
+                                      color: _splashTextColor,
+                                      fontWeight: FontWeight.bold
+                                  ),
+                                )
+                              ),
+                              Text(
+                                'Better',
+                                style: Theme.of(context).primaryTextTheme.headline4!.copyWith(
+                                    color: _splashTextColor,
+                                    fontWeight: FontWeight.bold
+                                ),
+                              ),
+                            ],
+                          ),
+                        ]
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top:20),
+                        child: Text(
+                            "${Language.of(context).versionString}: ${Constants.appVersionString}",
+                            style: Theme.of(context).primaryTextTheme.headline6!.copyWith(
+                                color: _splashTextColor,
+                                fontWeight: FontWeight.normal
+                            ),
                         ),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top:50),
-                    child: CircularProgressIndicator(
-                      backgroundColor: _splashTextColor,
-                      color: Constants.progressIndicatorSecondColor,
-                    ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top:70),
+                        child: CircularProgressIndicator(
+                          backgroundColor: _splashTextColor,
+                          color: Constants.progressIndicatorSecondColor,
+                        ),
+                      ),
+                    ]
                   ),
                 ]
             )

@@ -3,9 +3,6 @@ import 'package:consumer_basket/core/internationalization/languages/language.dar
 class LanguageEn extends Language {
 
   @override
-  String get appName => "Consumer Basket";
-
-  @override
   String get versionString => "Version";
 
   @override
